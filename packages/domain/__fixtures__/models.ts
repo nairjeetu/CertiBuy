@@ -1,0 +1,58 @@
+import type { DeviceModel } from "../src/types.js";
+
+export const IPHONE_14: DeviceModel = {
+  id: "model-iphone-14",
+  brand: "Apple",
+  model: "iPhone 14",
+  storage: "128 GB",
+  category: "phone",
+  launch_date: "2022-09-16",
+  successor_launch_date: "2023-09-22",
+  original_price: 79_900,
+  market_price_a: 55_000,
+  market_price_b: null,
+  market_price_c: null,
+  market_price_d: null,
+  b2b_floor_price: 25_000,
+  liquidity_tier: "high",
+  ic_paused: false,
+  active: true,
+};
+
+export const GALAXY_S24: DeviceModel = {
+  id: "model-galaxy-s24",
+  brand: "Samsung",
+  model: "Galaxy S24 Ultra",
+  storage: "256 GB",
+  category: "phone",
+  launch_date: "2024-01-17",
+  successor_launch_date: "2025-01-22",
+  original_price: 129_999,
+  market_price_a: 85_000,
+  market_price_b: 77_350,
+  market_price_c: 69_700,
+  market_price_d: 51_000,
+  b2b_floor_price: 40_000,
+  liquidity_tier: "high",
+  ic_paused: false,
+  active: true,
+};
+
+export const PIXEL_7: DeviceModel = {
+  id: "model-pixel-7",
+  brand: "Google",
+  model: "Pixel 7",
+  storage: "128 GB",
+  category: "phone",
+  launch_date: "2022-10-13",
+  successor_launch_date: null,
+  original_price: 59_999,
+  market_price_a: 30_000,
+  market_price_b: null,
+  market_price_c: null,
+  market_price_d: null,
+  b2b_floor_price: 12_000,
+  liquidity_tier: "low",
+  ic_paused: false,
+  active: true,
+};
