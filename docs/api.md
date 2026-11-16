@@ -11,7 +11,7 @@ Both carry the caller's auth token (`Authorization: Bearer <token>`); both retur
 
 Common conventions: ids are opaque strings; money is integer rupees; dates are `yyyy-mm-dd`; timestamps ISO-8601; all server code re-reads `Settings`, re-derives prices and re-checks roles regardless of what the client sent.
 
-**Simulation note.** Every contract below is real, but the capstone build fakes these external effects behind adapters: `placeOrder` authorises without capturing (no gateway), refunds (`resolveReturn`, `cancelOrder`) are ledger-only, `attemptPayout` walks a status machine without transferring (failures only occur when `Settings.simulate_payout_failure` is on), shipment states are advanced manually, grading is the deterministic engine, and notification email is written to an outbox instead of being delivered. A real integration must preserve the request/response shapes and do the external call inside those handlers (`docs/architecture.md`, §19).
+**Simulation note.** Every contract below is real, but the capstone build fakes these external effects behind adapters: `placeOrder` authorises without capturing (no gateway), refunds (`resolveReturn`, `cancelOrder`) are ledger-only, `attemptPayout` walks a status machine without transferring (failures only occur when `Settings.simulate_payout_failure` is on), shipment states are advanced manually, grading is the deterministic engine, and notification email is written to an outbox instead of being delivered. A real integration must preserve the request/response shapes and do the external call inside those handlers (`docs/architecture.md` §12, §19).
 
 > Commands are plain `POST` routes with JSON bodies, called with the caller's session. No platform client or vendor SDK is involved.
 

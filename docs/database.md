@@ -234,7 +234,7 @@ customer_id, topic (`selling_device`\|`order_delivery`\|`return_refund`\|`paymen
 
 ## 9a. Infrastructure tables (rebuild)
 
-These carry no business rules; they make the rebuild safe, auditable and ready for real providers. See `docs/architecture.md`.
+These carry no business rules; they make the rebuild safe, auditable and ready for real providers. See `docs/architecture.md` §7.
 
 | Table | Purpose |
 | --- | --- |
@@ -301,4 +301,4 @@ Full matrix in `docs/roles.md` § 6. The short version: money and status tables 
 | server functions | service-role key inside trusted handlers only |
 | business date | `(now() at time zone 'Asia/Kolkata')::date + coalesce((select sim_day_offset from settings),0)` |
 
-Never put the service-role key in the browser; every write goes through an endpoint that re-checks the caller. In the rebuild the schema is managed by Prisma migrations (portable SQL); Supabase-only SQL (the `auth.users` link, `current_user_id()`, storage policies) lives separately — see `docs/architecture.md`.
+Never put the service-role key in the browser; every write goes through an endpoint that re-checks the caller. In the rebuild the schema is managed by Prisma migrations (portable SQL); Supabase-only SQL (the `auth.users` link, `current_user_id()`, storage policies) lives separately — see `docs/architecture.md` §7.

@@ -1,6 +1,6 @@
 CertiBuy — Deployment & Operations
 
-> **Capstone deployment (decided):** one Next.js app on **Vercel Hobby** (personal, non-commercial demonstration) and **Supabase Free** (`certibuy-demo` + `certibuy-dev`), local development on the Supabase CLI. No paid services. Jobs are triggered from Ops → Jobs. Payments, payouts, courier, grading and email are simulated, so the go-live items for real money (§2, §9) apply only to the later production move described in `docs/architecture.md`. This document remains the production reference.
+> **Capstone deployment (decided):** one Next.js app on **Vercel Hobby** (personal, non-commercial demonstration) and **Supabase Free** (`certibuy-demo` + `certibuy-dev`), local development on the Supabase CLI. No paid services. Jobs are triggered from Ops → Jobs. Payments, payouts, courier, grading and email are simulated, so the go-live items for real money (§2, §9) apply only to the later production move described in `docs/architecture.md` §19. This document remains the production reference.
 
 ## 1. Environments
 

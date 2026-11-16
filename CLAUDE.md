@@ -25,7 +25,7 @@ These are the rules that break the product if violated. Treat them as hard const
 
 ## 3. Repository map
 
-This is the layout of the independent rebuild (pnpm workspace). Application code has not been written yet, so this map is the authoritative target structure — there is no separate folder-structure document.
+This is the layout of the independent rebuild (pnpm workspace; full detail in `docs/architecture.md` §4). Application code has not been written yet, so this map is the target structure.
 
 ```
 apps/
@@ -59,10 +59,11 @@ Rules of the layout: `domain/` and `application/` never import Next.js or `@supa
 
 | Document | Read it when you need… |
 | --- | --- |
-| `docs/architecture.md` | system/module map, state machines, money & trust ledgers, vendor seams, event flow, scheduling, security model |
+| `docs/architecture.md` | **the rebuild**: stack (Next.js · Vercel Hobby · Supabase Free), folder structure, decisions taken after the audit, roadmap, production migration path |
 | `docs/overview.md` | the product, business model, money model, end-to-end flows |
 | `docs/features.md` | the full feature catalogue with module codes (S-, B-, T-, O-) |
 | `docs/roles.md` | who may do what, mode switching, guard + access-rule patterns |
+| `docs/vendor-architecture.md` | system/module map, state machines, ledgers, integration seams |
 | `docs/database.md` | every table, field, enum, relationship and access rule |
 | `docs/frontend.md` | routes, layouts, components, design tokens, UX rules |
 | `docs/api.md` | every endpoint: auth, input, output, errors, side effects |
@@ -70,6 +71,7 @@ Rules of the layout: `domain/` and `application/` never import Next.js or `@supa
 | `docs/ai-integration.md` | the grading engine, its confidence model, and how to add an LLM |
 | `docs/automations.md` | the daily job, demo clock, liquidity and metrics jobs |
 | `docs/tech-stack.md` | versions, libraries, conventions, commands |
+| `docs/Audit report.txt` | what the Base44 reference build actually implemented vs. partial/simulated/absent, and every known gap (historical baseline) |
 | `docs/deployment.md` | environments, secrets, go-live checklist, rollback, migrating off the reference stack |
 
 ## 5. Local workflow

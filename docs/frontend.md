@@ -2,7 +2,7 @@ CertiBuy — Frontend
 
 ## 1. Route map
 
-> **Rebuild note:** the URLs below are kept. The rebuild uses the Next.js App Router, so the reference build's TanStack file names (`_authed/…jsx`) become `app/(app)/…/page.tsx` folders; see `docs/architecture.md`–5.
+> **Rebuild note:** the URLs below are kept. The rebuild uses the Next.js App Router, so the reference build's TanStack file names (`_authed/…jsx`) become `app/(app)/…/page.tsx` folders; see `docs/architecture.md` §4–5.
 
 File-based routing: one file per URL. Signed-in pages live under a pathless authenticated layout, so the URL never contains `/authed`.
 

@@ -2,7 +2,7 @@ CertiBuy — Notifications
 
 Two channels, one source of truth: **every event writes a `Notification` record**, and a defined subset is *also* emailed. Email is best-effort — a mail outage never undoes a deal, and the in-app record is what the user can always rely on.
 
-**Capstone build:** in-app notifications are real; email is **simulated**. Each email is written to the `outbox` table and marked sent by the simulated mail adapter, and ops can read every one in Ops → Mail log. Swapping in a real provider changes only the adapter (`docs/architecture.md`, §19).
+**Capstone build:** in-app notifications are real; email is **simulated**. Each email is written to the `outbox` table and marked sent by the simulated mail adapter, and ops can read every one in Ops → Mail log. Swapping in a real provider changes only the adapter (`docs/architecture.md` §12, §19).
 
 ---
 

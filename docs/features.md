@@ -4,7 +4,7 @@ Every feature carries a code. Codes appear in code comments (`// S-04`) so a scr
 
 Legend: **Actor** = who can reach it. All seller/buyer features require a signed-in `customer`; staff features require `technician`/`ops`; console features require `ops`.
 
-This table describes **intent and behaviour** for the rebuild, including the product decisions taken after the audit (F5, F7, F9, F10, F11, F12, F15, F16 — see `docs/architecture.md`). In the capstone build, payments, refunds, payouts, courier, grading and notification email are **simulated** (`docs/architecture.md`).
+This table describes **intent and behaviour** for the rebuild, including the product decisions taken after the audit (F5, F7, F9, F10, F11, F12, F15, F16 — see `docs/architecture.md` §1). `docs/Audit report.txt` remains the record of what the Base44 reference build implemented. In the capstone build, payments, refunds, payouts, courier, grading and notification email are **simulated** (`docs/architecture.md` §12).
 
 ---
 
