@@ -10,9 +10,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@certibuy/domain": "workspace:*",
-    "@certibuy/contracts": "workspace:*",
     "@certibuy/application": "workspace:*",
+    "@certibuy/contracts": "workspace:*",
+    "@certibuy/db": "workspace:*",
+    "@certibuy/domain": "workspace:*",
+    "@certibuy/integrations": "workspace:*",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

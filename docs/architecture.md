@@ -287,9 +287,12 @@ An optional `Idempotency-Key` header makes retries safe, on top of the business-
 - Text IDs (existing Base44 IDs kept if the 2 real records are imported).
 - `snake_case` columns.
 - Money stored as `integer` rupees.
-- Business days stored as `date`, timestamps as `timestamptz`.
+- Business days stored as `text` (see deviation below), timestamps as `timestamptz`.
 - Enums as Prisma enums.
 - Objects (checklist, breakdown, factors, diagnostics) as `jsonb` with zod schemas.
+
+**Deviation: business-date columns are `text`, not `date`.**
+The original convention specified `date`. The implementation stores them as `text` (`yyyy-mm-dd` strings) for two reasons: (1) the domain layer is pure TypeScript with no DB dependency — it computes business dates as ISO strings via `business-date.ts`, and round-tripping through Prisma's `Date` serialisation adds timezone ambiguity that the string format avoids; (2) every comparison in the codebase is already a string comparison (`diffDays`, `addDays`, ladder logic) so a SQL `date` column would be cast to text on read anyway. The trade-off is that the database cannot enforce date validity or use native date arithmetic in raw SQL; the domain layer owns all date logic, and the `yyyy-mm-dd` format preserves sort order. If a future phase moves date logic into SQL (e.g. a materialised view for ageing), the columns should be migrated to `date` at that point.
 
 **The 21 domain tables, as documented in `database.md`:**
 

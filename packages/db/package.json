@@ -3,10 +3,23 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/client.ts"
+  },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=prisma/schema.prisma",
+    "db:seed": "tsx seed/seed.ts",
+    "db:reset": "prisma migrate reset --schema=prisma/schema.prisma --force"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "prisma": "^6.19.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
   }
 }

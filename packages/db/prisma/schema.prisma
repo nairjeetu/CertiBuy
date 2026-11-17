@@ -1,0 +1,974 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum AppRole {
+  customer
+  technician
+  ops
+}
+
+enum ActiveMode {
+  buyer
+  seller
+}
+
+enum Category {
+  phone
+  laptop
+  tablet
+  watch
+}
+
+enum LiquidityTier {
+  high
+  medium
+  low
+}
+
+enum Grade {
+  A
+  B
+  C
+  D
+}
+
+enum RepairStatus {
+  no
+  authorised
+  other_shop
+  not_sure
+}
+
+enum BillBox {
+  bill_and_box
+  bill_only
+  box_only
+  neither
+}
+
+enum WarrantyStatus {
+  in_warranty
+  expired
+  unknown
+}
+
+enum SubmissionStatus {
+  draft
+  graded
+  offer_accepted
+  scheduled
+  inspected
+  accepted
+  rejected
+  abandoned
+}
+
+enum MismatchFeeStatus {
+  none
+  pending
+  paid
+  waived
+}
+
+enum PayoutOption {
+  instant_cash
+  sell_for_more
+}
+
+enum OfferStatus {
+  active
+  accepted
+  declined
+  expired
+}
+
+enum ConfidenceLevel {
+  High
+  Medium
+  Low
+}
+
+enum GradeSource {
+  ai
+  technician
+}
+
+enum Verdict {
+  inside
+  one_below
+  two_below
+}
+
+enum BookingStatus {
+  booked
+  completed
+  cancelled
+  no_show
+}
+
+enum InspectionType {
+  intake
+  return_inspection
+}
+
+enum SellerDecision {
+  pending
+  accepted
+  declined
+  fee_paid
+  fee_due
+}
+
+enum DeviceStatus {
+  in_refurbishment
+  listed
+  day45_review
+  reserved
+  shipped
+  delivered
+  settled
+  returned
+  liquidated
+}
+
+enum ListingStatus {
+  active
+  reserved
+  sold
+  review
+  liquidated
+  inactive
+}
+
+enum OrderStatus {
+  pending
+  paid
+  dispatched
+  in_transit
+  delivered
+  settled
+  refunded
+  replaced
+  cancelled
+}
+
+enum EscrowType {
+  hold
+  release
+  refund_full
+  refund_partial
+}
+
+enum EscrowStatus {
+  hold
+  released
+  refunded_full
+  refunded_partial
+  held_replacement
+}
+
+enum ReturnReason {
+  not_as_graded
+  dead_on_arrival
+  buyer_changed_mind
+}
+
+enum ReturnOutcome {
+  faulty
+  as_shipped
+  doa_confirmed
+  doa_replacement
+  changed_mind
+}
+
+enum ReturnStatus {
+  awaiting_reinspection
+  awaiting_decision
+  resolved
+}
+
+enum DoaPreference {
+  refund
+  replacement
+}
+
+enum PayoutType {
+  instant_cash_full
+  advance
+  balance
+  mismatch_fee
+}
+
+enum PayoutTrigger {
+  custody_handover
+  buyer_paid_escrow
+  day_21_unsold
+  inspection_mismatch
+}
+
+enum PayoutStatus {
+  pending
+  approved
+  paid
+  failed
+  due
+}
+
+enum ExceptionType {
+  return_exception
+  failed_inspection
+  grade_dispute
+  payment_hold
+}
+
+enum ExceptionStatus {
+  open
+  resolved
+}
+
+enum SupportTopic {
+  selling_device
+  order_delivery
+  return_refund
+  payments
+  other
+}
+
+enum SupportStatus {
+  open
+  resolved
+}
+
+enum HubType {
+  flagship
+  partner
+}
+
+enum PaymentMethod {
+  upi
+  card
+  netbanking
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  expired
+  revoked
+}
+
+enum JobStatus {
+  idle
+  running
+  failed
+}
+
+enum OutboxStatus {
+  pending
+  sent
+  failed
+}
+
+enum LiquiditySource {
+  measured
+  cold_start
+  seeded
+}
+
+// ─── Domain tables ───────────────────────────────────────────────────────────
+
+model Settings {
+  id                      Int     @id @default(1)
+  commission_pct          Int     @default(15)
+  inspection_fee          Int     @default(200)
+  mismatch_fee            Int     @default(100)
+  return_logistics_charge Int     @default(300)
+  change_mind_fee         Int     @default(500)
+  warranty_months         Int     @default(12)
+  warranty_addon_pct      Int     @default(5)
+  advance_pct             Int     @default(50)
+  balance_day             Int     @default(21)
+  payout_max_attempts     Int     @default(3)
+  step1_day               Int     @default(15)
+  step1_pct               Int     @default(7)
+  step2_day               Int     @default(30)
+  step2_pct               Int     @default(12)
+  review_day              Int     @default(45)
+  alert_window_days       Int     @default(3)
+  return_window_days      Int     @default(7)
+  liquidity_threshold     Int     @default(60)
+  near_band               Int     @default(10)
+  risk_small_pct          Int     @default(5)
+  risk_large_pct          Int     @default(12)
+  launch_window_days      Int     @default(30)
+  launch_tighten_pts      Int     @default(10)
+  liq_w_days              Int     @default(40)
+  liq_w_demand            Int     @default(25)
+  liq_w_volatility        Int     @default(20)
+  liq_w_launch            Int     @default(15)
+  liq_review_penalty      Int     @default(6)
+  inventory_cap           Int     @default(15000000)
+  per_model_cap           Int     @default(1500000)
+  price_band_min          Int     @default(20000)
+  price_band_max          Int     @default(150000)
+  grade_factor_b          Float   @default(0.91)
+  grade_factor_c          Float   @default(0.82)
+  grade_factor_d          Float   @default(0.6)
+  battery_a_min           Int     @default(90)
+  battery_b_min           Int     @default(85)
+  battery_c_min           Int     @default(80)
+  photo_retake_medium     Int     @default(1)
+  photo_min_px            Int     @default(600)
+  photo_min_brightness    Int     @default(60)
+  offer_expiry_days       Int     @default(7)
+  checkout_hold_minutes   Int     @default(15)
+  cancel_fee              Int     @default(0)
+  hub_cost                Int     @default(350)
+  demo_mode               Boolean @default(true)
+  sim_day_offset          Int     @default(0)
+  simulate_payout_failure Boolean @default(false)
+  created_at              DateTime @default(now()) @db.Timestamptz(3)
+  updated_at              DateTime @updatedAt     @db.Timestamptz(3)
+
+  @@map("settings")
+}
+
+model Profile {
+  id                String     @id
+  app_role          AppRole    @default(customer)
+  active_mode       ActiveMode @default(buyer)
+  full_name         String     @default("")
+  phone             String     @default("")
+  city              String     @default("")
+  avatar_key        String     @default("")
+  payout_account    String     @default("")
+  delivery_address  String     @default("")
+  hub_id            String?
+  trust_score       Int        @default(100)
+  return_count      Int        @default(0)
+  account_flagged   Boolean    @default(false)
+  is_platform_admin Boolean    @default(false)
+  created_at        DateTime   @default(now()) @db.Timestamptz(3)
+  updated_at        DateTime   @updatedAt @db.Timestamptz(3)
+
+  hub               Hub?       @relation(fields: [hub_id], references: [id])
+  submissions       Submission[]
+  seller_offers     Offer[]
+  seller_devices    Device[]    @relation("SellerDevice")
+  buyer_orders      Order[]     @relation("BuyerOrder")
+  buyer_returns     ReturnRequest[] @relation("BuyerReturn")
+  notifications     Notification[]
+  support_requests  SupportRequest[]
+  bookings          Booking[]
+  inspection_reports InspectionReport[] @relation("TechnicianReport")
+  seller_payouts    Payout[]
+
+  @@map("profiles")
+}
+
+model DeviceModel {
+  id                     String       @id @default(cuid())
+  brand                  String
+  model                  String
+  storage                String
+  category               Category
+  colours                String[]     @default([])
+  image_url              String       @default("")
+  launch_date            String?
+  successor_launch_date  String?
+  original_price         Int
+  market_price_a         Int
+  market_price_b         Int?
+  market_price_c         Int?
+  market_price_d         Int?
+  b2b_floor_price        Int
+  price_is_placeholder   Boolean      @default(false)
+  liquidity_tier         LiquidityTier
+  ic_paused              Boolean      @default(false)
+  active                 Boolean      @default(true)
+  created_at             DateTime     @default(now()) @db.Timestamptz(3)
+  updated_at             DateTime     @updatedAt @db.Timestamptz(3)
+
+  liquidity_scores LiquidityScore[]
+  submissions      Submission[]
+  devices          Device[]
+
+  @@map("device_models")
+}
+
+model LiquidityScore {
+  id               String          @id @default(cuid())
+  device_model_id  String
+  score            Int
+  days_to_sell     Int?
+  volatility       Float?
+  launch_window    Int             @default(0)
+  source           LiquiditySource
+  calculated_at    DateTime        @default(now()) @db.Timestamptz(3)
+  is_current       Boolean         @default(true)
+
+  device_model     DeviceModel     @relation(fields: [device_model_id], references: [id])
+
+  @@index([device_model_id, is_current])
+  @@map("liquidity_scores")
+}
+
+model Hub {
+  id             String   @id @default(cuid())
+  name           String
+  type           HubType
+  address        String
+  city           String
+  pincode        String
+  slot_times     String[] @default([])
+  daily_capacity Int      @default(20)
+  distance_km    Float    @default(0)
+  active         Boolean  @default(true)
+  created_at     DateTime @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime @updatedAt @db.Timestamptz(3)
+
+  technicians        Profile[]
+  bookings           Booking[]
+  devices            Device[]
+  inspection_reports InspectionReport[]
+
+  @@map("hubs")
+}
+
+model BlacklistedImei {
+  id        String   @id @default(cuid())
+  imei      String   @unique
+  reason    String
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("blacklisted_imeis")
+}
+
+// ─── Selling ─────────────────────────────────────────────────────────────────
+
+model Submission {
+  id                String           @id @default(cuid())
+  seller_id         String
+  device_model_id   String
+  colour            String           @default("")
+  imei              String
+  age_months        Int              @default(0)
+  declared_cosmetic Grade
+  repaired          RepairStatus
+  water_exposure    Boolean          @default(false)
+  bill_box          BillBox          @default(neither)
+  warranty_status   WarrantyStatus   @default(unknown)
+  photos            Json             @default("[]")
+  retake_count      Int              @default(0)
+  diagnostics       Json             @default("{}")
+  status            SubmissionStatus @default(draft)
+  reject_reason     String?
+  chosen_option     PayoutOption?
+  consent_at        DateTime? @db.Timestamptz(3)
+  current_offer_id  String?
+  final_grade       Grade?
+  mismatch_fee_status MismatchFeeStatus @default(none)
+  created_at        DateTime         @default(now()) @db.Timestamptz(3)
+  updated_at        DateTime         @updatedAt @db.Timestamptz(3)
+
+  seller            Profile          @relation(fields: [seller_id], references: [id])
+  device_model      DeviceModel      @relation(fields: [device_model_id], references: [id])
+  offers            Offer[]
+  grade_assessments GradeAssessment[]
+  booking           Booking?
+  inspection_report InspectionReport? @relation("IntakeReport")
+  device            Device?
+
+  @@index([seller_id, status, created_at(sort: Desc)])
+  @@map("submissions")
+}
+
+model Offer {
+  id                String       @id @default(cuid())
+  submission_id     String
+  seller_id         String
+  version           Int          @default(1)
+  priced_band       String[]
+  instant_cash_amount Int
+  guaranteed_price  Int
+  ic_eligible       Boolean
+  ic_reason         String?
+  risk_pct          Int
+  risk_tier         String
+  breakdown         Json
+  settings_version  Int          @default(1)
+  expires_at        DateTime @db.Timestamptz(3)
+  status            OfferStatus  @default(active)
+  created_at        DateTime     @default(now()) @db.Timestamptz(3)
+  updated_at        DateTime     @updatedAt @db.Timestamptz(3)
+
+  submission        Submission   @relation(fields: [submission_id], references: [id])
+  seller            Profile      @relation(fields: [seller_id], references: [id])
+
+  @@index([submission_id, status, created_at(sort: Desc)])
+  @@index([status, expires_at])
+  @@map("offers")
+}
+
+model GradeAssessment {
+  id               String          @id @default(cuid())
+  submission_id    String
+  seller_id        String
+  source           GradeSource
+  band             String[]
+  estimate         Grade
+  confidence       Int
+  confidence_level ConfidenceLevel
+  factors          Json
+  final_grade      Grade?
+  set_by           String?
+  component_grades Json?
+  variance         Float?
+  created_at       DateTime        @default(now()) @db.Timestamptz(3)
+
+  submission       Submission      @relation(fields: [submission_id], references: [id])
+
+  @@map("grade_assessments")
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  submission_id String        @unique
+  hub_id        String
+  seller_id     String
+  date          String
+  slot          String
+  status        BookingStatus @default(booked)
+  created_at    DateTime      @default(now()) @db.Timestamptz(3)
+  updated_at    DateTime      @updatedAt @db.Timestamptz(3)
+
+  submission    Submission    @relation(fields: [submission_id], references: [id])
+  hub           Hub           @relation(fields: [hub_id], references: [id])
+  seller        Profile       @relation(fields: [seller_id], references: [id])
+
+  @@index([hub_id, date, status])
+  @@map("bookings")
+}
+
+// ─── Inspection ──────────────────────────────────────────────────────────────
+
+model InspectionReport {
+  id                    String         @id @default(cuid())
+  type                  InspectionType
+  submission_id         String?        @unique
+  hub_id                String
+  technician_id         String
+  checklist             Json
+  battery_health        Int
+  cosmetic_grade        Grade
+  photos                Json           @default("[]")
+  computed_grade        Grade
+  component_grades      Json
+  ai_band               String[]
+  verdict               Verdict
+  quoted_amount         Int?
+  revised_amount        Int?
+  seller_decision       SellerDecision @default(pending)
+  sealed                Boolean        @default(false)
+  sealed_at             DateTime? @db.Timestamptz(3)
+  tag_id                String?
+  signature_url         String?
+  scanned_imei          String?
+  blacklist_clear       Boolean        @default(false)
+  activation_lock_off   Boolean        @default(false)
+  identity_passed       Boolean        @default(false)
+  return_recommendation String?
+  created_at            DateTime       @default(now()) @db.Timestamptz(3)
+  updated_at            DateTime       @updatedAt @db.Timestamptz(3)
+
+  intake_submission Submission? @relation("IntakeReport", fields: [submission_id], references: [id])
+  hub               Hub        @relation(fields: [hub_id], references: [id])
+  technician        Profile    @relation("TechnicianReport", fields: [technician_id], references: [id])
+  return_request    ReturnRequest? @relation("ReturnReport")
+
+  @@map("inspection_reports")
+}
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+model Device {
+  id               String       @id @default(cuid())
+  submission_id    String       @unique
+  seller_id        String
+  device_model_id  String
+  colour           String       @default("")
+  imei             String
+  tag_id           String
+  final_grade      Grade
+  payout_option    PayoutOption
+  acquisition_cost Int
+  owner            String       @default("certibuy")
+  custody_at       String
+  hub_id           String
+  balance_paid     Boolean      @default(false)
+  parts_replaced   String[]     @default([])
+  return_count     Int          @default(0)
+  status           DeviceStatus @default(in_refurbishment)
+  created_at       DateTime     @default(now()) @db.Timestamptz(3)
+  updated_at       DateTime     @updatedAt @db.Timestamptz(3)
+
+  submission       Submission   @relation(fields: [submission_id], references: [id])
+  seller           Profile      @relation("SellerDevice", fields: [seller_id], references: [id])
+  device_model     DeviceModel  @relation(fields: [device_model_id], references: [id])
+  hub              Hub          @relation(fields: [hub_id], references: [id])
+  listing          Listing?
+  orders           Order[]
+  payouts          Payout[]
+
+  @@index([owner, status])
+  @@index([device_model_id])
+  @@map("devices")
+}
+
+model Listing {
+  id             String        @id @default(cuid())
+  device_id      String        @unique
+  base_price     Int
+  current_price  Int
+  floor_price    Int
+  ladder_step    Int           @default(0)
+  listed_at      String
+  reserved_days  Int           @default(0)
+  override_price Int?
+  override_by    String?
+  override_at    DateTime? @db.Timestamptz(3)
+  warranty_months Int
+  status         ListingStatus @default(active)
+  created_at     DateTime      @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime      @updatedAt @db.Timestamptz(3)
+
+  device         Device        @relation(fields: [device_id], references: [id])
+  orders         Order[]
+
+  @@index([status, current_price])
+  @@map("listings")
+}
+
+// ─── Buying ──────────────────────────────────────────────────────────────────
+
+model Order {
+  id                     String        @id @default(cuid())
+  listing_id             String
+  device_id              String
+  buyer_id               String
+  device_price           Int
+  warranty_addon         Boolean       @default(false)
+  warranty_addon_amount  Int           @default(0)
+  total                  Int
+  delivery_name          String        @default("")
+  delivery_phone         String        @default("")
+  delivery_address       String        @default("")
+  payment_method         PaymentMethod @default(upi)
+  status                 OrderStatus   @default(pending)
+  escrow_status          EscrowStatus  @default(hold)
+  paid_at                DateTime? @db.Timestamptz(3)
+  dispatched_at          DateTime? @db.Timestamptz(3)
+  in_transit_at          DateTime? @db.Timestamptz(3)
+  delivered_at           DateTime? @db.Timestamptz(3)
+  return_window_closes_at DateTime? @db.Timestamptz(3)
+  settled_at             DateTime? @db.Timestamptz(3)
+  refund_amount          Int?
+  refunded_at            DateTime? @db.Timestamptz(3)
+  replacement_device_id  String?
+  hold_expires_at        DateTime? @db.Timestamptz(3)
+  cancelled_at           DateTime? @db.Timestamptz(3)
+  cancel_reason          String?
+  created_at             DateTime      @default(now()) @db.Timestamptz(3)
+  updated_at             DateTime      @updatedAt @db.Timestamptz(3)
+
+  listing                Listing       @relation(fields: [listing_id], references: [id])
+  device                 Device        @relation(fields: [device_id], references: [id])
+  buyer                  Profile       @relation("BuyerOrder", fields: [buyer_id], references: [id])
+  escrow_transactions    EscrowTransaction[]
+  return_requests        ReturnRequest[]
+
+  @@index([buyer_id, created_at(sort: Desc)])
+  @@index([listing_id])
+  @@index([status, delivered_at])
+  @@index([status, hold_expires_at])
+  @@map("orders")
+}
+
+model EscrowTransaction {
+  id         String     @id @default(cuid())
+  order_id   String
+  buyer_id   String
+  type       EscrowType
+  amount     Int
+  note       String     @default("")
+  created_at DateTime   @default(now()) @db.Timestamptz(3)
+
+  order      Order      @relation(fields: [order_id], references: [id])
+
+  @@map("escrow_transactions")
+}
+
+model ReturnRequest {
+  id                    String        @id @default(cuid())
+  order_id              String
+  buyer_id              String
+  device_id             String
+  hub_id                String?
+  reason                ReturnReason
+  buyer_reason_note     String        @default("")
+  note                  String        @default("")
+  photos                Json          @default("[]")
+  doa_preference        DoaPreference?
+  status                ReturnStatus  @default(awaiting_reinspection)
+  recommendation        String?
+  report_id             String?       @unique
+  outcome               ReturnOutcome?
+  original_amount       Int?
+  deduction_amount      Int?
+  deduction_label       String?
+  refund_amount         Int?
+  replacement_device_id String?
+  resolved_by           String?
+  resolved_at           DateTime? @db.Timestamptz(3)
+  created_at            DateTime      @default(now()) @db.Timestamptz(3)
+  updated_at            DateTime      @updatedAt @db.Timestamptz(3)
+
+  order                 Order         @relation(fields: [order_id], references: [id])
+  buyer                 Profile       @relation("BuyerReturn", fields: [buyer_id], references: [id])
+  report                InspectionReport? @relation("ReturnReport", fields: [report_id], references: [id])
+
+  @@index([buyer_id, status])
+  @@index([status, created_at(sort: Desc)])
+  @@map("return_requests")
+}
+
+// ─── Money ───────────────────────────────────────────────────────────────────
+
+model Payout {
+  id             String       @id @default(cuid())
+  seller_id      String
+  submission_id  String
+  device_id      String
+  type           PayoutType
+  amount         Int
+  trigger        PayoutTrigger
+  status         PayoutStatus @default(pending)
+  attempts       Int          @default(0)
+  failure_reason String       @default("")
+  paid_at        DateTime? @db.Timestamptz(3)
+  created_at     DateTime     @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime     @updatedAt @db.Timestamptz(3)
+
+  seller         Profile      @relation(fields: [seller_id], references: [id])
+  device         Device       @relation(fields: [device_id], references: [id])
+
+  payout_attempts PayoutAttempt[]
+
+  @@index([seller_id, created_at(sort: Desc)])
+  @@index([status])
+  @@index([device_id])
+  @@map("payouts")
+}
+
+// ─── Operations ──────────────────────────────────────────────────────────────
+
+model ExceptionCase {
+  id             String          @id @default(cuid())
+  type           ExceptionType
+  title          String
+  detail         String          @default("")
+  related_entity String
+  related_id     String
+  status         ExceptionStatus @default(open)
+  resolution     String?
+  created_at     DateTime        @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime        @updatedAt @db.Timestamptz(3)
+
+  @@index([status, type])
+  @@map("exception_cases")
+}
+
+model ActivityLog {
+  id            String   @id @default(cuid())
+  actor_id      String
+  actor_name    String
+  text          String
+  entity        String
+  entity_id     String
+  business_date String
+  created_at    DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([business_date(sort: Desc)])
+  @@map("activity_log")
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  user_id    String
+  event      String
+  title      String
+  body       String   @default("")
+  link       String   @default("")
+  read       Boolean  @default(false)
+  dedupe_key String?  @unique
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  user       Profile  @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, read, created_at(sort: Desc)])
+  @@map("notifications")
+}
+
+model SupportRequest {
+  id           String        @id @default(cuid())
+  customer_id  String
+  topic        SupportTopic
+  related_id   String?
+  message      String
+  status       SupportStatus @default(open)
+  reply        String?
+  replied_by   String?
+  replied_at   DateTime? @db.Timestamptz(3)
+  resolved_by  String?
+  resolved_at  DateTime? @db.Timestamptz(3)
+  created_at   DateTime      @default(now()) @db.Timestamptz(3)
+  updated_at   DateTime      @updatedAt @db.Timestamptz(3)
+
+  customer     Profile       @relation(fields: [customer_id], references: [id])
+
+  @@index([status, created_at(sort: Desc)])
+  @@map("support_requests")
+}
+
+// ─── Infrastructure tables ───────────────────────────────────────────────────
+
+model PayoutAttempt {
+  id             String   @id @default(cuid())
+  payout_id      String
+  success        Boolean
+  reference      String   @default("")
+  failure_reason String   @default("")
+  created_at     DateTime @default(now()) @db.Timestamptz(3)
+
+  payout         Payout   @relation(fields: [payout_id], references: [id])
+
+  @@map("payout_attempts")
+}
+
+model PaymentIntent {
+  id             String   @id @default(cuid())
+  order_id       String
+  provider       String   @default("simulated")
+  reference      String   @default("")
+  amount         Int
+  status         String   @default("pending")
+  created_at     DateTime @default(now()) @db.Timestamptz(3)
+  updated_at     DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("payment_intents")
+}
+
+model Shipment {
+  id          String   @id @default(cuid())
+  order_id    String
+  status      String
+  advanced_by String
+  awb         String   @default("")
+  notes       String   @default("")
+  created_at  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("shipments")
+}
+
+model Outbox {
+  id          String       @id @default(cuid())
+  to_email    String
+  subject     String
+  body        String
+  event       String
+  related_id  String?
+  status      OutboxStatus @default(pending)
+  error       String?
+  created_at  DateTime     @default(now()) @db.Timestamptz(3)
+  updated_at  DateTime     @updatedAt @db.Timestamptz(3)
+
+  @@map("outbox")
+}
+
+model FileObject {
+  id         String   @id @default(cuid())
+  owner_id   String
+  kind       String
+  storage_key String
+  size_bytes Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("file_objects")
+}
+
+model SettingsHistory {
+  id          String   @id @default(cuid())
+  actor_id    String
+  changes     Json
+  created_at  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("settings_history")
+}
+
+model JobRun {
+  id            String    @id @default(cuid())
+  job_name      String    @unique
+  last_run_at   DateTime? @db.Timestamptz(3)
+  business_date String?
+  counts        Json      @default("{}")
+  cursor        String?
+  status        JobStatus @default(idle)
+  error         String?
+  created_at    DateTime  @default(now()) @db.Timestamptz(3)
+  updated_at    DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@map("job_runs")
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  email       String
+  app_role    AppRole
+  hub_id      String?
+  invited_by  String
+  status      InvitationStatus @default(pending)
+  expires_at  DateTime @db.Timestamptz(3)
+  created_at  DateTime         @default(now()) @db.Timestamptz(3)
+  updated_at  DateTime         @updatedAt @db.Timestamptz(3)
+
+  @@map("invitations")
+}
+
+model IdempotencyKey {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  response   Json
+  expires_at DateTime @db.Timestamptz(3)
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("idempotency_keys")
+}
+
+model RateLimit {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  count      Int      @default(0)
+  window_start DateTime @default(now()) @db.Timestamptz(3)
+  created_at DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("rate_limits")
+}

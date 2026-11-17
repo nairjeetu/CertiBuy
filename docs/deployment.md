@@ -12,6 +12,17 @@ CertiBuy — Deployment & Operations
 
 Production must open with: `demo_mode = false`, `sim_day_offset = 0`, `simulate_payout_failure = false`, and the demo reset endpoint restricted to admins. Advancing the clock in production would age every listing and trigger real payouts.
 
+## 1b. Database connection strings
+
+Prisma uses two URLs (`packages/db/.env` or the hosting env):
+
+| Variable | Local (Supabase CLI) | Hosted (Supabase Free / Pro) |
+| --- | --- | --- |
+| `DATABASE_URL` | `postgresql://postgres:postgres@127.0.0.1:54322/postgres` | `postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true` (transaction-mode pooler) |
+| `DIRECT_URL` | same as `DATABASE_URL` | `postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres` (session-mode direct, used for migrations) |
+
+`directUrl` in the Prisma datasource lets `prisma migrate` bypass PgBouncer (which breaks prepared statements in transaction mode). Both variables must be set in every environment.
+
 ## 2. What you must configure before the first real user
 
 | Item | Notes |
