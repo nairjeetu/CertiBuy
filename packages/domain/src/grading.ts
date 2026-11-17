@@ -1,4 +1,4 @@
-import type { Settings, Submission, GradeAssessment } from "./types.js";
+import type { Settings, Submission, GradeAssessment } from "./types";
 import type { Grade, ConfidenceLevel, RejectCode } from "@certibuy/contracts";
 import { GRADE_ORDER, CONFIDENCE_NUMERIC } from "@certibuy/contracts";
 

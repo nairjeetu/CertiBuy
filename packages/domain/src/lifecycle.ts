@@ -5,14 +5,14 @@ import type {
   PayoutRecord,
   PayoutAttemptResult,
   PayoutTransition,
-} from "./types.js";
+} from "./types";
 import type {
   DeviceStatus,
   ListingStatus,
   OrderStatus,
 } from "@certibuy/contracts";
-import { roundToTen } from "./money.js";
-import { diffDays } from "./business-date.js";
+import { roundToTen } from "./money";
+import { diffDays } from "./business-date";
 
 // --- Price ladder ---
 

@@ -1,4 +1,4 @@
-import type { Settings } from "./types.js";
+import type { Settings } from "./types";
 
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 

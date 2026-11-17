@@ -1,4 +1,4 @@
-import type { Settings, PayoutPlan, OrderTotalResult, CancelRefundResult } from "./types.js";
+import type { Settings, PayoutPlan, OrderTotalResult, CancelRefundResult } from "./types";
 import type { EscrowType } from "@certibuy/contracts";
 
 export function payoutPlan(

@@ -1,7 +1,7 @@
-import type { Settings, InspectionInput, InspectionResult } from "./types.js";
+import type { Settings, InspectionInput, InspectionResult } from "./types";
 import type { Grade } from "@certibuy/contracts";
 import { GRADE_ORDER } from "@certibuy/contracts";
-import { batteryGrade } from "./grading.js";
+import { batteryGrade } from "./grading";
 
 function gradeIndex(g: Grade): number {
   return GRADE_ORDER.indexOf(g);

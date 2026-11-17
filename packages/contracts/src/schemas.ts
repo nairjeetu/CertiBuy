@@ -1,0 +1,97 @@
+import { z } from "zod";
+
+// ─── Shared ──────────────────────────────────────────────────────────────────
+
+const cuid = z.string().min(1);
+
+// ─── Selling commands (S-01 … S-12) ─────────────────────────────────────────
+// Amendment 4: no price/amount fields — IDs and choices only.
+
+export const GradeSubmissionInput = z.object({
+  submissionId: cuid,
+});
+
+export const ComputeOfferInput = z.object({
+  submissionId: cuid,
+  band: z.array(z.enum(["A", "B", "C", "D"])).optional(),
+  confidence: z.enum(["High", "Medium", "Low"]).optional(),
+});
+
+export const IcEligibilityInput = z.object({
+  modelId: cuid,
+  confidence: z.enum(["High", "Medium", "Low"]).optional(),
+});
+
+export const AcceptOfferInput = z.object({
+  submissionId: cuid,
+  option: z.enum(["instant_cash", "sell_for_more"]),
+  consent: z.literal(true),
+});
+
+export const ManageBookingInput = z.object({
+  submissionId: cuid,
+  action: z.enum(["switch_to_guaranteed", "cancel"]),
+});
+
+export const BookInspectionInput = z.object({
+  submissionId: cuid,
+  hubId: cuid,
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  slot: z.string().min(1),
+});
+
+// ─── Submission draft (save steps) ──────────────────────────────────────────
+
+export const SaveSubmissionDetailsInput = z.object({
+  submissionId: cuid.optional(),
+  deviceModelId: cuid,
+  imei: z.string().regex(/^\d{15}$/),
+  declaredCosmetic: z.enum(["A", "B", "C", "D"]),
+  repaired: z.enum(["no", "authorised", "other_shop", "not_sure"]),
+  waterExposure: z.boolean(),
+  colour: z.string().default(""),
+  ageMonths: z.number().int().min(0).default(0),
+  billBox: z.enum(["bill_and_box", "bill_only", "box_only", "neither"]).default("neither"),
+  warrantyStatus: z.enum(["in_warranty", "expired", "unknown"]).default("unknown"),
+});
+
+export const SaveDiagnosticsInput = z.object({
+  submissionId: cuid,
+  diagnostics: z.object({
+    battery: z.enum(["pass", "fail"]),
+    screen: z.enum(["pass", "fail"]),
+    speakers: z.enum(["pass", "fail"]),
+    microphone: z.enum(["pass", "fail"]),
+    cameras: z.enum(["pass", "fail"]),
+    charging: z.enum(["pass", "fail"]),
+    sensors: z.enum(["pass", "fail"]),
+    imei_blacklist: z.enum(["pass", "fail"]),
+    activation_lock: z.enum(["pass", "fail", "on", "off"]),
+    battery_health: z.number().int().min(0).max(100),
+  }),
+});
+
+// ─── IC ineligible reason labels ────────────────────────────────────────────
+
+export const IC_REASON_COPY: Record<string, string> = {
+  paused: "Instant Cash is paused for this model right now.",
+  low_confidence: "We're not confident enough in the grade to offer Instant Cash.",
+  low_liquidity: "This model isn't selling fast enough for Instant Cash right now.",
+  launch_window: "A successor model launched recently, so Instant Cash is tighter.",
+  inventory_cap: "Our overall Instant Cash budget is full right now.",
+  model_cap: "We've hit our Instant Cash limit for this model.",
+};
+
+// ─── Seller view forbidden fields (amendment 5) ─────────────────────────────
+
+export const SELLER_FORBIDDEN_FIELDS = [
+  "commission",
+  "commission_pct",
+  "floor_price",
+  "b2b_floor_price",
+  "acquisition_cost",
+  "buyer_id",
+  "buyer_name",
+  "buyer_phone",
+  "buyer_address",
+] as const;

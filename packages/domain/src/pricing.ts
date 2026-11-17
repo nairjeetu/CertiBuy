@@ -1,4 +1,4 @@
-import type { Settings, DeviceModel, OfferBreakdown } from "./types.js";
+import type { Settings, DeviceModel, OfferBreakdown } from "./types";
 import type { Grade, ConfidenceLevel, IcIneligibleReason } from "@certibuy/contracts";
 
 export function gradePrice(

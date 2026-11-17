@@ -1,4 +1,4 @@
-import type { Settings, ReturnRaiseMath, ReturnResolutionMath } from "./types.js";
+import type { Settings, ReturnRaiseMath, ReturnResolutionMath } from "./types";
 import type { ReturnReason, ReturnOutcome } from "@certibuy/contracts";
 
 const ALLOWED_OUTCOMES: Record<ReturnReason, ReturnOutcome[]> = {

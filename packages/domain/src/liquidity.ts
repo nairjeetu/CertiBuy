@@ -1,6 +1,6 @@
-import type { LiquidityInput, LiquidityResult } from "./types.js";
+import type { LiquidityInput, LiquidityResult } from "./types";
 import { TIER_COLD_START_SCORE } from "@certibuy/contracts";
-import { diffDays } from "./business-date.js";
+import { diffDays } from "./business-date";
 
 function mean(values: number[]): number {
   if (values.length === 0) return 0;
