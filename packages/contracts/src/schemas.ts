@@ -82,6 +82,68 @@ export const IC_REASON_COPY: Record<string, string> = {
   model_cap: "We've hit our Instant Cash limit for this model.",
 };
 
+// ─── Hub / inspection commands (T-01 … T-07) ──────────────────────────────
+
+const passFailItem = z.enum(["pass", "fail"]);
+
+export const VerifyIdentityInput = z.object({
+  submissionId: cuid,
+  scannedImei: z.string().regex(/^\d{15}$/),
+  activationLockOff: z.boolean(),
+});
+
+export const ConfirmGradeInput = z.object({
+  submissionId: cuid,
+  checklist: z.object({
+    battery: passFailItem,
+    screen: passFailItem,
+    speakers: passFailItem,
+    microphone: passFailItem,
+    cameras: passFailItem,
+    charging: passFailItem,
+    sensors: passFailItem,
+    wifi_bluetooth: passFailItem,
+    buttons_ports: passFailItem,
+  }),
+  batteryHealth: z.number().int().min(50).max(100),
+  cosmeticGrade: z.enum(["A", "B", "C", "D"]),
+  photos: z.array(z.object({
+    key: z.string().min(1),
+    brightness: z.number(),
+    ok: z.boolean(),
+  })),
+});
+
+export const ReviseOfferInput = z.object({
+  submissionId: cuid,
+});
+
+export const AcceptRevisedInput = z.object({
+  submissionId: cuid,
+});
+
+export const DeclineRevisedInput = z.object({
+  submissionId: cuid,
+});
+
+export const RejectForMismatchInput = z.object({
+  submissionId: cuid,
+  feePaid: z.boolean().default(false),
+});
+
+export const RejectDeviceInput = z.object({
+  submissionId: cuid,
+  reasonCode: z.string().min(1),
+  note: z.string().optional(),
+});
+
+export const CompleteHandoverInput = z.object({
+  submissionId: cuid,
+  sealed: z.literal(true),
+  tagId: z.string().regex(/^CB-\d{5}$/),
+  signatureUrl: z.string().min(1),
+});
+
 // ─── Seller view forbidden fields (amendment 5) ─────────────────────────────
 
 export const SELLER_FORBIDDEN_FIELDS = [

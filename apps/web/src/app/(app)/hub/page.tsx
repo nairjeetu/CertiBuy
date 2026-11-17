@@ -1,12 +1,12 @@
 import { getActor } from "@/server/actor";
 import { RoleGate } from "@/components/RoleGate";
+import { HubQueueClient } from "@/components/hub/HubQueueClient";
 
 export default async function HubHome() {
   const actor = await getActor();
   return (
-    <RoleGate actor={actor} allowed={["technician"]}>
-      <h2>Hub dashboard</h2>
-      <p>Today's bookings and inspection queue.</p>
+    <RoleGate actor={actor} allowed={["technician", "ops"]}>
+      <HubQueueClient />
     </RoleGate>
   );
 }

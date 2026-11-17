@@ -28,8 +28,7 @@ import { requireRole, requireOwner } from "../policy";
 type PrismaClient = typeof prisma;
 type PrismaTx = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 
-// eslint-disable-next-line no-restricted-syntax -- constructing Date from ISO string, not reading wall clock
-const toDate = (iso: string) => new Date(iso);
+import { toDate } from "../util";
 
 async function readSettings(tx: PrismaTx) {
   const s = await tx.settings.findUnique({ where: { id: 1 } });

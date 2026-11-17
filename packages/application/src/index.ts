@@ -26,3 +26,19 @@ export {
   getDeviceCatalogue,
   getWorkspaceContext,
 } from "./views/seller";
+
+export {
+  verifyIdentity,
+  confirmGrade,
+  reviseOffer,
+  acceptRevised,
+  declineRevised,
+  rejectForMismatch,
+  rejectDevice,
+  completeHandover,
+} from "./commands/hub";
+
+export {
+  getHubQueue,
+  getHubJob,
+} from "./views/hub";

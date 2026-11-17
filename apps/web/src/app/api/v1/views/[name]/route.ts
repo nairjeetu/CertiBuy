@@ -9,6 +9,8 @@ import {
   getSellerPayouts,
   getDeviceCatalogue,
   getWorkspaceContext,
+  getHubQueue,
+  getHubJob,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof viewRoute>> = {
@@ -26,6 +28,9 @@ const handlers: Record<string, ReturnType<typeof viewRoute>> = {
   sellerPayouts: viewRoute((actor) => getSellerPayouts(actor)),
   deviceCatalogue: viewRoute((actor) => getDeviceCatalogue(actor)),
   workspaceContext: viewRoute((_actor, _params, now) => getWorkspaceContext(now)),
+  // Hub views (T-01 … T-06)
+  hubQueue: viewRoute((actor, params, now) => getHubQueue(actor, params, now)),
+  hubJob: viewRoute((actor, params, now) => getHubJob(actor, params, now)),
 };
 
 export async function GET(

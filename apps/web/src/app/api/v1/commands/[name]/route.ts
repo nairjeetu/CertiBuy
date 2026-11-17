@@ -10,6 +10,14 @@ import {
   acceptOffer,
   manageBooking,
   bookInspection,
+  verifyIdentity,
+  confirmGrade,
+  reviseOffer,
+  acceptRevised,
+  declineRevised,
+  rejectForMismatch,
+  rejectDevice,
+  completeHandover,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof commandRoute>> = {
@@ -39,6 +47,31 @@ const handlers: Record<string, ReturnType<typeof commandRoute>> = {
   ),
   bookInspection: commandRoute((actor, body, now) =>
     bookInspection(actor, body as Parameters<typeof bookInspection>[1], now),
+  ),
+  // Hub commands (T-01 … T-07)
+  verifyIdentity: commandRoute((actor, body) =>
+    verifyIdentity(actor, body as Parameters<typeof verifyIdentity>[1]),
+  ),
+  confirmGrade: commandRoute((actor, body, now) =>
+    confirmGrade(actor, body as Parameters<typeof confirmGrade>[1], now),
+  ),
+  reviseOffer: commandRoute((actor, body, now) =>
+    reviseOffer(actor, body as Parameters<typeof reviseOffer>[1], now),
+  ),
+  acceptRevised: commandRoute((actor, body) =>
+    acceptRevised(actor, body as Parameters<typeof acceptRevised>[1]),
+  ),
+  declineRevised: commandRoute((actor, body) =>
+    declineRevised(actor, body as Parameters<typeof declineRevised>[1]),
+  ),
+  rejectForMismatch: commandRoute((actor, body, now) =>
+    rejectForMismatch(actor, body as Parameters<typeof rejectForMismatch>[1], now),
+  ),
+  rejectDevice: commandRoute((actor, body, now) =>
+    rejectDevice(actor, body as Parameters<typeof rejectDevice>[1], now),
+  ),
+  completeHandover: commandRoute((actor, body, now) =>
+    completeHandover(actor, body as Parameters<typeof completeHandover>[1], now),
   ),
 };
 
