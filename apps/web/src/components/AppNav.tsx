@@ -42,7 +42,7 @@ export function AppNav({ actor }: { actor: Actor }) {
   const navItems = isOps ? OPS_NAV : isCustomer ? (isBuyerMode ? BUYER_NAV : SELLER_NAV) : [];
 
   return (
-    <nav className="app-nav">
+    <nav className="app-nav" aria-label="Main navigation">
       <div className="app-nav-left">
         <Link href={isOps ? "/ops" : isBuyerMode ? "/shop" : "/seller"} className="app-nav-logo">
           CertiBuy

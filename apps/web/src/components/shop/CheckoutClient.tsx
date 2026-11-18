@@ -81,9 +81,18 @@ export function CheckoutClient({ listingId }: { listingId: string }) {
       <div style={{ marginBottom: "1.5rem" }}>
         <h3 style={{ fontSize: "0.875rem", fontWeight: 600, margin: "0 0 0.5rem" }}>Delivery details</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" style={inputStyle} />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit phone" maxLength={10} style={inputStyle} />
-          <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (min 10 chars)" rows={3} style={{ ...inputStyle, resize: "vertical" }} />
+          <label>
+            <span className="sr-only">Full name</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" aria-required="true" style={inputStyle} />
+          </label>
+          <label>
+            <span className="sr-only">Phone number</span>
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit phone" maxLength={10} aria-required="true" style={inputStyle} />
+          </label>
+          <label>
+            <span className="sr-only">Delivery address</span>
+            <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Delivery address (min 10 chars)" rows={3} aria-required="true" style={{ ...inputStyle, resize: "vertical" }} />
+          </label>
         </div>
       </div>
 

@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase-server";
 import { prisma } from "@certibuy/db";
 import { withActor, ForbiddenError } from "@certibuy/application";
 import type { Actor } from "@certibuy/application";
-// ZodError check: match by name since zod is a transitive dep
+type Schema = { parse(data: unknown): unknown };
+
 function isZodError(e: unknown): e is Error & { issues: Array<{ message: string }> } {
   return e instanceof Error && e.constructor.name === "ZodError" && Array.isArray((e as { issues?: unknown }).issues);
 }
@@ -16,6 +17,21 @@ export function commandRoute(handler: CommandHandler) {
     try {
       const actor = await resolveActor();
       const body = await request.json();
+      const now = new Date();
+      const result = await handler(actor, body, now);
+      return NextResponse.json(result);
+    } catch (e) {
+      return errorResponse(e);
+    }
+  };
+}
+
+export function validatedCommandRoute(schema: Schema, handler: CommandHandler) {
+  return async (request: Request) => {
+    try {
+      const actor = await resolveActor();
+      const raw = await request.json();
+      const body = schema.parse(raw);
       const now = new Date();
       const result = await handler(actor, body, now);
       return NextResponse.json(result);

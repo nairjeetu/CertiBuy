@@ -4,6 +4,13 @@ import type { Settings } from "@certibuy/domain";
 import type { Actor } from "../actor";
 import { requireRole } from "../policy";
 
+function parsePagination(params: Record<string, string>, defaultTake = 50) {
+  const page = Math.max(1, parseInt(params.page || "1", 10) || 1);
+  const take = Math.min(100, Math.max(1, parseInt(params.limit || String(defaultTake), 10) || defaultTake));
+  const skip = (page - 1) * take;
+  return { skip, take, page };
+}
+
 async function readSettings() {
   const s = await prisma.settings.findUnique({ where: { id: 1 } });
   if (!s) throw new Error("Settings are missing.");
@@ -88,6 +95,7 @@ export async function getCatalogue(actor: Actor) {
   requireRole(actor, "ops");
   const models = await prisma.deviceModel.findMany({
     orderBy: { brand: "asc" },
+    take: 200,
     include: { liquidity_scores: { where: { is_current: true }, take: 1 } },
   });
   return {
@@ -125,6 +133,7 @@ export async function getLiquidityBoard(actor: Actor) {
     where: { active: true },
     include: { liquidity_scores: { where: { is_current: true }, take: 1 } },
     orderBy: { brand: "asc" },
+    take: 200,
   });
   return {
     models: models.map(m => ({
@@ -146,22 +155,30 @@ export async function getLiquidityBoard(actor: Actor) {
 export async function getInventory(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
   const statusFilter = params.status || undefined;
-  const devices = await prisma.device.findMany({
-    where: statusFilter ? { status: statusFilter as never } : {},
-    include: {
-      device_model: { select: { brand: true, model: true, storage: true, b2b_floor_price: true } },
-      listing: {
-        select: {
-          id: true, base_price: true, current_price: true, floor_price: true,
-          override_price: true, listed_at: true, warranty_months: true,
-          ladder_step: true, status: true,
+  const where = statusFilter ? { status: statusFilter as never } : {};
+  const { skip, take, page } = parsePagination(params);
+  const [devices, total] = await Promise.all([
+    prisma.device.findMany({
+      where,
+      include: {
+        device_model: { select: { brand: true, model: true, storage: true, b2b_floor_price: true } },
+        listing: {
+          select: {
+            id: true, base_price: true, current_price: true, floor_price: true,
+            override_price: true, listed_at: true, warranty_months: true,
+            ladder_step: true, status: true,
+          },
         },
       },
-    },
-    orderBy: { created_at: "desc" },
-    take: 100,
-  });
+      orderBy: { created_at: "desc" },
+      skip,
+      take,
+    }),
+    prisma.device.count({ where }),
+  ]);
   return {
+    page,
+    total,
     devices: devices.map(d => ({
       id: d.id,
       imei: d.imei,
@@ -195,12 +212,13 @@ export async function getInventory(actor: Actor, params: Record<string, string>)
 export async function getExceptions(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
   const statusFilter = params.status || undefined;
-  const exceptions = await prisma.exceptionCase.findMany({
-    where: statusFilter ? { status: statusFilter as never } : {},
-    orderBy: { created_at: "desc" },
-    take: 50,
-  });
-  return { exceptions };
+  const where = statusFilter ? { status: statusFilter as never } : {};
+  const { skip, take, page } = parsePagination(params);
+  const [exceptions, total] = await Promise.all([
+    prisma.exceptionCase.findMany({ where, orderBy: { created_at: "desc" }, skip, take }),
+    prisma.exceptionCase.count({ where }),
+  ]);
+  return { exceptions, page, total };
 }
 
 // ─── O-08: Hubs ───────────────────────────────────────────────────────────
@@ -234,12 +252,15 @@ export async function getHubList(actor: Actor, _params: Record<string, string>, 
 export async function getUserList(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
   const roleFilter = params.role || undefined;
-  const profiles = await prisma.profile.findMany({
-    where: roleFilter ? { app_role: roleFilter as never } : {},
-    orderBy: { created_at: "desc" },
-    take: 100,
-  });
+  const where = roleFilter ? { app_role: roleFilter as never } : {};
+  const { skip, take, page } = parsePagination(params);
+  const [profiles, total] = await Promise.all([
+    prisma.profile.findMany({ where, orderBy: { created_at: "desc" }, skip, take }),
+    prisma.profile.count({ where }),
+  ]);
   return {
+    page,
+    total,
     users: profiles.map(p => ({
       id: p.id,
       full_name: p.full_name,
@@ -286,10 +307,14 @@ export async function getDemoControls(actor: Actor, _params: Record<string, stri
 
 // ─── O-12: Job history ────────────────────────────────────────────────────
 
-export async function getJobHistory(actor: Actor) {
+export async function getJobHistory(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
-  const jobs = await prisma.jobRun.findMany({ orderBy: { updated_at: "desc" } });
-  return { jobs };
+  const { skip, take, page } = parsePagination(params);
+  const [jobs, total] = await Promise.all([
+    prisma.jobRun.findMany({ orderBy: { updated_at: "desc" }, skip, take }),
+    prisma.jobRun.count(),
+  ]);
+  return { jobs, page, total };
 }
 
 // ─── O-13: Support inbox ──────────────────────────────────────────────────
@@ -309,21 +334,23 @@ export async function getSupportInbox(actor: Actor, params: Record<string, strin
 
 export async function getAuditLog(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
-  const logs = await prisma.activityLog.findMany({
-    where: params.date ? { business_date: params.date } : {},
-    orderBy: { created_at: "desc" },
-    take: 100,
-  });
-  return { logs };
+  const where = params.date ? { business_date: params.date } : {};
+  const { skip, take, page } = parsePagination(params, 100);
+  const [logs, total] = await Promise.all([
+    prisma.activityLog.findMany({ where, orderBy: { created_at: "desc" }, skip, take }),
+    prisma.activityLog.count({ where }),
+  ]);
+  return { logs, page, total };
 }
 
 // ─── O-15: Mail / notification log ────────────────────────────────────────
 
-export async function getMailLog(actor: Actor) {
+export async function getMailLog(actor: Actor, params: Record<string, string>) {
   requireRole(actor, "ops");
-  const notifications = await prisma.notification.findMany({
-    orderBy: { created_at: "desc" },
-    take: 100,
-  });
-  return { notifications };
+  const { skip, take, page } = parsePagination(params, 100);
+  const [notifications, total] = await Promise.all([
+    prisma.notification.findMany({ orderBy: { created_at: "desc" }, skip, take }),
+    prisma.notification.count(),
+  ]);
+  return { notifications, page, total };
 }

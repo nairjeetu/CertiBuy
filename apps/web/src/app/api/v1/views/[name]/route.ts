@@ -77,10 +77,10 @@ const handlers: Record<string, ReturnType<typeof viewRoute>> = {
   opsUsers: viewRoute((actor, params) => getUserList(actor, params)),
   opsMetrics: viewRoute((actor) => getMetricsData(actor)),
   opsDemoControls: viewRoute((actor, params, now) => getDemoControls(actor, params, now)),
-  opsJobHistory: viewRoute((actor) => getJobHistory(actor)),
+  opsJobHistory: viewRoute((actor, params) => getJobHistory(actor, params)),
   opsSupportInbox: viewRoute((actor, params) => getSupportInbox(actor, params)),
   opsAuditLog: viewRoute((actor, params) => getAuditLog(actor, params)),
-  opsMailLog: viewRoute((actor) => getMailLog(actor)),
+  opsMailLog: viewRoute((actor, params) => getMailLog(actor, params)),
 };
 
 export async function GET(

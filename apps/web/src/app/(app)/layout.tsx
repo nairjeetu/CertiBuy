@@ -8,7 +8,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <>
       <DemoBanner />
       <AppNav actor={actor} />
-      <div style={{ padding: "1rem" }}>{children}</div>
+      <main id="main-content" style={{ padding: "1rem" }}>{children}</main>
     </>
   );
 }
