@@ -2,6 +2,91 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+
+if (!SERVICE_KEY) {
+  console.error("SUPABASE_SERVICE_ROLE_KEY is required. Set it in your environment.");
+  process.exit(1);
+}
+
+interface AuthUser {
+  email: string;
+  password: string;
+  fullName: string;
+  appRole: "customer" | "technician" | "ops";
+  activeMode: "seller" | "buyer";
+  hubId?: string;
+  isPlatformAdmin?: boolean;
+}
+
+const DEMO_ACCOUNTS: AuthUser[] = [
+  {
+    email: "admin@certibuy.demo",
+    password: "Demo1234!",
+    fullName: "CertiBuy Admin",
+    appRole: "ops",
+    activeMode: "buyer",
+    isPlatformAdmin: true,
+  },
+  {
+    email: "tech@certibuy.demo",
+    password: "Demo1234!",
+    fullName: "Ravi Kumar",
+    appRole: "technician",
+    activeMode: "buyer",
+    hubId: "hub-indiranagar",
+  },
+  {
+    email: "seller@certibuy.demo",
+    password: "Demo1234!",
+    fullName: "Priya Sharma",
+    appRole: "customer",
+    activeMode: "seller",
+  },
+  {
+    email: "buyer@certibuy.demo",
+    password: "Demo1234!",
+    fullName: "Amit Patel",
+    appRole: "customer",
+    activeMode: "buyer",
+  },
+];
+
+async function ensureAuthUser(email: string, password: string): Promise<string> {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${SERVICE_KEY}`,
+      apikey: SERVICE_KEY,
+    },
+    body: JSON.stringify({ email, password, email_confirm: true }),
+  });
+  const data = await res.json();
+
+  if (data.id) return data.id;
+
+  if (data.msg?.includes("already") || data.code === 422) {
+    const listRes = await fetch(
+      `${SUPABASE_URL}/auth/v1/admin/users?page=1&per_page=50`,
+      {
+        headers: {
+          Authorization: `Bearer ${SERVICE_KEY}`,
+          apikey: SERVICE_KEY,
+        },
+      },
+    );
+    const list = await listRes.json();
+    const existing = list.users?.find(
+      (u: { email: string }) => u.email === email,
+    );
+    if (existing) return existing.id;
+  }
+
+  throw new Error(`Failed to create auth user ${email}: ${JSON.stringify(data)}`);
+}
+
 async function main() {
   // Settings (single row, id=1)
   await prisma.settings.upsert({
@@ -99,7 +184,11 @@ async function main() {
   });
 
   // Liquidity scores (cold start)
-  for (const modelId of ["model-iphone-14", "model-galaxy-s24", "model-pixel-7"]) {
+  for (const modelId of [
+    "model-iphone-14",
+    "model-galaxy-s24",
+    "model-pixel-7",
+  ]) {
     const tier = modelId === "model-pixel-7" ? 45 : 80;
     await prisma.liquidityScore.upsert({
       where: { id: `liq-${modelId}` },
@@ -114,50 +203,44 @@ async function main() {
     });
   }
 
-  // Profiles (seeded without auth — these will match Supabase Auth seed users)
-  const profiles = [
-    {
-      id: "user-admin",
-      full_name: "CertiBuy Admin",
-      app_role: "ops" as const,
-      is_platform_admin: true,
-    },
-    {
-      id: "user-tech",
-      full_name: "Ravi Kumar",
-      app_role: "technician" as const,
-      hub_id: "hub-indiranagar",
-    },
-    {
-      id: "user-seller",
-      full_name: "Priya Sharma",
-      app_role: "customer" as const,
-      active_mode: "seller" as const,
-    },
-    {
-      id: "user-buyer",
-      full_name: "Amit Patel",
-      app_role: "customer" as const,
-      active_mode: "buyer" as const,
-    },
-  ];
+  // Demo accounts: create in Supabase Auth, then upsert profile with returned UUID
+  console.log("\nCreating demo accounts via Supabase Auth...");
+  const created: Array<{ email: string; password: string; role: string }> = [];
 
-  for (const p of profiles) {
+  for (const acct of DEMO_ACCOUNTS) {
+    const userId = await ensureAuthUser(acct.email, acct.password);
+    console.log(`  ${acct.email} → ${userId} (${acct.appRole})`);
+
     await prisma.profile.upsert({
-      where: { id: p.id },
+      where: { id: userId },
       update: {},
       create: {
-        id: p.id,
-        full_name: p.full_name,
-        app_role: p.app_role,
-        active_mode: p.active_mode ?? "buyer",
-        hub_id: p.hub_id ?? null,
-        is_platform_admin: p.is_platform_admin ?? false,
+        id: userId,
+        full_name: acct.fullName,
+        app_role: acct.appRole,
+        active_mode: acct.activeMode,
+        hub_id: acct.hubId ?? null,
+        is_platform_admin: acct.isPlatformAdmin ?? false,
       },
+    });
+
+    created.push({
+      email: acct.email,
+      password: acct.password,
+      role: acct.appRole,
     });
   }
 
-  console.log("Seed complete.");
+  console.log("\n--- Demo accounts ---");
+  console.log("Email                     | Password   | Role");
+  console.log("--------------------------|------------|------------");
+  for (const c of created) {
+    console.log(
+      `${c.email.padEnd(26)}| ${c.password.padEnd(11)}| ${c.role}`,
+    );
+  }
+
+  console.log("\nSeed complete.");
 }
 
 main()

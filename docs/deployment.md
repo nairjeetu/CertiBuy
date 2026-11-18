@@ -42,9 +42,28 @@ Prisma uses two URLs (`packages/db/.env` or the hosting env):
 ## 3. Build & release
 
 ```bash
-npm ci
-npm run build            # must exit 0
-# deploy the built app + backend functions together — they share the schema
+pnpm install             # postinstall in packages/db runs prisma generate
+pnpm build               # must exit 0
+```
+
+### Vercel deployment
+
+The repo root contains `vercel.json` that tells Vercel to use `pnpm install` / `pnpm build` and pick up the Next.js output from `apps/web/.next`. Set the **Root Directory** in Vercel project settings to `.` (the workspace root, not `apps/web`).
+
+Before the first deploy, run migrations against the hosted database:
+
+```bash
+DATABASE_URL="<session-mode-url>" DIRECT_URL="<direct-url>" \
+  pnpm --filter @certibuy/db db:deploy
+```
+
+Then seed the demo data (requires the hosted Supabase URL and service role key):
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL="https://<ref>.supabase.co" \
+  SUPABASE_SERVICE_ROLE_KEY="<key>" \
+  DATABASE_URL="<session-mode-url>" DIRECT_URL="<direct-url>" \
+  pnpm --filter @certibuy/db db:seed
 ```
 
 Release checklist:
@@ -153,3 +172,23 @@ For sales demos and UAT: Ops → Demo.
 - **Reset demo data** → a clean, fully populated world in one click.
 
 Everything the demo shows is the production code path with a shifted date — that is the point of keeping the offset in data.
+
+## 16. Environment variables
+
+All required variables are listed in `.env.example` at the repo root. Copy it to `.env.local` (local dev) or set them in the Vercel dashboard (hosted).
+
+| Variable | Where | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | client + server | Supabase project URL. Local: `http://127.0.0.1:54321` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | client + server | Supabase anon/public key (safe to expose) |
+| `SUPABASE_SERVICE_ROLE_KEY` | server only | Supabase service role key — bypasses RLS; used by the seed script and server admin calls. **Never expose to the client.** |
+| `DATABASE_URL` | server only | Postgres connection string. Use the transaction-mode pooler (port 6543) for the app. Local: `postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
+| `DIRECT_URL` | server only | Postgres direct connection (port 5432, session mode). Used by `prisma migrate` to avoid PgBouncer prepared-statement issues. Local: same as `DATABASE_URL` |
+
+### Local defaults
+
+The Supabase CLI starts with well-known local keys (see `supabase status`). The local `.env.local` in `apps/web/` ships with these values pre-filled. `packages/db` reads `DATABASE_URL` / `DIRECT_URL` from the environment or from `packages/db/.env`.
+
+### Vercel
+
+Set all five variables in the Vercel project's Environment Variables panel. Use the **production** values from the Supabase dashboard (Settings → API for the URL and keys, Settings → Database for connection strings). `NEXT_PUBLIC_` vars are inlined at build time; the others are available at runtime.
