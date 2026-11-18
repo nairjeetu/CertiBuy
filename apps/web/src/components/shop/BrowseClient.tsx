@@ -22,11 +22,12 @@ export function BrowseClient() {
   const params = { ...filters, page: String(page) };
   const { data, isLoading, error } = useShopCatalogue(params);
 
-  const items = (data?.items ?? []) as Card[];
-  const total = (data?.total ?? 0) as number;
-  const limit = (data?.limit ?? 20) as number;
-  const brands = (data?.facets?.brands ?? []) as string[];
-  const storages = (data?.facets?.storages ?? []) as string[];
+  const d = data as { items?: Card[]; total?: number; limit?: number; facets?: { brands?: string[]; storages?: string[] } } | undefined;
+  const items = d?.items ?? [];
+  const total = d?.total ?? 0;
+  const limit = d?.limit ?? 20;
+  const brands = d?.facets?.brands ?? [];
+  const storages = d?.facets?.storages ?? [];
   const totalPages = Math.ceil(total / limit);
 
   const handleFilter = (key: string, value: string) => {

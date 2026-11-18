@@ -11,7 +11,7 @@ interface Props {
   onDone: () => void;
 }
 
-export function CancelDialog({ orderId, total, cancelEstimate, onDone }: Props) {
+export function CancelDialog({ orderId, cancelEstimate, onDone }: Props) {
   const [reason, setReason] = useState("");
   const [open, setOpen] = useState(false);
   const cancel = useCancelOrder();
