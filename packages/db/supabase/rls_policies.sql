@@ -5,6 +5,11 @@
 GRANT USAGE ON SCHEMA app TO anon, authenticated;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA app TO anon, authenticated;
 
+-- Schema + table-level grants so the authenticated role can reach rows (RLS then filters).
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+
 -- Helper: is the caller ops or platform admin?
 CREATE OR REPLACE FUNCTION app.is_staff()
 RETURNS BOOLEAN
