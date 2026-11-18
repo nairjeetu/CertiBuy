@@ -2,13 +2,12 @@ import type { NextConfig } from "next";
 import { resolve } from "path";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   outputFileTracingRoot: resolve(__dirname, "../../"),
   outputFileTracingIncludes: {
-    "/**/*": [
-      "../../packages/db/src/generated/client/*.node",
-      "../../packages/db/src/generated/client/schema.prisma",
-    ],
+    "/**/*": ["packages/db/src/generated/client/**/*"],
   },
+  serverExternalPackages: ["@prisma/client", ".prisma/client"],
   transpilePackages: [
     "@certibuy/db",
     "@certibuy/domain",
