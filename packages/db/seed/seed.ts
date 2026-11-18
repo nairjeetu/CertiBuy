@@ -329,7 +329,13 @@ async function main() {
 
     await prisma.profile.upsert({
       where: { id: userId },
-      update: {},
+      update: {
+        full_name: acct.fullName,
+        app_role: acct.appRole,
+        active_mode: acct.activeMode,
+        hub_id: acct.hubId ?? null,
+        is_platform_admin: acct.isPlatformAdmin ?? false,
+      },
       create: {
         id: userId,
         full_name: acct.fullName,
