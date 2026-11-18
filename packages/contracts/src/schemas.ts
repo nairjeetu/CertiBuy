@@ -144,6 +144,41 @@ export const CompleteHandoverInput = z.object({
   signatureUrl: z.string().min(1),
 });
 
+// ─── Buying commands (B-05, B-07, B-09, B-12) ─────────────────────────────
+
+export const PlaceOrderInput = z.object({
+  listingId: cuid,
+  deliveryName: z.string().min(2),
+  deliveryPhone: z.string().regex(/^\d{10}$/),
+  deliveryAddress: z.string().min(10),
+  paymentMethod: z.enum(["upi", "card", "netbanking"]),
+  warrantyAddon: z.boolean().default(false),
+  declined: z.boolean().optional(),
+});
+
+export const CancelOrderInput = z.object({
+  orderId: cuid,
+  reason: z.string().optional(),
+});
+
+export const AdvanceShipmentInput = z.object({
+  orderId: cuid,
+});
+
+export const RaiseReturnInput = z.object({
+  orderId: cuid,
+  reason: z.enum(["not_as_graded", "dead_on_arrival", "buyer_changed_mind"]),
+  note: z.string().optional(),
+  doaPreference: z.enum(["refund", "replacement"]).optional(),
+  photos: z.array(z.object({ key: z.string().min(1) })).optional(),
+});
+
+export const ResolveReturnInput = z.object({
+  returnId: cuid,
+  outcome: z.enum(["faulty", "as_shipped", "doa_confirmed", "doa_replacement", "changed_mind"]),
+  reason: z.string().optional(),
+});
+
 // ─── Seller view forbidden fields (amendment 5) ─────────────────────────────
 
 export const SELLER_FORBIDDEN_FIELDS = [
@@ -156,4 +191,17 @@ export const SELLER_FORBIDDEN_FIELDS = [
   "buyer_name",
   "buyer_phone",
   "buyer_address",
+] as const;
+
+// ─── Buyer view forbidden fields ────────────────────────────────────────────
+
+export const BUYER_FORBIDDEN_FIELDS = [
+  "seller_id",
+  "acquisition_cost",
+  "floor_price",
+  "b2b_floor_price",
+  "commission",
+  "commission_pct",
+  "payout_option",
+  "custody_at",
 ] as const;

@@ -11,6 +11,15 @@ import {
   getWorkspaceContext,
   getHubQueue,
   getHubJob,
+  getShopHome,
+  getShopCatalogue,
+  getListingDetail,
+  getCheckout,
+  getShopGrades,
+  getMyOrders,
+  getOrderTracking,
+  getOrderReceipt,
+  getReturnOptions,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof viewRoute>> = {
@@ -31,6 +40,16 @@ const handlers: Record<string, ReturnType<typeof viewRoute>> = {
   // Hub views (T-01 … T-06)
   hubQueue: viewRoute((actor, params, now) => getHubQueue(actor, params, now)),
   hubJob: viewRoute((actor, params, now) => getHubJob(actor, params, now)),
+  // Buyer views (B-01 … B-09)
+  shopHome: viewRoute((actor) => getShopHome(actor)),
+  shopCatalogue: viewRoute((actor, params, now) => getShopCatalogue(actor, params, now)),
+  listingDetail: viewRoute((actor, params) => getListingDetail(actor, params.listingId ?? "")),
+  checkout: viewRoute((actor, params) => getCheckout(actor, params.listingId ?? "")),
+  shopGrades: viewRoute((actor) => getShopGrades(actor)),
+  myOrders: viewRoute((actor) => getMyOrders(actor)),
+  orderTracking: viewRoute((actor, params, now) => getOrderTracking(actor, params.orderId ?? "", now)),
+  orderReceipt: viewRoute((actor, params) => getOrderReceipt(actor, params.orderId ?? "")),
+  returnOptions: viewRoute((actor, params, now) => getReturnOptions(actor, params.orderId ?? "", now)),
 };
 
 export async function GET(

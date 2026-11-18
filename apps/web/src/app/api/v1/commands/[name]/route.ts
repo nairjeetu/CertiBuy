@@ -18,6 +18,11 @@ import {
   rejectForMismatch,
   rejectDevice,
   completeHandover,
+  placeOrder,
+  cancelOrder,
+  advanceShipment,
+  raiseReturn,
+  resolveReturn,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof commandRoute>> = {
@@ -72,6 +77,22 @@ const handlers: Record<string, ReturnType<typeof commandRoute>> = {
   ),
   completeHandover: commandRoute((actor, body, now) =>
     completeHandover(actor, body as Parameters<typeof completeHandover>[1], now),
+  ),
+  // Buying commands (B-05, B-07, B-09, B-12, O-07)
+  placeOrder: commandRoute((actor, body, now) =>
+    placeOrder(actor, body as Parameters<typeof placeOrder>[1], now),
+  ),
+  cancelOrder: commandRoute((actor, body, now) =>
+    cancelOrder(actor, body as Parameters<typeof cancelOrder>[1], now),
+  ),
+  advanceShipment: commandRoute((actor, body, now) =>
+    advanceShipment(actor, body as Parameters<typeof advanceShipment>[1], now),
+  ),
+  raiseReturn: commandRoute((actor, body, now) =>
+    raiseReturn(actor, body as Parameters<typeof raiseReturn>[1], now),
+  ),
+  resolveReturn: commandRoute((actor, body, now) =>
+    resolveReturn(actor, body as Parameters<typeof resolveReturn>[1], now),
   ),
 };
 
