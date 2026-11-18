@@ -127,7 +127,7 @@ export async function placeOrder(
       },
     });
 
-    // SFM: mark balance payout as payable
+    // SFM: mark balance payout as pending (ready for release)
     if (listing.device.payout_option === "sell_for_more") {
       await tx.payout.updateMany({
         where: {
@@ -135,7 +135,7 @@ export async function placeOrder(
           type: "balance",
           status: "due",
         },
-        data: { trigger: "buyer_paid_escrow" },
+        data: { status: "pending" },
       });
     }
 

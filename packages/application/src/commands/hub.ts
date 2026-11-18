@@ -173,9 +173,13 @@ export async function confirmGrade(
       },
     });
 
+    const newStatus = result.verdict === "inside" ? "accepted" : "inspected";
     await tx.submission.update({
       where: { id: sub.id },
-      data: { status: "inspected" },
+      data: {
+        status: newStatus,
+        ...(result.verdict === "inside" ? { final_grade: result.final_grade } : {}),
+      },
     });
 
     const worstKey =

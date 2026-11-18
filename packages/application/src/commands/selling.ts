@@ -671,7 +671,7 @@ export async function bookInspection(
 
     // Amendment 2: advisory lock on (hub, date) before capacity check
     const lockKey = hashLockKey(parsed.hubId, parsed.date);
-    await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(${lockKey}::bigint)`);
+    await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(${lockKey}::bigint)::text`);
 
     const bookingCount = await tx.booking.count({
       where: {

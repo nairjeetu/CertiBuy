@@ -322,7 +322,7 @@ export async function getOrderTracking(actor: Actor, orderId: string, now: Date)
   let returnDaysLeft: number | null = null;
   if (order.return_window_closes_at) {
     const closesAt = order.return_window_closes_at.toISOString().slice(0, 10);
-    returnDaysLeft = Math.max(0, diffDays(closesAt, bDate));
+    returnDaysLeft = Math.max(0, diffDays(bDate, closesAt));
   }
 
   const openReturn = order.return_requests[0] ?? null;
@@ -418,7 +418,7 @@ export async function getReturnOptions(actor: Actor, orderId: string, now: Date)
   const isDelivered = order.status === "delivered" || order.status === "settled";
   let daysLeft = 0;
   if (order.return_window_closes_at) {
-    daysLeft = Math.max(0, diffDays(order.return_window_closes_at.toISOString().slice(0, 10), bDate));
+    daysLeft = Math.max(0, diffDays(bDate, order.return_window_closes_at.toISOString().slice(0, 10)));
   }
 
   const openReturn = await prisma.returnRequest.findFirst({
