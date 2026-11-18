@@ -28,10 +28,12 @@ export async function getShopHome(actor: Actor) {
     take: 8,
     include: {
       device: {
-        include: {
+        select: {
+          id: true,
+          final_grade: true,
+          device_model_id: true,
           device_model: { select: { brand: true, model: true, storage: true, category: true } },
         },
-        select: { id: true, final_grade: true, device_model: true, device_model_id: true },
       },
     },
   });
@@ -42,10 +44,12 @@ export async function getShopHome(actor: Actor) {
     take: 4,
     include: {
       device: {
-        include: {
+        select: {
+          id: true,
+          final_grade: true,
+          device_model_id: true,
           device_model: { select: { brand: true, model: true, storage: true, category: true } },
         },
-        select: { id: true, final_grade: true, device_model: true, device_model_id: true },
       },
     },
   });
