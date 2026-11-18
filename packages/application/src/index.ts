@@ -72,6 +72,11 @@ export {
   updateSettings,
   togglePayoutFailure,
   saveDeviceModel,
+  markRefurbishedAndList,
+  liquidateDevice,
+  repriceListing,
+  setOverridePrice,
+  pauseIcForModel,
 } from "./commands/ops";
 export type { JobRunResult } from "./commands/ops";
 

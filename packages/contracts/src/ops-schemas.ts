@@ -70,6 +70,30 @@ export const TogglePayoutFailureInput = z.object({
   enabled: z.boolean(),
 });
 
+export const MarkRefurbishedInput = z.object({
+  deviceId: cuid,
+  partsReplaced: z.array(z.string().min(1)).default([]),
+});
+
+export const LiquidateDeviceInput = z.object({
+  deviceId: cuid,
+});
+
+export const RepriceListingInput = z.object({
+  listingId: cuid,
+  newPrice: z.number().int().min(1),
+});
+
+export const SetOverridePriceInput = z.object({
+  listingId: cuid,
+  overridePrice: z.number().int().min(1).nullable(),
+});
+
+export const PauseIcForModelInput = z.object({
+  deviceModelId: cuid,
+  paused: z.boolean(),
+});
+
 export const SaveDeviceModelInput = z.object({
   id: cuid.optional(),
   brand: z.string().min(1).max(100),

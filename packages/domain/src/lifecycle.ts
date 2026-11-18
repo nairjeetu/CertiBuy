@@ -128,7 +128,7 @@ export function transitionDevice(
 const LISTING_TRANSITIONS: Record<ListingStatus, ListingStatus[]> = {
   active: ["reserved", "review", "inactive"],
   reserved: ["active", "sold"],
-  sold: [],
+  sold: ["active"],
   review: ["active", "liquidated", "inactive"],
   liquidated: [],
   inactive: ["active"],

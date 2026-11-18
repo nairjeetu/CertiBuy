@@ -153,3 +153,62 @@ export function useSaveDeviceModel() {
     },
   });
 }
+
+export function useMarkRefurbished() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { deviceId: string; partsReplaced: string[] }) =>
+      runCommand("markRefurbishedAndList", body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["opsInventory"] });
+      qc.invalidateQueries({ queryKey: ["opsOverview"] });
+    },
+  });
+}
+
+export function useLiquidateDevice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { deviceId: string }) => runCommand("liquidateDevice", body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["opsInventory"] });
+      qc.invalidateQueries({ queryKey: ["opsAlerts"] });
+      qc.invalidateQueries({ queryKey: ["opsOverview"] });
+    },
+  });
+}
+
+export function useRepriceListing() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { listingId: string; newPrice: number }) =>
+      runCommand("repriceListing", body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["opsInventory"] });
+      qc.invalidateQueries({ queryKey: ["opsAlerts"] });
+    },
+  });
+}
+
+export function useSetOverridePrice() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { listingId: string; overridePrice: number | null }) =>
+      runCommand("setOverridePrice", body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["opsInventory"] });
+    },
+  });
+}
+
+export function usePauseIcForModel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { deviceModelId: string; paused: boolean }) =>
+      runCommand("pauseIcForModel", body),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["opsCatalogue"] });
+      qc.invalidateQueries({ queryKey: ["opsLiquidity"] });
+    },
+  });
+}

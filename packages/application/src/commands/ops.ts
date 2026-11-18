@@ -6,6 +6,11 @@ import {
   UpdateSettingsInput,
   TogglePayoutFailureInput,
   SaveDeviceModelInput,
+  MarkRefurbishedInput,
+  LiquidateDeviceInput,
+  RepriceListingInput,
+  SetOverridePriceInput,
+  PauseIcForModelInput,
 } from "@certibuy/contracts";
 import type { z } from "zod";
 import {
@@ -18,8 +23,9 @@ import {
   businessDate,
   addDays,
   diffDays,
+  gradePrice,
 } from "@certibuy/domain";
-import type { Settings, Listing, PayoutRecord } from "@certibuy/domain";
+import type { Settings, Listing, PayoutRecord, DeviceModel } from "@certibuy/domain";
 import type { Actor } from "../actor";
 import { requireRole } from "../policy";
 
@@ -736,4 +742,302 @@ export async function saveDeviceModel(
   });
 
   return { ok: true, id: result.id };
+}
+
+// ─── F9: Mark refurbished and list ───────────────────────────────────────────
+
+export async function markRefurbishedAndList(
+  actor: Actor,
+  input: z.infer<typeof MarkRefurbishedInput>,
+  now: Date,
+) {
+  requireRole(actor, "ops");
+  const parsed = MarkRefurbishedInput.parse(input);
+
+  return prisma.$transaction(async (tx) => {
+    const device = await tx.device.findUnique({
+      where: { id: parsed.deviceId },
+      include: { device_model: true },
+    });
+    if (!device) throw new Error("Device not found.");
+    if (device.status !== "in_refurbishment") {
+      throw new Error(`Device is ${device.status}, expected in_refurbishment.`);
+    }
+    transitionDevice("in_refurbishment", "listed");
+
+    const settings = settingsToDomain(await readSettings(tx));
+    const bDate = businessDate(settings, now);
+    const dm = device.device_model;
+    const domModel = dm as unknown as DeviceModel;
+    const basePrice = gradePrice(domModel, "D", settings);
+
+    const existingListing = await tx.listing.findUnique({
+      where: { device_id: device.id },
+    });
+
+    let listingId: string;
+    if (existingListing) {
+      transitionListing(
+        existingListing.status as Parameters<typeof transitionListing>[0],
+        "active",
+      );
+      await tx.listing.update({
+        where: { id: existingListing.id },
+        data: {
+          base_price: basePrice,
+          current_price: basePrice,
+          floor_price: dm.b2b_floor_price,
+          listed_at: bDate,
+          ladder_step: 0,
+          reserved_days: 0,
+          override_price: null,
+          override_by: null,
+          override_at: null,
+          warranty_months: 0,
+          status: "active",
+        },
+      });
+      listingId = existingListing.id;
+    } else {
+      const listing = await tx.listing.create({
+        data: {
+          device_id: device.id,
+          base_price: basePrice,
+          current_price: basePrice,
+          floor_price: dm.b2b_floor_price,
+          listed_at: bDate,
+          warranty_months: 0,
+          status: "active",
+        },
+      });
+      listingId = listing.id;
+    }
+
+    await tx.device.update({
+      where: { id: device.id },
+      data: { status: "listed", parts_replaced: parsed.partsReplaced },
+    });
+
+    await tx.activityLog.create({
+      data: {
+        actor_id: actor.id,
+        actor_name: actor.fullName,
+        text: `Refurbished and listed grade-D device at ₹${basePrice.toLocaleString("en-IN")} (no warranty)`,
+        entity: "device",
+        entity_id: device.id,
+        business_date: bDate,
+      },
+    });
+
+    await tx.notification.create({
+      data: {
+        user_id: device.seller_id,
+        event: "device_listed",
+        title: "Your device is now listed",
+        body: `Your refurbished device has been listed for sale at ₹${basePrice.toLocaleString("en-IN")}.`,
+        link: `/sell/${device.submission_id}`,
+      },
+    });
+
+    return { ok: true, listingId, price: basePrice };
+  });
+}
+
+// ─── F10: Liquidate device to B2B ────────────────────────────────────────────
+
+export async function liquidateDevice(
+  actor: Actor,
+  input: z.infer<typeof LiquidateDeviceInput>,
+  now: Date,
+) {
+  requireRole(actor, "ops");
+  const parsed = LiquidateDeviceInput.parse(input);
+
+  return prisma.$transaction(async (tx) => {
+    const device = await tx.device.findUnique({
+      where: { id: parsed.deviceId },
+      include: { listing: true },
+    });
+    if (!device) throw new Error("Device not found.");
+    if (device.status !== "day45_review") {
+      throw new Error(`Device is ${device.status}, expected day45_review.`);
+    }
+    if (!device.listing || device.listing.status !== "review") {
+      throw new Error("Listing is not in review status.");
+    }
+
+    transitionDevice("day45_review", "liquidated");
+    transitionListing("review", "liquidated");
+
+    const floorPrice = device.listing.floor_price;
+
+    await tx.listing.update({
+      where: { id: device.listing.id },
+      data: { status: "liquidated", current_price: floorPrice },
+    });
+
+    await tx.device.update({
+      where: { id: device.id },
+      data: { status: "liquidated" },
+    });
+
+    const settings = settingsToDomain(await readSettings(tx));
+    const bDate = businessDate(settings, now);
+
+    await tx.activityLog.create({
+      data: {
+        actor_id: actor.id,
+        actor_name: actor.fullName,
+        text: `Liquidated device to B2B at floor ₹${floorPrice.toLocaleString("en-IN")}`,
+        entity: "device",
+        entity_id: device.id,
+        business_date: bDate,
+      },
+    });
+
+    return { ok: true, floorPrice };
+  });
+}
+
+// ─── Reprice listing ─────────────────────────────────────────────────────────
+
+export async function repriceListing(
+  actor: Actor,
+  input: z.infer<typeof RepriceListingInput>,
+  now: Date,
+) {
+  requireRole(actor, "ops");
+  const parsed = RepriceListingInput.parse(input);
+
+  return prisma.$transaction(async (tx) => {
+    const listing = await tx.listing.findUnique({
+      where: { id: parsed.listingId },
+      include: { device: true },
+    });
+    if (!listing) throw new Error("Listing not found.");
+    if (listing.status !== "active" && listing.status !== "review") {
+      throw new Error(`Listing is ${listing.status}, must be active or review.`);
+    }
+    if (parsed.newPrice < listing.floor_price) {
+      throw new Error(`Price ₹${parsed.newPrice} is below floor ₹${listing.floor_price}.`);
+    }
+
+    const wasReview = listing.status === "review";
+    const listingUpdate: Record<string, unknown> = {
+      current_price: parsed.newPrice,
+      override_price: null,
+      override_by: null,
+      override_at: null,
+    };
+
+    if (wasReview) {
+      transitionListing("review", "active");
+      listingUpdate.status = "active";
+    }
+
+    await tx.listing.update({ where: { id: listing.id }, data: listingUpdate });
+
+    if (wasReview && listing.device.status === "day45_review") {
+      transitionDevice("day45_review", "listed");
+      await tx.device.update({
+        where: { id: listing.device_id },
+        data: { status: "listed" },
+      });
+    }
+
+    const settings = settingsToDomain(await readSettings(tx));
+    const bDate = businessDate(settings, now);
+
+    await tx.activityLog.create({
+      data: {
+        actor_id: actor.id,
+        actor_name: actor.fullName,
+        text: `Repriced listing to ₹${parsed.newPrice.toLocaleString("en-IN")}${wasReview ? " (from day-45 review)" : ""}`,
+        entity: "listing",
+        entity_id: listing.id,
+        business_date: bDate,
+      },
+    });
+
+    return { ok: true, newPrice: parsed.newPrice, reactivated: wasReview };
+  });
+}
+
+// ─── Set override price ──────────────────────────────────────────────────────
+
+export async function setOverridePrice(
+  actor: Actor,
+  input: z.infer<typeof SetOverridePriceInput>,
+  now: Date,
+) {
+  requireRole(actor, "ops");
+  const parsed = SetOverridePriceInput.parse(input);
+
+  const listing = await prisma.listing.findUnique({ where: { id: parsed.listingId } });
+  if (!listing) throw new Error("Listing not found.");
+  if (listing.status !== "active") {
+    throw new Error(`Listing is ${listing.status}, must be active.`);
+  }
+  if (parsed.overridePrice !== null && parsed.overridePrice < listing.floor_price) {
+    throw new Error(`Override ₹${parsed.overridePrice} is below floor ₹${listing.floor_price}.`);
+  }
+
+  await prisma.listing.update({
+    where: { id: listing.id },
+    data: {
+      override_price: parsed.overridePrice,
+      override_by: parsed.overridePrice !== null ? actor.id : null,
+      override_at: parsed.overridePrice !== null ? now : null,
+    },
+  });
+
+  const settings = settingsToDomain(await readSettings(prisma));
+  const bDate = businessDate(settings, now);
+
+  await prisma.activityLog.create({
+    data: {
+      actor_id: actor.id,
+      actor_name: actor.fullName,
+      text: parsed.overridePrice !== null
+        ? `Set override price ₹${parsed.overridePrice.toLocaleString("en-IN")}`
+        : "Cleared override price",
+      entity: "listing",
+      entity_id: listing.id,
+      business_date: bDate,
+    },
+  });
+
+  return { ok: true };
+}
+
+// ─── Pause IC for model ──────────────────────────────────────────────────────
+
+export async function pauseIcForModel(
+  actor: Actor,
+  input: z.infer<typeof PauseIcForModelInput>,
+  now: Date,
+) {
+  requireRole(actor, "ops");
+  const parsed = PauseIcForModelInput.parse(input);
+
+  await prisma.deviceModel.update({
+    where: { id: parsed.deviceModelId },
+    data: { ic_paused: parsed.paused },
+  });
+
+  const settings = settingsToDomain(await readSettings(prisma));
+  const bDate = businessDate(settings, now);
+
+  await prisma.activityLog.create({
+    data: {
+      actor_id: actor.id,
+      actor_name: actor.fullName,
+      text: `${parsed.paused ? "Paused" : "Resumed"} Instant Cash for model`,
+      entity: "device_model",
+      entity_id: parsed.deviceModelId,
+      business_date: bDate,
+    },
+  });
+
+  return { ok: true, paused: parsed.paused };
 }

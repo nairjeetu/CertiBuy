@@ -55,7 +55,31 @@ export async function getAlerts(actor: Actor, params: Record<string, string>) {
     orderBy: { created_at: "desc" },
     take: 50,
   });
-  return { exceptions };
+
+  const reviewDevices = await prisma.device.findMany({
+    where: { status: "day45_review" },
+    include: {
+      device_model: { select: { brand: true, model: true, storage: true } },
+      listing: { select: { id: true, floor_price: true, current_price: true } },
+    },
+    orderBy: { created_at: "asc" },
+    take: 50,
+  });
+
+  return {
+    exceptions,
+    reviewDevices: reviewDevices.map(d => ({
+      id: d.id,
+      tag_id: d.tag_id,
+      brand: d.device_model.brand,
+      model: d.device_model.model,
+      storage: d.device_model.storage,
+      final_grade: d.final_grade,
+      floor_price: d.listing?.floor_price ?? 0,
+      current_price: d.listing?.current_price ?? 0,
+      listing_id: d.listing?.id ?? null,
+    })),
+  };
 }
 
 // ─── O-03: Catalogue ──────────────────────────────────────────────────────
@@ -125,8 +149,14 @@ export async function getInventory(actor: Actor, params: Record<string, string>)
   const devices = await prisma.device.findMany({
     where: statusFilter ? { status: statusFilter as never } : {},
     include: {
-      device_model: { select: { brand: true, model: true, storage: true } },
-      listing: { select: { current_price: true, status: true } },
+      device_model: { select: { brand: true, model: true, storage: true, b2b_floor_price: true } },
+      listing: {
+        select: {
+          id: true, base_price: true, current_price: true, floor_price: true,
+          override_price: true, listed_at: true, warranty_months: true,
+          ladder_step: true, status: true,
+        },
+      },
     },
     orderBy: { created_at: "desc" },
     take: 100,
@@ -135,14 +165,26 @@ export async function getInventory(actor: Actor, params: Record<string, string>)
     devices: devices.map(d => ({
       id: d.id,
       imei: d.imei,
+      tag_id: d.tag_id,
       brand: d.device_model.brand,
       model: d.device_model.model,
       storage: d.device_model.storage,
       final_grade: d.final_grade,
       status: d.status,
       payout_option: d.payout_option,
+      acquisition_cost: d.acquisition_cost,
+      parts_replaced: d.parts_replaced,
+      device_model_id: d.device_model_id,
+      listing_id: d.listing?.id ?? null,
       listing_price: d.listing?.current_price ?? null,
+      listing_base_price: d.listing?.base_price ?? null,
+      listing_floor_price: d.listing?.floor_price ?? null,
+      listing_override_price: d.listing?.override_price ?? null,
+      listing_listed_at: d.listing?.listed_at ?? null,
+      listing_warranty_months: d.listing?.warranty_months ?? null,
+      listing_ladder_step: d.listing?.ladder_step ?? null,
       listing_status: d.listing?.status ?? null,
+      b2b_floor_price: d.device_model.b2b_floor_price,
       created_at: d.created_at,
     })),
   };

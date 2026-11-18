@@ -18,7 +18,9 @@ import {
   transitionListing,
   businessDate,
   addDays,
+  gradePrice,
 } from "@certibuy/domain";
+import type { Settings, DeviceModel } from "@certibuy/domain";
 import type { Actor } from "../actor";
 import { requireRole, requireOwner } from "../policy";
 import { toDate } from "../util";
@@ -556,10 +558,60 @@ export async function resolveReturn(
       orderUpdate.refunded_at = now;
     }
 
-    await tx.device.update({
-      where: { id: order.device_id },
-      data: { status: "returned" },
-    });
+    const isFaulty = parsed.outcome === "faulty" || parsed.outcome === "doa_confirmed";
+    const isHealthyReturn = parsed.outcome === "as_shipped" || parsed.outcome === "changed_mind";
+
+    if (isFaulty) {
+      transitionDevice("returned", "in_refurbishment");
+      await tx.device.update({
+        where: { id: order.device_id },
+        data: { status: "in_refurbishment" },
+      });
+    } else if (isHealthyReturn) {
+      transitionDevice("returned", "listed");
+      await tx.device.update({
+        where: { id: order.device_id },
+        data: { status: "listed" },
+      });
+
+      const dm = order.device.device_model;
+      const domModel = dm as unknown as DeviceModel;
+      const domSettings = settings as unknown as Settings;
+      const grade = order.device.final_grade as "A" | "B" | "C" | "D";
+      const isGradeD = grade === "D";
+      const basePrice = gradePrice(domModel, grade, domSettings);
+
+      const existingListing = await tx.listing.findUnique({
+        where: { device_id: order.device_id },
+      });
+      if (existingListing) {
+        transitionListing(
+          existingListing.status as Parameters<typeof transitionListing>[0],
+          "active",
+        );
+        await tx.listing.update({
+          where: { id: existingListing.id },
+          data: {
+            base_price: basePrice,
+            current_price: basePrice,
+            floor_price: dm.b2b_floor_price,
+            listed_at: bDate,
+            ladder_step: 0,
+            reserved_days: 0,
+            override_price: null,
+            override_by: null,
+            override_at: null,
+            warranty_months: isGradeD ? 0 : domSettings.warranty_months,
+            status: "active",
+          },
+        });
+      }
+    } else {
+      await tx.device.update({
+        where: { id: order.device_id },
+        data: { status: "returned" },
+      });
+    }
 
     // For DOA replacement, try to find a replacement
     if (isReplacement) {

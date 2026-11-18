@@ -31,6 +31,11 @@ import {
   updateSettings,
   togglePayoutFailure,
   saveDeviceModel,
+  markRefurbishedAndList,
+  liquidateDevice,
+  repriceListing,
+  setOverridePrice,
+  pauseIcForModel,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof commandRoute>> = {
@@ -126,6 +131,21 @@ const handlers: Record<string, ReturnType<typeof commandRoute>> = {
   ),
   saveDeviceModel: commandRoute((actor, body, now) =>
     saveDeviceModel(actor, body as Parameters<typeof saveDeviceModel>[1], now),
+  ),
+  markRefurbishedAndList: commandRoute((actor, body, now) =>
+    markRefurbishedAndList(actor, body as Parameters<typeof markRefurbishedAndList>[1], now),
+  ),
+  liquidateDevice: commandRoute((actor, body, now) =>
+    liquidateDevice(actor, body as Parameters<typeof liquidateDevice>[1], now),
+  ),
+  repriceListing: commandRoute((actor, body, now) =>
+    repriceListing(actor, body as Parameters<typeof repriceListing>[1], now),
+  ),
+  setOverridePrice: commandRoute((actor, body, now) =>
+    setOverridePrice(actor, body as Parameters<typeof setOverridePrice>[1], now),
+  ),
+  pauseIcForModel: commandRoute((actor, body, now) =>
+    pauseIcForModel(actor, body as Parameters<typeof pauseIcForModel>[1], now),
   ),
 };
 

@@ -103,8 +103,12 @@ describe("transition tables", () => {
     expect(() => transitionListing("active", "reserved")).not.toThrow();
   });
 
+  it("allows sold → active for relisting", () => {
+    expect(() => transitionListing("sold", "active")).not.toThrow();
+  });
+
   it("rejects illegal listing transition", () => {
-    expect(() => transitionListing("sold", "active")).toThrow("Illegal listing transition");
+    expect(() => transitionListing("sold", "reserved")).toThrow("Illegal listing transition");
   });
 
   it("allows legal order transition", () => {

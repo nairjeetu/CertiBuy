@@ -1,6 +1,6 @@
 "use client";
 
-import { useOpsCatalogue } from "@/hooks/use-ops";
+import { useOpsCatalogue, usePauseIcForModel } from "@/hooks/use-ops";
 
 const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -19,6 +19,7 @@ interface Model {
 
 export function CatalogueClient() {
   const { data, isLoading, error } = useOpsCatalogue();
+  const pauseIc = usePauseIcForModel();
   if (isLoading) return <p>Loading catalogue...</p>;
   if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
 
@@ -51,7 +52,23 @@ export function CatalogueClient() {
               <td style={{ padding: "0.5rem" }}>{inr.format(m.market_price_a)}</td>
               <td style={{ padding: "0.5rem" }}>{m.liquidity_tier}</td>
               <td style={{ padding: "0.5rem" }}>{m.liquidity_score ?? "—"}</td>
-              <td style={{ padding: "0.5rem" }}>{m.ic_paused ? "Paused" : "On"}</td>
+              <td style={{ padding: "0.5rem" }}>
+                <button
+                  onClick={() => pauseIc.mutate({ deviceModelId: m.id, paused: !m.ic_paused })}
+                  disabled={pauseIc.isPending}
+                  style={{
+                    padding: "0.125rem 0.5rem",
+                    fontSize: "0.75rem",
+                    border: "1px solid #d1d5db",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                    background: m.ic_paused ? "#fef2f2" : "#f0fdf4",
+                    color: m.ic_paused ? "#991b1b" : "#166534",
+                  }}
+                >
+                  {m.ic_paused ? "Paused" : "On"}
+                </button>
+              </td>
               <td style={{ padding: "0.5rem" }}>{m.active ? "Yes" : "No"}</td>
             </tr>
           ))}

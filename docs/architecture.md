@@ -659,6 +659,14 @@ Each phase ends with something that can be demonstrated and a clear exit test.
 
 Phases 3–5 can overlap with two developers: one on seller and hub, one on buyer and returns. They meet at `completeHandover`.
 
+### Deferred from Phase 7
+
+Three features sit off the core money path and were deferred deliberately for the capstone scope:
+
+1. **Invite staff (F12)** — email + role + hub → invite link, role applied on first sign-in
+2. **Customer-facing support form (F11)** — help form that creates a SupportRequest
+3. **Settings-history viewer** — browse the SettingsHistory table
+
 ---
 
 ## 19. Migration path to a production architecture
