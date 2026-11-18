@@ -3,6 +3,9 @@ import { resolve } from "path";
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: resolve(__dirname, "../../"),
+  outputFileTracingIncludes: {
+    "/**/*": ["../../packages/db/src/generated/client/*.node"],
+  },
   serverExternalPackages: ["@prisma/client", ".prisma/client"],
   transpilePackages: [
     "@certibuy/domain",

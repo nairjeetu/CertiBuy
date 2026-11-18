@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "./generated/client";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 
