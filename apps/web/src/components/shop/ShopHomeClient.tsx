@@ -3,6 +3,7 @@
 import { useShopHome } from "@/hooks/use-shop";
 import { ListingCard } from "./ListingCard";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Card {
   listingId: string;
@@ -16,22 +17,66 @@ interface Card {
   category?: string;
 }
 
-function SectionSkeleton() {
+/* ── Skeletons ────────────────────────────────────────────────────────── */
+
+function CardSkeleton() {
   return (
-    <div className="shop-grid">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="skeleton-card">
-          <div className="skeleton-image" />
-          <div className="skeleton-body">
-            <div className="skeleton-line" style={{ width: "70%" }} />
-            <div className="skeleton-line" style={{ width: "40%", height: 10 }} />
-            <div className="skeleton-line" style={{ width: "50%", marginTop: "auto" }} />
-          </div>
-        </div>
-      ))}
+    <div className="skeleton-card surface">
+      <div className="skeleton-image" />
+      <div className="skeleton-body">
+        <div className="skeleton-line" style={{ width: "70%" }} />
+        <div className="skeleton-line" style={{ width: "40%", height: 10 }} />
+        <div className="skeleton-line" style={{ width: "50%", marginTop: "auto" }} />
+      </div>
     </div>
   );
 }
+
+/* ── Feature cards ────────────────────────────────────────────────────── */
+
+const FEATURES = [
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 12l2 2 4-4"/>
+        <path d="M12 3c-1.2 0-2.4.6-3 1.5A3.5 3.5 0 0 0 5 8v3c0 4 3 8 7 10 4-2 7-6 7-10V8a3.5 3.5 0 0 0-4-3.5A3.8 3.8 0 0 0 12 3z"/>
+      </svg>
+    ),
+    title: "Technician graded",
+    desc: "A technician sets the final grade, against a checklist and the battery test.",
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    ),
+    title: "Escrow protected",
+    desc: "Your payment is held until the return window closes, never released on the day you buy.",
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="1 4 1 10 7 10"/>
+        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+      </svg>
+    ),
+    title: "7-day returns",
+    desc: "Not as graded, dead on arrival, or a change of mind — every route is priced up front.",
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+    title: "1-year warranty",
+    desc: "Grade A to C devices carry a full year, with a second year you can add at checkout.",
+  },
+];
+
+/* ── Main component ───────────────────────────────────────────────────── */
 
 export function ShopHomeClient() {
   const { data, isLoading, error } = useShopHome();
@@ -39,9 +84,9 @@ export function ShopHomeClient() {
   if (error) {
     return (
       <div className="shop-container">
-        <div className="shop-error">
+        <div className="shop-empty surface">
           <p>Something went wrong loading the shop.</p>
-          <p className="shop-error-detail">{(error as Error).message}</p>
+          <p className="meta">{(error as Error).message}</p>
         </div>
       </div>
     );
@@ -53,91 +98,96 @@ export function ShopHomeClient() {
 
   return (
     <div className="shop-container">
-      {/* Hero */}
-      <section className="shop-hero">
-        <div>
-          <h1 className="shop-hero-title">Certified pre-owned devices</h1>
-          <p className="shop-hero-subtitle">
-            {isLoading ? "Loading..." : `${totalActive} devices available`} — inspected, graded, and covered by warranty.
+      {/* ── Hero ──────────────────────────────────────────────────────── */}
+      <section className="hero surface animate-rise">
+        <div className="hero-content">
+          <span className="hero-eyebrow">CERTIFIED · CUSTODY FIRST</span>
+          <h1 className="hero-headline">
+            Buy Smart.<br />
+            Sell Better.<br />
+            Trust Every Device.
+          </h1>
+          <p className="hero-body">
+            Every device here was graded by a technician and is already in our
+            hands before you pay. Your money sits in escrow until the 7-day
+            return window closes.
           </p>
-        </div>
-        <div className="shop-hero-actions">
-          <Link href="/shop/browse" className="btn-primary">
-            Browse all devices
-          </Link>
-          <Link href="/shop/grades" className="btn-ghost">
-            How grades work
-          </Link>
-        </div>
-      </section>
-
-      {/* Stats strip */}
-      <section className="shop-stats">
-        <div className="shop-stat">
-          <span className="shop-stat-icon">🔍</span>
-          <div>
-            <span className="shop-stat-label">Inspected</span>
-            <span className="shop-stat-desc">48-point check</span>
+          <div className="hero-actions">
+            <Link href="/shop/browse" className="btn-primary">
+              Shop certified devices →
+            </Link>
+            <Link href="/shop/grades" className="btn-secondary">
+              How grading works
+            </Link>
           </div>
         </div>
-        <div className="shop-stat">
-          <span className="shop-stat-icon">🛡</span>
-          <div>
-            <span className="shop-stat-label">Warranty</span>
-            <span className="shop-stat-desc">Up to 3 months</span>
-          </div>
-        </div>
-        <div className="shop-stat">
-          <span className="shop-stat-icon">↩</span>
-          <div>
-            <span className="shop-stat-label">Returns</span>
-            <span className="shop-stat-desc">7-day window</span>
-          </div>
-        </div>
-        <div className="shop-stat">
-          <span className="shop-stat-icon">🔒</span>
-          <div>
-            <span className="shop-stat-label">Secure pay</span>
-            <span className="shop-stat-desc">Escrow protected</span>
+        <div className="hero-visual">
+          <Image
+            src="/hero-device.svg"
+            alt="CertiBuy certified device"
+            width={280}
+            height={350}
+            priority
+          />
+          <div className="hero-report-card surface">
+            <span className="hero-report-label">INSPECTION REPORT</span>
+            <span className="hero-report-grade">A grade</span>
+            <span className="hero-report-name">Apple iPhone 14</span>
+            <span className="meta">92% battery · graded and sealed</span>
+            <span className="hero-report-footnote">Photo of this exact unit · in our custody</span>
           </div>
         </div>
       </section>
 
-      {/* Just listed */}
+      {/* ── Feature cards ─────────────────────────────────────────────── */}
+      <section className="features-grid">
+        {FEATURES.map((f) => (
+          <div key={f.title} className="feature-card surface">
+            <div className="feature-icon">{f.icon}</div>
+            <h3 className="feature-title">{f.title}</h3>
+            <p className="feature-desc">{f.desc}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Just listed ───────────────────────────────────────────────── */}
       {isLoading ? (
         <section className="shop-section">
-          <h2 className="shop-section-title">Just listed</h2>
-          <SectionSkeleton />
+          <h2 className="section-title">Just listed</h2>
+          <div className="listing-grid">
+            {[1, 2, 3, 4].map((i) => <CardSkeleton key={i} />)}
+          </div>
         </section>
       ) : newest.length > 0 ? (
-        <section className="shop-section">
-          <div className="shop-section-header">
-            <h2 className="shop-section-title">Just listed</h2>
-            <Link href="/shop/browse" className="shop-section-link">View all →</Link>
+        <section className="shop-section animate-fade">
+          <div className="section-header">
+            <h2 className="section-title">Just listed</h2>
+            <Link href="/shop/browse" className="section-link">
+              View all {totalActive} devices →
+            </Link>
           </div>
-          <div className="shop-grid">
+          <div className="listing-grid">
             {newest.map((c) => <ListingCard key={c.listingId} {...c} />)}
           </div>
         </section>
       ) : (
         <section className="shop-section">
-          <div className="shop-empty">
-            <span style={{ fontSize: "2rem" }}>📦</span>
+          <div className="shop-empty surface">
             <p>No devices listed yet. Check back soon.</p>
           </div>
         </section>
       )}
 
-      {/* Grade A picks */}
+      {/* ── Grade A picks ─────────────────────────────────────────────── */}
       {!isLoading && gradeAPicks.length > 0 && (
-        <section className="shop-section">
-          <div className="shop-section-header">
-            <h2 className="shop-section-title">
+        <section className="shop-section animate-fade">
+          <div className="section-header">
+            <h2 className="section-title">
               <span className="grade-a-dot" /> Grade A picks
             </h2>
-            <Link href="/shop/browse?grade=A" className="shop-section-link">See all Grade A →</Link>
+            <Link href="/shop/browse?grade=A" className="section-link">See all Grade A →</Link>
           </div>
-          <div className="shop-grid">
+          <div className="listing-grid">
             {gradeAPicks.map((c) => <ListingCard key={c.listingId} {...c} />)}
           </div>
         </section>
@@ -145,152 +195,208 @@ export function ShopHomeClient() {
 
       <style jsx>{`
         .shop-container {
-          max-width: 960px;
+          max-width: 1200px;
           margin: 0 auto;
-          padding: 0 1rem 3rem;
+          padding: 1.5rem 1rem 3rem;
         }
 
-        /* Hero */
-        .shop-hero {
-          padding: 2rem 0 1.5rem;
+        /* ── Hero ─────────────────────────────────────────────────── */
+        .hero {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 2rem;
+          padding: 2.5rem;
+          margin-bottom: 1.5rem;
         }
-        .shop-hero-title {
-          font-size: 1.75rem;
-          font-weight: 700;
-          margin: 0;
-          letter-spacing: -0.02em;
+        .hero-content {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
-        .shop-hero-subtitle {
-          margin: 0.375rem 0 0;
-          color: var(--muted);
+        .hero-eyebrow {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: hsl(var(--muted));
+          margin-bottom: 0.75rem;
+        }
+        .hero-headline {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 2.5rem;
+          font-weight: 400;
+          line-height: 1.15;
+          color: hsl(var(--primary));
+          margin: 0 0 1rem;
+        }
+        .hero-body {
           font-size: 0.9375rem;
+          line-height: 1.6;
+          color: hsl(var(--muted));
+          max-width: 460px;
+          margin: 0 0 1.5rem;
         }
-        .shop-hero-actions {
+        .hero-actions {
           display: flex;
           gap: 0.75rem;
-          margin-top: 1.25rem;
+          flex-wrap: wrap;
         }
         .btn-primary {
           display: inline-flex;
           align-items: center;
           padding: 0.625rem 1.25rem;
-          background: var(--accent);
-          color: #fff;
-          border-radius: 8px;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border-radius: 9999px;
           font-size: 0.875rem;
           font-weight: 600;
           text-decoration: none;
           transition: opacity 0.15s;
         }
         .btn-primary:hover { opacity: 0.9; }
-        .btn-ghost {
+        .btn-secondary {
           display: inline-flex;
           align-items: center;
           padding: 0.625rem 1.25rem;
-          border: 1px solid var(--border);
-          border-radius: 8px;
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
           font-size: 0.875rem;
           font-weight: 500;
           text-decoration: none;
-          color: var(--fg);
+          color: hsl(var(--foreground));
           transition: background 0.15s;
         }
-        .btn-ghost:hover { background: var(--border); }
+        .btn-secondary:hover { background: hsl(var(--secondary)); }
 
-        /* Stats */
-        .shop-stats {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.75rem;
-          padding: 1rem 0 1.5rem;
-          border-top: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-          margin-bottom: 1.5rem;
-        }
-        .shop-stat {
+        /* Hero visual */
+        .hero-visual {
+          position: relative;
           display: flex;
           align-items: center;
-          gap: 0.625rem;
+          justify-content: center;
         }
-        .shop-stat-icon {
-          font-size: 1.25rem;
-          flex-shrink: 0;
+        .hero-report-card {
+          position: absolute;
+          bottom: 1rem;
+          left: -1rem;
+          padding: 0.75rem 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+          max-width: 220px;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
-        .shop-stat-label {
-          display: block;
+        .hero-report-label {
+          font-size: 0.5625rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: hsl(var(--muted));
+        }
+        .hero-report-grade {
+          display: inline-block;
+          align-self: flex-start;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          padding: 0.125rem 0.375rem;
+          border-radius: 4px;
+          background: hsl(160 84% 92%);
+          color: hsl(160 84% 25%);
+          margin: 0.125rem 0;
+        }
+        .hero-report-name {
           font-size: 0.8125rem;
           font-weight: 600;
+          color: hsl(var(--foreground));
         }
-        .shop-stat-desc {
-          display: block;
-          font-size: 0.6875rem;
-          color: var(--muted);
+        .hero-report-footnote {
+          font-size: 0.625rem;
+          color: hsl(var(--muted));
+          margin-top: 0.25rem;
+          font-style: italic;
         }
 
-        /* Sections */
-        .shop-section {
+        /* ── Feature cards ────────────────────────────────────────── */
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
           margin-bottom: 2rem;
         }
-        .shop-section-header {
+        .feature-card {
+          padding: 1.25rem;
+        }
+        .feature-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: hsl(var(--primary) / 0.08);
+          color: hsl(var(--primary));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 0.75rem;
+        }
+        .feature-title {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+          margin: 0 0 0.375rem;
+        }
+        .feature-desc {
+          font-size: 0.8125rem;
+          line-height: 1.5;
+          color: hsl(var(--muted));
+          margin: 0;
+        }
+
+        /* ── Listings ─────────────────────────────────────────────── */
+        .shop-section { margin-bottom: 2rem; }
+        .section-header {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
           margin-bottom: 0.875rem;
         }
-        .shop-section-title {
+        .section-title {
           font-size: 1.125rem;
           font-weight: 600;
           margin: 0;
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          color: hsl(var(--foreground));
         }
-        .shop-section-link {
+        .section-link {
           font-size: 0.8125rem;
           font-weight: 500;
+          color: hsl(var(--primary));
           text-decoration: none;
-          color: var(--accent);
         }
         .grade-a-dot {
           display: inline-block;
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #22c55e;
+          background: hsl(var(--success));
         }
-
-        /* Grid */
-        .shop-grid {
+        .listing-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
           gap: 1rem;
         }
 
-        /* Empty */
+        /* ── Empty / skeleton ─────────────────────────────────────── */
         .shop-empty {
           text-align: center;
           padding: 3rem 1rem;
-          color: var(--muted);
+          color: hsl(var(--muted));
         }
-        .shop-empty p { margin: 0.5rem 0 0; }
-
-        /* Error */
-        .shop-error {
-          text-align: center;
-          padding: 3rem 1rem;
-        }
-        .shop-error p { margin: 0 0 0.5rem; }
-        .shop-error-detail { font-size: 0.8125rem; color: var(--muted); }
-
-        /* Skeleton */
-        .skeleton-card {
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          overflow: hidden;
-        }
+        .skeleton-card { overflow: hidden; }
         .skeleton-image {
           aspect-ratio: 1;
-          background: var(--border);
+          background: hsl(var(--border));
           animation: pulse 1.5s ease-in-out infinite;
         }
         .skeleton-body {
@@ -303,20 +409,25 @@ export function ShopHomeClient() {
         .skeleton-line {
           height: 14px;
           border-radius: 4px;
-          background: var(--border);
+          background: hsl(var(--border));
           animation: pulse 1.5s ease-in-out infinite;
         }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
 
-        @media (max-width: 640px) {
-          .shop-hero-title { font-size: 1.375rem; }
-          .shop-stats { grid-template-columns: repeat(2, 1fr); }
-          .shop-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-          .shop-hero-actions { flex-direction: column; }
-          .btn-primary, .btn-ghost { justify-content: center; }
+        /* ── Responsive ───────────────────────────────────────────── */
+        @media (max-width: 768px) {
+          .hero {
+            grid-template-columns: 1fr;
+            padding: 1.5rem;
+          }
+          .hero-visual { display: none; }
+          .hero-headline { font-size: 2rem; }
+          .features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+          .features-grid { grid-template-columns: 1fr; }
+          .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+          .hero-actions { flex-direction: column; }
+          .btn-primary, .btn-secondary { justify-content: center; }
         }
       `}</style>
     </div>

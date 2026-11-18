@@ -1,3 +1,5 @@
+/* ── CertiBuy Design Tokens (docs/frontend.md §5) ────────────────────── */
+
 *,
 *::before,
 *::after {
@@ -6,37 +8,111 @@
 }
 
 :root {
-  --bg: #ffffff;
-  --fg: #111827;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #2563eb;
+  /* Page & surfaces */
+  --background: 216 26% 96%;
+  --card: 0 0% 100%;
+  --foreground: 220 54% 13%;
+
+  /* Primary (navy) */
+  --primary: 221 74% 17%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary / muted / accent */
+  --secondary: 215 20% 95%;
+  --secondary-foreground: 220 54% 13%;
+  --muted: 215 16% 47%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 215 20% 95%;
+  --accent-foreground: 220 54% 13%;
+
+  /* Semantic */
+  --success: 160 84% 34%;
+  --success-foreground: 160 84% 12%;
+  --warning: 35 71% 42%;
+  --warning-foreground: 35 71% 15%;
+  --destructive: 6 63% 46%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Chrome */
+  --border: 215 27% 91%;
+  --input: 215 27% 91%;
+  --ring: 221 74% 17%;
+  --radius: 1.125rem;
+
+  /* Fonts */
+  --font-heading: var(--font-onest), system-ui, sans-serif;
+  --font-display: var(--font-instrument), Georgia, serif;
+  --font-body: var(--font-onest), system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
+/* Dark tokens — defined per §5 so the toggle is a small addition later */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #111827;
-    --fg: #f9fafb;
-    --muted: #9ca3af;
-    --border: #374151;
-    --accent: #60a5fa;
+  :root:not([data-theme="light"]) {
+    --background: 222 36% 7%;
+    --card: 221 30% 10%;
+    --foreground: 213 30% 96%;
+    --primary: 213 82% 68%;
+    --primary-foreground: 222 36% 7%;
+    --secondary: 220 20% 16%;
+    --secondary-foreground: 213 30% 96%;
+    --muted: 215 16% 57%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 220 20% 16%;
+    --accent-foreground: 213 30% 96%;
+    --success: 160 66% 45%;
+    --success-foreground: 160 66% 12%;
+    --warning: 35 78% 58%;
+    --warning-foreground: 35 78% 15%;
+    --destructive: 6 68% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 20% 21%;
+    --input: 220 20% 21%;
+    --ring: 213 82% 68%;
   }
 }
 
+:root[data-theme="dark"] {
+  --background: 222 36% 7%;
+  --card: 221 30% 10%;
+  --foreground: 213 30% 96%;
+  --primary: 213 82% 68%;
+  --primary-foreground: 222 36% 7%;
+  --secondary: 220 20% 16%;
+  --secondary-foreground: 213 30% 96%;
+  --muted: 215 16% 57%;
+  --muted-foreground: 215 16% 57%;
+  --accent: 220 20% 16%;
+  --accent-foreground: 213 30% 96%;
+  --success: 160 66% 45%;
+  --success-foreground: 160 66% 12%;
+  --warning: 35 78% 58%;
+  --warning-foreground: 35 78% 15%;
+  --destructive: 6 68% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 20% 21%;
+  --input: 220 20% 21%;
+  --ring: 213 82% 68%;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: var(--bg);
-  color: var(--fg);
+  font-family: var(--font-body);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
 a {
-  color: var(--accent);
+  color: hsl(var(--primary));
+  text-decoration: none;
 }
 
 input,
@@ -44,6 +120,27 @@ button,
 select,
 textarea {
   font: inherit;
+}
+
+/* ── Utility classes ──────────────────────────────────────────────────── */
+
+.surface {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: hsl(var(--muted));
+  margin-bottom: 0.25rem;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: hsl(var(--muted));
 }
 
 .sr-only {
@@ -68,8 +165,36 @@ textarea {
   overflow: visible;
   clip: auto;
   white-space: normal;
-  background: var(--accent);
-  color: #fff;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
   font-weight: 600;
   z-index: 9999;
 }
+
+/* ── Animations ───────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-rise { animation: rise 0.3s ease-out both; }
+.animate-fade { animation: fade 0.3s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-fade {
+    animation: none;
+  }
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

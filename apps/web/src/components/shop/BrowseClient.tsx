@@ -58,7 +58,7 @@ export function BrowseClient() {
       {isLoading && (
         <div className="browse-grid">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="skeleton-card">
+            <div key={i} className="skeleton-card surface">
               <div className="skeleton-image" />
               <div className="skeleton-body">
                 <div className="skeleton-line" style={{ width: "70%" }} />
@@ -72,8 +72,10 @@ export function BrowseClient() {
       {error && <p className="browse-error">{(error as Error).message}</p>}
 
       {!isLoading && items.length === 0 && (
-        <div className="browse-empty">
-          <span style={{ fontSize: "2.5rem" }}>🔍</span>
+        <div className="browse-empty surface">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ opacity: 0.4 }}>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
           <p>No devices match your filters</p>
           <button className="browse-clear-btn" onClick={() => { for (const key of Object.keys(filters)) handleFilter(key, ""); }}>
             Clear filters
@@ -89,76 +91,63 @@ export function BrowseClient() {
 
       {totalPages > 1 && (
         <div className="browse-pagination">
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="page-btn"
-          >
-            Previous
-          </button>
-          <span className="page-info">
-            Page {page} of {totalPages}
-          </span>
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage(page + 1)}
-            className="page-btn"
-          >
-            Next
-          </button>
+          <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="page-btn">Previous</button>
+          <span className="page-info">Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="page-btn">Next</button>
         </div>
       )}
 
       <style jsx>{`
         .browse-container {
-          max-width: 960px;
+          max-width: 1200px;
           margin: 0 auto;
-          padding: 0 1rem 3rem;
+          padding: 1.5rem 1rem 3rem;
         }
-        .browse-header {
-          padding: 1rem 0 1.25rem;
-        }
+        .browse-header { padding: 0 0 1.25rem; }
         .browse-back {
           font-size: 0.8125rem;
-          color: var(--muted);
+          color: hsl(var(--muted));
           text-decoration: none;
         }
-        .browse-back:hover { color: var(--accent); }
+        .browse-back:hover { color: hsl(var(--primary)); }
         .browse-title {
           font-size: 1.5rem;
           font-weight: 700;
           margin: 0.25rem 0 0;
           letter-spacing: -0.01em;
+          color: hsl(var(--foreground));
         }
         .browse-count {
           margin: 0.25rem 0 0;
           font-size: 0.8125rem;
-          color: var(--muted);
+          color: hsl(var(--muted));
         }
 
         .browse-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
           gap: 1rem;
         }
 
         .browse-empty {
           text-align: center;
           padding: 3rem 1rem;
-          color: var(--muted);
+          color: hsl(var(--muted));
         }
-        .browse-empty p { margin: 0.5rem 0; }
+        .browse-empty p { margin: 0.75rem 0 0; }
         .browse-clear-btn {
-          margin-top: 0.5rem;
+          margin-top: 0.75rem;
           padding: 0.5rem 1rem;
-          border: 1px solid var(--border);
-          border-radius: 8px;
-          background: var(--bg);
-          color: var(--fg);
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
           font-size: 0.8125rem;
           cursor: pointer;
+          transition: background 0.15s;
         }
-        .browse-error { color: #dc2626; }
+        .browse-clear-btn:hover { background: hsl(var(--secondary)); }
+        .browse-error { color: hsl(var(--destructive)); }
 
         .browse-pagination {
           display: flex;
@@ -169,29 +158,22 @@ export function BrowseClient() {
         }
         .page-btn {
           padding: 0.5rem 1rem;
-          border: 1px solid var(--border);
-          border-radius: 8px;
-          background: var(--bg);
-          color: var(--fg);
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
           font-size: 0.8125rem;
           cursor: pointer;
           transition: background 0.15s;
         }
-        .page-btn:hover:not(:disabled) { background: var(--border); }
+        .page-btn:hover:not(:disabled) { background: hsl(var(--secondary)); }
         .page-btn:disabled { opacity: 0.4; cursor: default; }
-        .page-info {
-          font-size: 0.8125rem;
-          color: var(--muted);
-        }
+        .page-info { font-size: 0.8125rem; color: hsl(var(--muted)); }
 
-        .skeleton-card {
-          border: 1px solid var(--border);
-          border-radius: 12px;
-          overflow: hidden;
-        }
+        .skeleton-card { overflow: hidden; }
         .skeleton-image {
           aspect-ratio: 1;
-          background: var(--border);
+          background: hsl(var(--border));
           animation: pulse 1.5s ease-in-out infinite;
         }
         .skeleton-body {
@@ -204,12 +186,8 @@ export function BrowseClient() {
         .skeleton-line {
           height: 14px;
           border-radius: 4px;
-          background: var(--border);
+          background: hsl(var(--border));
           animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
         }
 
         @media (max-width: 640px) {
