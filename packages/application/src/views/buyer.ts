@@ -22,36 +22,29 @@ async function readSettings() {
 export async function getShopHome(actor: Actor) {
   requireRole(actor, "customer");
 
+  const listingInclude = {
+    device: {
+      select: {
+        id: true,
+        final_grade: true,
+        device_model_id: true,
+        device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true } },
+      },
+    },
+  } as const;
+
   const newest = await prisma.listing.findMany({
     where: { status: "active" },
     orderBy: { created_at: "desc" },
     take: 8,
-    include: {
-      device: {
-        select: {
-          id: true,
-          final_grade: true,
-          device_model_id: true,
-          device_model: { select: { brand: true, model: true, storage: true, category: true } },
-        },
-      },
-    },
+    include: listingInclude,
   });
 
   const gradeAPicks = await prisma.listing.findMany({
     where: { status: "active", device: { final_grade: "A" } },
     orderBy: { created_at: "desc" },
     take: 4,
-    include: {
-      device: {
-        select: {
-          id: true,
-          final_grade: true,
-          device_model_id: true,
-          device_model: { select: { brand: true, model: true, storage: true, category: true } },
-        },
-      },
-    },
+    include: listingInclude,
   });
 
   const totalActive = await prisma.listing.count({ where: { status: "active" } });
@@ -61,6 +54,8 @@ export async function getShopHome(actor: Actor) {
     brand: l.device.device_model.brand,
     model: l.device.device_model.model,
     storage: l.device.device_model.storage,
+    category: l.device.device_model.category,
+    imageUrl: l.device.device_model.image_url,
     grade: l.device.final_grade,
     currentPrice: l.current_price,
     warrantyMonths: l.warranty_months,
@@ -106,7 +101,7 @@ export async function getShopCatalogue(
       include: {
         device: {
           include: {
-            device_model: { select: { brand: true, model: true, storage: true, category: true } },
+            device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true } },
             hub: { select: { city: true } },
           },
         },
@@ -125,6 +120,7 @@ export async function getShopCatalogue(
       model: l.device.device_model.model,
       storage: l.device.device_model.storage,
       category: l.device.device_model.category,
+      imageUrl: l.device.device_model.image_url,
       grade: l.device.final_grade,
       currentPrice: l.current_price,
       warrantyMonths: l.warranty_months,
