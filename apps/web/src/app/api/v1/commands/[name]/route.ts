@@ -23,6 +23,14 @@ import {
   advanceShipment,
   raiseReturn,
   resolveReturn,
+  runDailyJobs,
+  advanceDemoClock,
+  recalcLiquidity,
+  computeMetrics,
+  resolveException,
+  updateSettings,
+  togglePayoutFailure,
+  saveDeviceModel,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof commandRoute>> = {
@@ -93,6 +101,31 @@ const handlers: Record<string, ReturnType<typeof commandRoute>> = {
   ),
   resolveReturn: commandRoute((actor, body, now) =>
     resolveReturn(actor, body as Parameters<typeof resolveReturn>[1], now),
+  ),
+  // Ops commands (O-01 … O-15)
+  runDailyJobs: commandRoute((actor, body, now) =>
+    runDailyJobs(actor, body as Parameters<typeof runDailyJobs>[1], now),
+  ),
+  advanceDemoClock: commandRoute((actor, body, now) =>
+    advanceDemoClock(actor, body as Parameters<typeof advanceDemoClock>[1], now),
+  ),
+  recalcLiquidity: commandRoute((actor, body, now) =>
+    recalcLiquidity(actor, body as Parameters<typeof recalcLiquidity>[1], now),
+  ),
+  computeMetrics: commandRoute((actor, body, now) =>
+    computeMetrics(actor, body as Parameters<typeof computeMetrics>[1], now),
+  ),
+  resolveException: commandRoute((actor, body, now) =>
+    resolveException(actor, body as Parameters<typeof resolveException>[1], now),
+  ),
+  updateSettings: commandRoute((actor, body, now) =>
+    updateSettings(actor, body as Parameters<typeof updateSettings>[1], now),
+  ),
+  togglePayoutFailure: commandRoute((actor, body, now) =>
+    togglePayoutFailure(actor, body as Parameters<typeof togglePayoutFailure>[1], now),
+  ),
+  saveDeviceModel: commandRoute((actor, body, now) =>
+    saveDeviceModel(actor, body as Parameters<typeof saveDeviceModel>[1], now),
   ),
 };
 

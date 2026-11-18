@@ -62,3 +62,33 @@ export {
   getOrderReceipt,
   getReturnOptions,
 } from "./views/buyer";
+
+export {
+  runDailyJobs,
+  advanceDemoClock,
+  recalcLiquidity,
+  computeMetrics,
+  resolveException,
+  updateSettings,
+  togglePayoutFailure,
+  saveDeviceModel,
+} from "./commands/ops";
+export type { JobRunResult } from "./commands/ops";
+
+export {
+  getOpsOverview,
+  getAlerts,
+  getCatalogue,
+  getPricingSettings,
+  getLiquidityBoard,
+  getInventory,
+  getExceptions,
+  getHubList,
+  getUserList,
+  getMetricsData,
+  getDemoControls,
+  getJobHistory,
+  getSupportInbox,
+  getAuditLog,
+  getMailLog,
+} from "./views/ops";

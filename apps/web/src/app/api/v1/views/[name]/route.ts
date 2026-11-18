@@ -20,6 +20,21 @@ import {
   getOrderTracking,
   getOrderReceipt,
   getReturnOptions,
+  getOpsOverview,
+  getAlerts,
+  getCatalogue,
+  getPricingSettings,
+  getLiquidityBoard,
+  getInventory,
+  getExceptions,
+  getHubList,
+  getUserList,
+  getMetricsData,
+  getDemoControls,
+  getJobHistory,
+  getSupportInbox,
+  getAuditLog,
+  getMailLog,
 } from "@certibuy/application";
 
 const handlers: Record<string, ReturnType<typeof viewRoute>> = {
@@ -50,6 +65,22 @@ const handlers: Record<string, ReturnType<typeof viewRoute>> = {
   orderTracking: viewRoute((actor, params, now) => getOrderTracking(actor, params.orderId ?? "", now)),
   orderReceipt: viewRoute((actor, params) => getOrderReceipt(actor, params.orderId ?? "")),
   returnOptions: viewRoute((actor, params, now) => getReturnOptions(actor, params.orderId ?? "", now)),
+  // Ops views (O-01 … O-15)
+  opsOverview: viewRoute((actor, params, now) => getOpsOverview(actor, params, now)),
+  opsAlerts: viewRoute((actor, params) => getAlerts(actor, params)),
+  opsCatalogue: viewRoute((actor) => getCatalogue(actor)),
+  opsPricing: viewRoute((actor) => getPricingSettings(actor)),
+  opsLiquidity: viewRoute((actor) => getLiquidityBoard(actor)),
+  opsInventory: viewRoute((actor, params) => getInventory(actor, params)),
+  opsExceptions: viewRoute((actor, params) => getExceptions(actor, params)),
+  opsHubs: viewRoute((actor, params, now) => getHubList(actor, params, now)),
+  opsUsers: viewRoute((actor, params) => getUserList(actor, params)),
+  opsMetrics: viewRoute((actor) => getMetricsData(actor)),
+  opsDemoControls: viewRoute((actor, params, now) => getDemoControls(actor, params, now)),
+  opsJobHistory: viewRoute((actor) => getJobHistory(actor)),
+  opsSupportInbox: viewRoute((actor, params) => getSupportInbox(actor, params)),
+  opsAuditLog: viewRoute((actor, params) => getAuditLog(actor, params)),
+  opsMailLog: viewRoute((actor) => getMailLog(actor)),
 };
 
 export async function GET(

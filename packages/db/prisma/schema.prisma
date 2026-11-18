@@ -973,3 +973,14 @@ model RateLimit {
 
   @@map("rate_limits")
 }
+
+model MetricSnapshot {
+  id          String   @id @default(cuid())
+  metric_name String
+  week_start  String
+  value       Float
+  computed_at DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([metric_name, week_start])
+  @@map("metric_snapshots")
+}
