@@ -43,4 +43,12 @@ describe("cancelRefund (golden cases)", () => {
       expect(result.escrow_type).toBe(c.expected_escrow_type);
     });
   }
+
+  it("default cancel_fee=0 gives full refund (§11.2)", () => {
+    const result = cancelRefund(25_000, DEFAULT_SETTINGS);
+    expect(DEFAULT_SETTINGS.cancel_fee).toBe(0);
+    expect(result.refund).toBe(25_000);
+    expect(result.deduction).toBe(0);
+    expect(result.escrow_type).toBe("refund_full");
+  });
 });

@@ -251,18 +251,6 @@ export async function cancelOrder(
       data: { status: "listed" },
     });
 
-    // Revert SFM balance payout if buyer had paid
-    if (order.status === "paid" && order.device.payout_option === "sell_for_more") {
-      await tx.payout.updateMany({
-        where: {
-          device_id: order.device_id,
-          type: "balance",
-          trigger: "buyer_paid_escrow",
-        },
-        data: { trigger: "day_21_unsold" },
-      });
-    }
-
     await tx.activityLog.create({
       data: {
         actor_id: actor.id,
