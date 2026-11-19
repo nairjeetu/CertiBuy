@@ -358,7 +358,8 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           display: flex;
           align-items: center;
           height: 46px;
-          background: hsl(var(--primary));
+          background: transparent;
+          border-top: 1px solid hsl(var(--border));
         }
         .header-nav-pills {
           display: flex;
