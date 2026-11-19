@@ -2,6 +2,7 @@
 
 import { useSellerHome } from "@/hooks/use-seller";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { DeviceImage } from "@/components/shop/DeviceImage";
 import { formatINR } from "@/lib/format";
 import Link from "next/link";
 
@@ -11,6 +12,7 @@ interface Deal {
   statusLabel: string;
   statusTone: string;
   model: { brand: string; name: string; storage: string };
+  colour?: string;
   offer: { guaranteedPrice: number; icEligible: boolean } | null;
   chosenOption: string | null;
   nextAction: string;
@@ -19,81 +21,256 @@ interface Deal {
 export function SellerHomeClient() {
   const { data, isLoading, error } = useSellerHome();
 
-  if (isLoading) return <p>Loading your deals...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading your deals...</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))", padding: "1rem" }}>{(error as Error).message}</p>;
 
   const deals = (data?.deals ?? []) as Deal[];
+  const raw = data as unknown as { paidToYou?: number; stillDue?: number } | undefined;
+  const stats = raw?.paidToYou !== undefined ? raw as { paidToYou: number; stillDue: number } : null;
+  const activeCount = deals.filter((d) => !["sold", "returned_to_seller", "cancelled"].includes(d.status)).length;
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <div>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>Sell your device</h2>
-          <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#6b7280" }}>
-            Get an instant quote. Two payout options: Instant Cash or Sell For More.
-          </p>
+    <div className="seller-page">
+      {/* Hero */}
+      <div className="seller-hero">
+        <span className="hero-eyebrow">SELL TO CERTIBUY</span>
+        <h1 className="hero-headline">Turn your old device into money, at a price you can trust.</h1>
+        <p className="hero-body">A few honest answers, eight guided photos and a two-minute check, and you&apos;ll know both prices before you leave home.</p>
+        <Link href="/seller/sell" className="hero-btn">Sell a device →</Link>
+      </div>
+
+      {/* Stats row */}
+      <div className="stats-row">
+        <div className="stat-card surface">
+          <span className="stat-label">Paid to you</span>
+          <span className="stat-value">{formatINR(stats?.paidToYou ?? 0)}</span>
+          <span className="meta">In your account</span>
         </div>
-        <Link
-          href="/seller/sell"
-          style={{
-            display: "inline-block",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#2563eb",
-            color: "#fff",
-            borderRadius: "0.375rem",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-            textDecoration: "none",
-          }}
-        >
-          Start selling
-        </Link>
+        <div className="stat-card surface">
+          <span className="stat-label">Still due to you</span>
+          <span className="stat-value">{formatINR(stats?.stillDue ?? 0)}</span>
+          <span className="meta">Advance or balance, pending</span>
+        </div>
+        <div className="stat-card surface">
+          <span className="stat-label">Active deals</span>
+          <span className="stat-value-num">{activeCount}</span>
+          <span className="meta">Devices still with you or in transit</span>
+        </div>
+      </div>
+
+      {/* Deals */}
+      <div className="deals-header">
+        <h2 className="deals-title">Your deals</h2>
+        <span className="meta">{deals.length} device{deals.length !== 1 ? "s" : ""}</span>
       </div>
 
       {deals.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "3rem 1rem", color: "#6b7280" }}>
-          <p style={{ fontSize: "1rem" }}>No deals yet.</p>
-          <p style={{ fontSize: "0.875rem" }}>Start a submission to get an offer for your device.</p>
+        <div className="deals-empty surface">
+          <p>No deals yet.</p>
+          <p className="meta">Start a submission to get an offer for your device.</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <div className="deals-list">
           {deals.map((deal) => (
             <Link
               key={deal.id}
               href={deal.status === "draft" || deal.status === "graded" || deal.status === "offer_accepted"
                 ? `/seller/sell/${deal.id}`
                 : `/seller/deals/${deal.id}`}
-              style={{
-                display: "block",
-                padding: "0.75rem 1rem",
-                border: "1px solid #e5e7eb",
-                borderRadius: "0.5rem",
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              className="deal-card surface"
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                <div>
-                  <div style={{ fontWeight: 500 }}>
-                    {deal.model.brand} {deal.model.name} {deal.model.storage}
-                  </div>
-                  <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "0.25rem" }}>
-                    {deal.nextAction}
-                  </div>
-                </div>
-                <div style={{ textAlign: "right" }}>
+              <div className="deal-card-img">
+                <DeviceImage brand={deal.model.brand} model={deal.model.name} size="sm" />
+              </div>
+              <div className="deal-card-info">
+                <div className="deal-card-name-row">
+                  <span className="deal-card-name">{deal.model.brand} {deal.model.name}</span>
                   <StatusChip label={deal.statusLabel} tone={deal.statusTone} />
-                  {deal.offer && (
-                    <div style={{ fontSize: "0.875rem", fontWeight: 500, marginTop: "0.25rem" }}>
-                      {formatINR(deal.offer.guaranteedPrice)}
-                    </div>
-                  )}
                 </div>
+                <p className="meta">{deal.model.storage}{deal.colour ? ` · ${deal.colour}` : ""}</p>
+                <p className="deal-card-action">{deal.nextAction}</p>
+              </div>
+              <div className="deal-card-price">
+                {deal.offer ? (
+                  <span>{formatINR(deal.offer.guaranteedPrice)}</span>
+                ) : (
+                  <span className="meta">—</span>
+                )}
+                <span className="meta">{deal.chosenOption ? deal.chosenOption.replace(/_/g, " ") : "No offer chosen"}</span>
               </div>
             </Link>
           ))}
         </div>
       )}
+
+      {/* Help */}
+      <div className="seller-help">
+        <Link href="/help" className="seller-help-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Need help?
+        </Link>
+      </div>
+
+      <style jsx>{`
+        .seller-page {
+          max-width: 900px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .seller-hero {
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          padding: 2.5rem;
+          border-radius: var(--radius);
+          margin-bottom: 1.5rem;
+        }
+        .hero-eyebrow {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          opacity: 0.7;
+          margin-bottom: 0.75rem;
+          display: block;
+        }
+        .hero-headline {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.75rem;
+          font-weight: 400;
+          line-height: 1.2;
+          margin: 0 0 0.75rem;
+        }
+        .hero-body {
+          font-size: 0.9375rem;
+          opacity: 0.8;
+          line-height: 1.5;
+          max-width: 500px;
+          margin: 0 0 1.25rem;
+        }
+        .hero-btn {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.625rem 1.25rem;
+          border: 1px solid hsla(0, 0%, 100%, 0.3);
+          border-radius: 9999px;
+          color: hsl(var(--primary-foreground));
+          text-decoration: none;
+          font-size: 0.875rem;
+          font-weight: 600;
+          transition: background 0.15s;
+        }
+        .hero-btn:hover { background: hsla(0, 0%, 100%, 0.1); }
+
+        /* Stats */
+        .stats-row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+        .stat-card { padding: 1.25rem; }
+        .stat-label {
+          display: block;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+          margin-bottom: 0.25rem;
+        }
+        .stat-value {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: hsl(var(--warning));
+          line-height: 1.2;
+          margin-bottom: 0.25rem;
+        }
+        .stat-value-num {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+          line-height: 1.2;
+          margin-bottom: 0.25rem;
+        }
+
+        /* Deals */
+        .deals-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 0.75rem;
+        }
+        .deals-title {
+          font-size: 1.0625rem;
+          font-weight: 600;
+          margin: 0;
+          color: hsl(var(--foreground));
+        }
+        .deals-empty {
+          text-align: center;
+          padding: 3rem 1rem;
+          color: hsl(var(--muted));
+        }
+        .deals-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .deal-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+          text-decoration: none;
+          color: inherit;
+          transition: box-shadow 0.15s;
+        }
+        .deal-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .deal-card-img {
+          width: 44px; height: 44px;
+          background: hsl(var(--background));
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .deal-card-info { flex: 1; min-width: 0; }
+        .deal-card-name-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        .deal-card-name { font-weight: 600; font-size: 0.9375rem; }
+        .deal-card-action {
+          margin: 0.25rem 0 0;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
+        .deal-card-price {
+          text-align: right;
+          font-weight: 600;
+          font-size: 0.9375rem;
+          flex-shrink: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.125rem;
+        }
+
+        .seller-help { text-align: center; margin-top: 2rem; }
+        .seller-help-link {
+          display: inline-flex; align-items: center; gap: 0.375rem;
+          font-size: 0.8125rem; color: hsl(var(--muted)); text-decoration: none;
+        }
+        .seller-help-link:hover { color: hsl(var(--foreground)); }
+
+        @media (max-width: 640px) {
+          .stats-row { grid-template-columns: 1fr; }
+          .hero-headline { font-size: 1.375rem; }
+          .seller-hero { padding: 1.5rem; }
+          .deal-card { flex-wrap: wrap; }
+        }
+      `}</style>
     </div>
   );
 }

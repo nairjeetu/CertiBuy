@@ -26,7 +26,7 @@ export function HubQueueClient() {
   const router = useRouter();
 
   if (isLoading) return <p>Loading queue...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const queue = data as unknown as {
     hub: { id: string; name: string; city: string } | null;
@@ -49,9 +49,9 @@ export function HubQueueClient() {
             onClick={() => setDate(d === queue.today ? undefined : d)}
             style={{
               padding: "0.375rem 0.75rem",
-              border: (date ?? queue.today) === d ? "2px solid #2563eb" : "1px solid #d1d5db",
+              border: (date ?? queue.today) === d ? "2px solid #2563eb" : "1px solid hsl(var(--border))",
               borderRadius: "0.375rem",
-              backgroundColor: (date ?? queue.today) === d ? "#eff6ff" : "#fff",
+              backgroundColor: (date ?? queue.today) === d ? "hsl(var(--primary) / 0.04)" : "#fff",
               cursor: "pointer",
               fontSize: "0.8125rem",
               whiteSpace: "nowrap",
@@ -63,7 +63,7 @@ export function HubQueueClient() {
       </div>
 
       {queue.jobs.length === 0 && (
-        <p style={{ color: "#6b7280", fontSize: "0.875rem" }}>No bookings for this day.</p>
+        <p style={{ color: "hsl(var(--muted))", fontSize: "0.875rem" }}>No bookings for this day.</p>
       )}
 
       {queue.jobs.map((job) => (
@@ -77,7 +77,7 @@ export function HubQueueClient() {
             width: "100%",
             padding: "0.75rem",
             marginBottom: "0.5rem",
-            border: "1px solid #e5e7eb",
+            border: "1px solid hsl(var(--border))",
             borderRadius: "0.5rem",
             backgroundColor: "#fff",
             cursor: "pointer",
@@ -88,10 +88,10 @@ export function HubQueueClient() {
             <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>
               {job.model.brand} {job.model.name} {job.model.storage}
             </div>
-            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+            <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted))" }}>
               {job.slot} · {job.seller.name}
             </div>
-            <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "0.125rem" }}>
+            <div style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", marginTop: "0.125rem" }}>
               AI: {job.aiBand.join("–") || "—"} · {job.confidence}
             </div>
           </div>

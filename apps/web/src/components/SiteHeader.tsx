@@ -11,6 +11,7 @@ import type { Actor } from "@certibuy/application";
 const BUYER_NAV = [
   { href: "/shop", label: "Home", icon: "🏠" },
   { href: "/shop/browse", label: "Shop", icon: "🛍" },
+  { href: "/shop/grades", label: "Grades explained", icon: "📋" },
   { href: "/shop/orders", label: "My orders", icon: "📦" },
 ];
 

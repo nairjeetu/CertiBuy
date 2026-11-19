@@ -39,9 +39,9 @@ export function IdentityStep({ submissionId, imei, report }: Props) {
         value={scannedImei}
         onChange={(e) => setScannedImei(e.target.value)}
         placeholder="IMEI number"
-        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", marginBottom: "0.5rem", fontSize: "0.875rem" }}
+        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid hsl(var(--border))", borderRadius: "0.375rem", marginBottom: "0.5rem", fontSize: "0.875rem" }}
       />
-      <p style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "0.75rem" }}>
+      <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", marginBottom: "0.75rem" }}>
         Declared: {imei}
       </p>
 
@@ -54,25 +54,25 @@ export function IdentityStep({ submissionId, imei, report }: Props) {
         <button
           onClick={handleVerify}
           disabled={verify.isPending || !scannedImei.trim()}
-          style={{ padding: "0.5rem 1rem", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
+          style={{ padding: "0.5rem 1rem", backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
         >
           {verify.isPending ? "Verifying..." : "Verify identity"}
         </button>
         <button
           onClick={() => reject.mutate({ submissionId, reasonCode: "identity_failed", note: "Identity check failed at counter" })}
           disabled={reject.isPending}
-          style={{ padding: "0.5rem 1rem", backgroundColor: "#fff", color: "#dc2626", border: "1px solid #dc2626", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
+          style={{ padding: "0.5rem 1rem", backgroundColor: "#fff", color: "hsl(var(--destructive))", border: "1px solid hsl(var(--destructive))", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
         >
           Reject
         </button>
       </div>
 
       {result && (
-        <div style={{ marginTop: "1rem", padding: "0.75rem", borderRadius: "0.375rem", backgroundColor: result.passed ? "#f0fdf4" : "#fef2f2", border: `1px solid ${result.passed ? "#dcfce7" : "#fecaca"}` }}>
-          <p style={{ fontWeight: 500, color: result.passed ? "#166534" : "#991b1b", margin: 0, fontSize: "0.875rem" }}>
+        <div style={{ marginTop: "1rem", padding: "0.75rem", borderRadius: "0.375rem", backgroundColor: result.passed ? "hsl(var(--success) / 0.05)" : "#fef2f2", border: `1px solid ${result.passed ? "#dcfce7" : "#fecaca"}` }}>
+          <p style={{ fontWeight: 500, color: result.passed ? "hsl(var(--success))" : "#991b1b", margin: 0, fontSize: "0.875rem" }}>
             {result.passed ? "Identity passed" : "Identity failed"}
           </p>
-          <ul style={{ fontSize: "0.75rem", color: "#374151", margin: "0.25rem 0 0", paddingLeft: "1rem" }}>
+          <ul style={{ fontSize: "0.75rem", color: "hsl(var(--foreground))", margin: "0.25rem 0 0", paddingLeft: "1rem" }}>
             <li>IMEI match: {result.imeiMatch ? "Yes" : "No"}</li>
             <li>Blacklist clear: {result.blacklisted ? "No — blacklisted" : "Yes"}</li>
             <li>Activation lock off: {result.activationLockOff ? "Yes" : "No"}</li>
@@ -80,8 +80,8 @@ export function IdentityStep({ submissionId, imei, report }: Props) {
         </div>
       )}
 
-      {verify.error && <p style={{ color: "#991b1b", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(verify.error as Error).message}</p>}
-      {reject.error && <p style={{ color: "#991b1b", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(reject.error as Error).message}</p>}
+      {verify.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(verify.error as Error).message}</p>}
+      {reject.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(reject.error as Error).message}</p>}
     </div>
   );
 }

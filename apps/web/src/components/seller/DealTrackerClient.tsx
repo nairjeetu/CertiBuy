@@ -2,6 +2,7 @@
 
 import { useDealTracker } from "@/hooks/use-seller";
 import { StatusChip } from "@/components/ui/StatusChip";
+import { DeviceImage } from "@/components/shop/DeviceImage";
 import { formatINR, formatDate } from "@/lib/format";
 import Link from "next/link";
 
@@ -35,8 +36,8 @@ interface DealData {
 export function DealTrackerClient({ submissionId }: { submissionId: string }) {
   const { data, isLoading, error } = useDealTracker(submissionId);
 
-  if (isLoading) return <p>Loading deal...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading deal...</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))", padding: "1rem" }}>{(error as Error).message}</p>;
 
   const deal = data as unknown as DealData;
   if (!deal) return <p>Deal not found.</p>;
@@ -46,63 +47,55 @@ export function DealTrackerClient({ submissionId }: { submissionId: string }) {
     : deal.offer?.guaranteedPrice;
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <div style={{ marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-          <div>
-            <h2 style={{ fontSize: "1.125rem", fontWeight: 600, margin: 0 }}>
-              {deal.model.brand} {deal.model.name} {deal.model.storage}
-            </h2>
-            <p style={{ fontSize: "0.8125rem", color: "#6b7280", margin: "0.25rem 0 0" }}>
-              {deal.nextAction}
-            </p>
-          </div>
-          <StatusChip label={deal.statusLabel} tone={deal.statusTone} />
+    <div className="deal-page">
+      {/* Header */}
+      <div className="deal-header surface">
+        <div className="deal-header-img">
+          <DeviceImage brand={deal.model.brand} model={deal.model.name} size="sm" />
         </div>
+        <div className="deal-header-info">
+          <h1 className="deal-header-name">{deal.model.brand} {deal.model.name}</h1>
+          <p className="meta" style={{ margin: 0 }}>{deal.model.storage} · {deal.nextAction}</p>
+        </div>
+        <StatusChip label={deal.statusLabel} tone={deal.statusTone} />
       </div>
 
       {/* Money card */}
       {deal.offer && (
-        <div style={{ padding: "1rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", marginBottom: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "0.875rem" }}>
-              {deal.chosenOption === "instant_cash" ? "Instant Cash" : "Sell For More (guaranteed)"}
-            </span>
-            <span style={{ fontWeight: 600 }}>{amount ? formatINR(amount) : "—"}</span>
+        <div className="card surface">
+          <div className="card-row">
+            <span>{deal.chosenOption === "instant_cash" ? "Instant Cash" : "Sell For More (guaranteed)"}</span>
+            <span className="card-amount">{amount ? formatINR(amount) : "—"}</span>
           </div>
           {deal.chosenOption === "sell_for_more" && (
-            <div style={{ fontSize: "0.75rem", color: "#6b7280", marginTop: "0.25rem" }}>
-              50% advance on handover, balance when sold or on day 21.
-            </div>
+            <p className="meta" style={{ margin: "0.25rem 0 0" }}>50% advance on handover, balance when sold or on day 21.</p>
           )}
         </div>
       )}
 
       {/* Booking card */}
       {deal.booking && (
-        <div style={{ padding: "1rem", border: "1px solid #e5e7eb", borderRadius: "0.5rem", marginBottom: "1rem" }}>
-          <h3 style={{ fontSize: "0.875rem", fontWeight: 500, margin: "0 0 0.5rem" }}>Inspection booking</h3>
-          <div style={{ fontSize: "0.8125rem" }}>
-            {deal.booking.hubName} · {deal.booking.date} at {deal.booking.slot}
-          </div>
-          <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>{deal.booking.hubAddress}</div>
+        <div className="card surface">
+          <h3 className="card-heading">Inspection booking</h3>
+          <p style={{ margin: 0, fontSize: "0.875rem" }}>{deal.booking.hubName} · {deal.booking.date} at {deal.booking.slot}</p>
+          <p className="meta" style={{ margin: "0.125rem 0 0.5rem" }}>{deal.booking.hubAddress}</p>
           <StatusChip label={deal.booking.status === "booked" ? "Booked" : deal.booking.status} tone={deal.booking.status === "booked" ? "info" : "neutral"} />
         </div>
       )}
 
-      {/* Payments table */}
+      {/* Payments */}
       {deal.payouts.length > 0 && (
-        <div style={{ marginBottom: "1rem" }}>
-          <h3 style={{ fontSize: "0.875rem", fontWeight: 500, marginBottom: "0.5rem" }}>Payments</h3>
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: "0.5rem", overflow: "hidden" }}>
+        <div className="card surface">
+          <h3 className="card-heading">Payments</h3>
+          <div className="payment-list">
             {deal.payouts.map((p) => (
-              <div key={p.id} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 1rem", fontSize: "0.8125rem", borderBottom: "1px solid #f3f4f6" }}>
+              <div key={p.id} className="payment-row">
                 <div>
                   <span style={{ textTransform: "capitalize" }}>{p.type.replace(/_/g, " ")}</span>
-                  <span style={{ color: "#6b7280", marginLeft: "0.5rem" }}>· {formatDate(p.createdAt)}</span>
+                  <span className="meta" style={{ marginLeft: "0.5rem" }}>· {formatDate(p.createdAt)}</span>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <span style={{ fontWeight: 500 }}>{formatINR(p.amount)}</span>
+                <div className="payment-right">
+                  <span className="payment-amount">{formatINR(p.amount)}</span>
                   <StatusChip label={p.statusLabel} tone={p.status === "paid" ? "success" : p.status === "failed" ? "destructive" : "neutral"} />
                 </div>
               </div>
@@ -113,12 +106,12 @@ export function DealTrackerClient({ submissionId }: { submissionId: string }) {
 
       {/* Timeline */}
       {deal.timeline.length > 0 && (
-        <div>
-          <h3 style={{ fontSize: "0.875rem", fontWeight: 500, marginBottom: "0.5rem" }}>Timeline</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+        <div className="card surface">
+          <h3 className="card-heading">Timeline</h3>
+          <div className="timeline">
             {deal.timeline.map((t, i) => (
-              <div key={i} style={{ fontSize: "0.8125rem", display: "flex", gap: "0.5rem" }}>
-                <span style={{ color: "#9ca3af", minWidth: 70 }}>{t.date}</span>
+              <div key={i} className="timeline-row">
+                <span className="timeline-date">{t.date}</span>
                 <span>{t.text}</span>
               </div>
             ))}
@@ -126,11 +119,66 @@ export function DealTrackerClient({ submissionId }: { submissionId: string }) {
         </div>
       )}
 
-      <div style={{ marginTop: "1.5rem" }}>
-        <Link href="/seller" style={{ fontSize: "0.875rem", color: "#2563eb", textDecoration: "none" }}>
-          Back to seller home
-        </Link>
+      <div className="back-link-row">
+        <Link href="/seller" className="back-link">← Back to seller home</Link>
       </div>
+
+      <style jsx>{`
+        .deal-page {
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .deal-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+        }
+        .deal-header-img {
+          width: 48px; height: 48px;
+          background: hsl(var(--background));
+          border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+        }
+        .deal-header-info { flex: 1; }
+        .deal-header-name { font-size: 1.0625rem; font-weight: 600; margin: 0; color: hsl(var(--foreground)); }
+
+        .card { padding: 1rem 1.25rem; }
+        .card-heading { font-size: 0.9375rem; font-weight: 600; margin: 0 0 0.5rem; color: hsl(var(--foreground)); }
+        .card-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+        }
+        .card-amount { font-weight: 700; }
+
+        .payment-list { display: flex; flex-direction: column; }
+        .payment-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem 0;
+          font-size: 0.8125rem;
+          border-bottom: 1px solid hsl(var(--border));
+        }
+        .payment-row:last-child { border-bottom: none; }
+        .payment-right { display: flex; align-items: center; gap: 0.5rem; }
+        .payment-amount { font-weight: 600; }
+
+        .timeline { display: flex; flex-direction: column; gap: 0.375rem; }
+        .timeline-row { font-size: 0.8125rem; display: flex; gap: 0.5rem; color: hsl(var(--foreground)); }
+        .timeline-date { color: hsl(var(--muted)); min-width: 70px; }
+
+        .back-link-row { margin-top: 0.5rem; }
+        .back-link { font-size: 0.875rem; color: hsl(var(--primary)); text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+      `}</style>
     </div>
   );
 }

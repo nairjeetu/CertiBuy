@@ -15,7 +15,7 @@ export function RaiseReturnClient({ orderId }: { orderId: string }) {
   const router = useRouter();
 
   if (isLoading) return <p>Loading return options...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
   if (!data) return <p>Order not found.</p>;
 
   const d = data as {
@@ -27,11 +27,11 @@ export function RaiseReturnClient({ orderId }: { orderId: string }) {
   if (!d.eligible) {
     return (
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <Link href={`/shop/orders/${orderId}`} style={{ fontSize: "0.875rem", color: "#2563eb", textDecoration: "none" }}>
+        <Link href={`/shop/orders/${orderId}`} style={{ fontSize: "0.875rem", color: "hsl(var(--primary))", textDecoration: "none" }}>
           Back to order
         </Link>
-        <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid #e5e7eb", borderRadius: 8 }}>
-          <p style={{ margin: 0, color: "#6b7280" }}>
+        <div style={{ marginTop: "1rem", padding: "1rem", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }}>
+          <p style={{ margin: 0, color: "hsl(var(--muted))" }}>
             Returns are not available for this order.
             {d.daysLeft <= 0 && " The return window has closed."}
           </p>
@@ -42,10 +42,10 @@ export function RaiseReturnClient({ orderId }: { orderId: string }) {
 
   return (
     <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <Link href={`/shop/orders/${orderId}`} style={{ fontSize: "0.875rem", color: "#2563eb", textDecoration: "none" }}>
+      <Link href={`/shop/orders/${orderId}`} style={{ fontSize: "0.875rem", color: "hsl(var(--primary))", textDecoration: "none" }}>
         Back to order
       </Link>
-      <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: "0.5rem 0 1rem" }}>
+      <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", margin: "0.5rem 0 1rem" }}>
         {d.daysLeft} days left in your return window
       </p>
       <ReturnForm

@@ -57,7 +57,7 @@ export function ChecklistStep({ submissionId }: Props) {
               border: "1px solid",
               borderColor: checklist[item] === "pass" ? "#16a34a" : "#dc2626",
               borderRadius: "0.375rem",
-              backgroundColor: checklist[item] === "pass" ? "#f0fdf4" : "#fef2f2",
+              backgroundColor: checklist[item] === "pass" ? "hsl(var(--success) / 0.05)" : "#fef2f2",
               cursor: "pointer",
               fontSize: "0.8125rem",
               textAlign: "left",
@@ -91,9 +91,9 @@ export function ChecklistStep({ submissionId }: Props) {
             style={{
               width: 40,
               height: 40,
-              border: cosmetic === g ? "2px solid #2563eb" : "1px solid #d1d5db",
+              border: cosmetic === g ? "2px solid #2563eb" : "1px solid hsl(var(--border))",
               borderRadius: "0.375rem",
-              backgroundColor: cosmetic === g ? "#eff6ff" : "#fff",
+              backgroundColor: cosmetic === g ? "hsl(var(--primary) / 0.04)" : "#fff",
               fontWeight: cosmetic === g ? 700 : 400,
               cursor: "pointer",
             }}
@@ -106,12 +106,12 @@ export function ChecklistStep({ submissionId }: Props) {
       <button
         onClick={handleSubmit}
         disabled={confirm.isPending}
-        style={{ padding: "0.5rem 1rem", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
+        style={{ padding: "0.5rem 1rem", backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
       >
         {confirm.isPending ? "Confirming..." : "Confirm grade"}
       </button>
 
-      {confirm.error && <p style={{ color: "#991b1b", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(confirm.error as Error).message}</p>}
+      {confirm.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(confirm.error as Error).message}</p>}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { GradeBadge } from "./GradeBadge";
+import { GradeChip } from "../ui/GradeChip";
 import { formatINR } from "@/lib/format";
 
 interface Props {
@@ -15,15 +15,15 @@ interface Props {
 
 export function OrderSummaryCard({ brand, model, storage, grade, devicePrice, warrantyAddonAmount, total }: Props) {
   return (
-    <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, padding: "1rem" }}>
+    <div className="summary-card surface" style={{ padding: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
         <div>
-          <p style={{ margin: 0, fontWeight: 600 }}>{brand} {model}</p>
-          <p style={{ margin: "0.25rem 0 0", fontSize: "0.875rem", color: "#6b7280" }}>{storage}</p>
+          <p style={{ margin: 0, fontWeight: 600, color: "hsl(var(--foreground))" }}>{brand} {model}</p>
+          <p className="meta" style={{ marginTop: "0.25rem" }}>{storage}</p>
         </div>
-        <GradeBadge grade={grade} />
+        <GradeChip grade={grade} />
       </div>
-      <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: "0.75rem" }}>
+      <div style={{ borderTop: "1px solid hsl(var(--border))", paddingTop: "0.75rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", marginBottom: "0.25rem" }}>
           <span>Device price</span>
           <span>{formatINR(devicePrice)}</span>
@@ -34,7 +34,7 @@ export function OrderSummaryCard({ brand, model, storage, grade, devicePrice, wa
             <span>{formatINR(warrantyAddonAmount)}</span>
           </div>
         )}
-        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid #e5e7eb" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, marginTop: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid hsl(var(--border))" }}>
           <span>Total</span>
           <span>{formatINR(total)}</span>
         </div>

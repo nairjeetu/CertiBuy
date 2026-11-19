@@ -3,6 +3,7 @@
 import { useGradeSubmission, useSubmissionWizard } from "@/hooks/use-seller";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { StepRail } from "./StepRail";
 
 interface GradeResponse {
   ok: boolean;
@@ -43,35 +44,78 @@ export function GradeResultClient({ submissionId }: { submissionId: string }) {
 
   if (grade.isPending) {
     return (
-      <div style={{ maxWidth: 480, margin: "0 auto", textAlign: "center", padding: "3rem 1rem" }}>
-        <p style={{ fontSize: "1rem" }}>Grading your device...</p>
+      <div className="grade-page">
+        <StepRail current={4} />
+        <div className="grade-loading surface">
+          <div className="spinner" />
+          <p>Grading your device...</p>
+          <p className="meta">Running the grading engine. This takes a moment.</p>
+        </div>
+        <style jsx>{`
+          .grade-page { max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+          .grade-loading { text-align: center; padding: 3rem 1rem; }
+          .grade-loading p { margin: 0.5rem 0 0; }
+          .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid hsl(var(--border));
+            border-top-color: hsl(var(--primary));
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+          }
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
       </div>
     );
   }
 
   if (grade.isError) {
     return (
-      <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <p style={{ color: "#991b1b" }}>{(grade.error as Error).message}</p>
-        <button onClick={() => router.back()} style={{ marginTop: "1rem", padding: "0.5rem 1rem", cursor: "pointer" }}>
-          Go back
-        </button>
+      <div className="grade-page">
+        <StepRail current={4} />
+        <div className="error-card surface">
+          <p style={{ color: "hsl(var(--destructive))", margin: 0 }}>{(grade.error as Error).message}</p>
+          <button onClick={() => router.back()} className="btn-secondary" style={{ marginTop: "1rem" }}>← Go back</button>
+        </div>
+        <style jsx>{`
+          .grade-page { max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+          .error-card { padding: 1.5rem; }
+          .btn-secondary {
+            padding: 0.625rem 1.25rem; background: hsl(var(--card)); color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border)); border-radius: 9999px; font-size: 0.875rem; cursor: pointer;
+          }
+        `}</style>
       </div>
     );
   }
 
   if (result?.rejected) {
     return (
-      <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ padding: "1.5rem", border: "1px solid #fecaca", borderRadius: "0.5rem", backgroundColor: "#fef2f2" }}>
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600, color: "#991b1b", marginBottom: "0.5rem" }}>
-            Device not eligible
-          </h2>
-          <p style={{ fontSize: "0.875rem", color: "#7f1d1d" }}>{result.reason}</p>
+      <div className="grade-page">
+        <StepRail current={4} />
+        <div className="reject-card surface">
+          <div className="reject-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--destructive))" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <h2 className="reject-title">Device not eligible</h2>
+          <p className="reject-reason">{result.reason}</p>
         </div>
-        <button onClick={() => router.push("/seller")} style={{ marginTop: "1.5rem", padding: "0.5rem 1rem", cursor: "pointer", border: "1px solid #d1d5db", borderRadius: "0.375rem", backgroundColor: "#fff" }}>
-          Back to seller home
-        </button>
+        <button onClick={() => router.push("/seller")} className="btn-secondary" style={{ marginTop: "1rem" }}>Back to seller home</button>
+        <style jsx>{`
+          .grade-page { max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+          .reject-card {
+            padding: 2rem; text-align: center;
+            border: 1px solid hsl(var(--destructive) / 0.2);
+            background: hsl(var(--destructive) / 0.03);
+          }
+          .reject-icon { margin-bottom: 0.75rem; }
+          .reject-title { font-size: 1.125rem; font-weight: 600; color: hsl(var(--destructive)); margin: 0 0 0.5rem; }
+          .reject-reason { font-size: 0.875rem; color: hsl(var(--muted)); margin: 0; }
+          .btn-secondary {
+            padding: 0.625rem 1.25rem; background: hsl(var(--card)); color: hsl(var(--foreground));
+            border: 1px solid hsl(var(--border)); border-radius: 9999px; font-size: 0.875rem; cursor: pointer;
+          }
+        `}</style>
       </div>
     );
   }
@@ -79,24 +123,51 @@ export function GradeResultClient({ submissionId }: { submissionId: string }) {
   if (result?.ok && result.assessment) {
     const a = result.assessment;
     return (
-      <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ padding: "1.5rem", border: "1px solid #bbf7d0", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}>
-          <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.75rem" }}>
-            Estimated grade: {a.estimate}
-          </h2>
-          <div style={{ fontSize: "0.875rem", marginBottom: "0.5rem" }}>
-            <strong>Band:</strong> {a.band.join(" – ")} · <strong>Confidence:</strong> {a.confidence}
+      <div className="grade-page">
+        <StepRail current={4} />
+        <div className="result-card surface">
+          <div className="result-header">
+            <span className="result-grade-letter">{a.estimate}</span>
+            <div>
+              <h2 className="result-heading">Estimated grade: {a.estimate}</h2>
+              <p className="meta" style={{ margin: 0 }}>Band: {a.band.join(" – ")} · Confidence: {a.confidence}</p>
+            </div>
           </div>
-          <ul style={{ margin: 0, paddingLeft: "1.25rem", fontSize: "0.8125rem", color: "#374151" }}>
-            {a.factors.map((f, i) => <li key={i} style={{ marginBottom: "0.25rem" }}>{f}</li>)}
+          <ul className="result-factors">
+            {a.factors.map((f, i) => <li key={i}>{f}</li>)}
           </ul>
         </div>
         <button
           onClick={() => router.push(`/seller/sell/${submissionId}/offer`)}
-          style={{ marginTop: "1.5rem", padding: "0.5rem 1.25rem", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}
+          className="btn-primary"
+          style={{ marginTop: "1rem" }}
         >
-          See your offer
+          See your offer →
         </button>
+        <style jsx>{`
+          .grade-page { max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+          .result-card {
+            padding: 1.5rem;
+            border: 1px solid hsl(var(--success) / 0.3);
+            background: hsl(var(--success) / 0.03);
+          }
+          .result-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+          .result-grade-letter {
+            font-family: var(--font-display); font-style: italic; font-size: 2.5rem;
+            color: hsl(var(--success)); line-height: 1;
+          }
+          .result-heading { font-size: 1.0625rem; font-weight: 600; margin: 0 0 0.25rem; color: hsl(var(--foreground)); }
+          .result-factors {
+            margin: 0; padding-left: 1.25rem;
+            font-size: 0.8125rem; color: hsl(var(--foreground));
+            line-height: 1.6;
+          }
+          .btn-primary {
+            padding: 0.625rem 1.5rem; background: hsl(var(--primary)); color: hsl(var(--primary-foreground));
+            border: none; border-radius: 9999px; font-weight: 600; font-size: 0.875rem; cursor: pointer;
+          }
+          .btn-primary:hover { opacity: 0.9; }
+        `}</style>
       </div>
     );
   }

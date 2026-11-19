@@ -8,7 +8,7 @@ export function ConfirmationClient({ orderId }: { orderId: string }) {
   const { data, isLoading, error } = useOrderReceipt(orderId);
 
   if (isLoading) return <p>Loading confirmation...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
   if (!data) return <p>Order not found.</p>;
 
   const d = data as {
@@ -22,7 +22,7 @@ export function ConfirmationClient({ orderId }: { orderId: string }) {
     <div style={{ maxWidth: 520, margin: "0 auto", textAlign: "center" }}>
       <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>&#10003;</div>
       <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: "0 0 0.25rem" }}>Order confirmed</h2>
-      <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "1.5rem" }}>
+      <p style={{ fontSize: "0.875rem", color: "hsl(var(--muted))", marginBottom: "1.5rem" }}>
         Order {d.orderId.slice(0, 8)} · {d.escrowLabel}
       </p>
 
@@ -38,7 +38,7 @@ export function ConfirmationClient({ orderId }: { orderId: string }) {
         />
       </div>
 
-      <div style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#6b7280" }}>
+      <div style={{ marginTop: "1rem", fontSize: "0.875rem", color: "hsl(var(--muted))" }}>
         <p style={{ margin: "0.25rem 0" }}>Payment: {d.paymentMethod.toUpperCase()}</p>
         {d.returnWindowClosesAt && (
           <p style={{ margin: "0.25rem 0" }}>
@@ -50,13 +50,13 @@ export function ConfirmationClient({ orderId }: { orderId: string }) {
       <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", marginTop: "1.5rem" }}>
         <Link
           href={`/shop/orders/${d.orderId}`}
-          style={{ padding: "0.625rem 1.25rem", backgroundColor: "#2563eb", color: "#fff", borderRadius: 6, textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}
+          style={{ padding: "0.625rem 1.25rem", backgroundColor: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", borderRadius: "0.75rem", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}
         >
           Track order
         </Link>
         <Link
           href="/shop"
-          style={{ padding: "0.625rem 1.25rem", border: "1px solid #d1d5db", borderRadius: 6, textDecoration: "none", color: "inherit", fontSize: "0.875rem" }}
+          style={{ padding: "0.625rem 1.25rem", border: "1px solid hsl(var(--border))", borderRadius: "0.75rem", textDecoration: "none", color: "inherit", fontSize: "0.875rem" }}
         >
           Continue shopping
         </Link>

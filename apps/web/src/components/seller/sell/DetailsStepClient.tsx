@@ -3,6 +3,7 @@
 import { useSubmissionWizard, useSaveDetails } from "@/hooks/use-seller";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { StepRail } from "./StepRail";
 
 const COSMETIC_OPTIONS = [
   { value: "A", label: "Like new", hint: "No visible marks" },
@@ -34,7 +35,7 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
   const [waterExposure, setWaterExposure] = useState(false);
   const [error, setError] = useState("");
 
-  if (!isNew && isLoading) return <p>Loading...</p>;
+  if (!isNew && isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading...</p>;
 
   async function handleSubmit() {
     setError("");
@@ -59,110 +60,246 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <StepRail current={0} />
-      <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>Device details</h2>
+    <div className="details-page">
+      <StepRail current={1} />
+      <h1 className="details-title">Device details</h1>
+      <p className="meta" style={{ marginBottom: "1.5rem" }}>Tell us about the condition. The technician will verify everything at the hub.</p>
 
-      <label style={labelStyle}>IMEI (15 digits)</label>
-      <input
-        type="text"
-        inputMode="numeric"
-        maxLength={15}
-        value={imei}
-        onChange={(e) => setImei(e.target.value.replace(/\D/g, ""))}
-        placeholder="Enter your 15-digit IMEI"
-        style={inputStyle}
-      />
-      <p style={{ fontSize: "0.75rem", color: "#6b7280", margin: "0.25rem 0 1rem" }}>
-        Dial *#06# to find your IMEI.
-      </p>
+      <div className="form-section surface">
+        {/* IMEI */}
+        <div className="form-group">
+          <label className="field-label">IMEI (15 digits)</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={15}
+            value={imei}
+            onChange={(e) => setImei(e.target.value.replace(/\D/g, ""))}
+            placeholder="Enter your 15-digit IMEI"
+            className="form-input"
+          />
+          <p className="meta" style={{ marginTop: "0.25rem" }}>Dial *#06# to find your IMEI.</p>
+        </div>
 
-      <label style={labelStyle}>Cosmetic condition</label>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1rem" }}>
-        {COSMETIC_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setCosmetic(opt.value)}
-            style={{
-              padding: "0.5rem",
-              border: cosmetic === opt.value ? "2px solid #2563eb" : "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              backgroundColor: cosmetic === opt.value ? "#eff6ff" : "#fff",
-              cursor: "pointer",
-              textAlign: "left",
-            }}
-          >
-            <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>Grade {opt.value} — {opt.label}</div>
-            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>{opt.hint}</div>
-          </button>
-        ))}
+        {/* Cosmetic condition */}
+        <div className="form-group">
+          <label className="field-label">Cosmetic condition</label>
+          <div className="cosmetic-grid">
+            {COSMETIC_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setCosmetic(opt.value)}
+                className={`radio-card ${cosmetic === opt.value ? "radio-card-active" : ""}`}
+              >
+                <span className="radio-card-grade">{opt.value}</span>
+                <div>
+                  <span className="radio-card-label">{opt.label}</span>
+                  <span className="meta" style={{ display: "block" }}>{opt.hint}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Repair history */}
+        <div className="form-group">
+          <label className="field-label">Repair history</label>
+          <div className="repair-list">
+            {REPAIR_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setRepaired(opt.value)}
+                className={`radio-row ${repaired === opt.value ? "radio-row-active" : ""}`}
+              >
+                <span className={`radio-dot ${repaired === opt.value ? "radio-dot-active" : ""}`} />
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Water exposure */}
+        <div className="form-group">
+          <label className="water-label">
+            <input
+              type="checkbox"
+              checked={waterExposure}
+              onChange={(e) => setWaterExposure(e.target.checked)}
+              className="water-check"
+            />
+            <div>
+              <span className="field-label" style={{ marginBottom: 0 }}>Water exposure</span>
+              <span className="meta" style={{ display: "block" }}>Has the device been exposed to water or moisture?</span>
+            </div>
+          </label>
+        </div>
       </div>
 
-      <label style={labelStyle}>Repair history</label>
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", marginBottom: "1rem" }}>
-        {REPAIR_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setRepaired(opt.value)}
-            style={{
-              padding: "0.5rem 0.75rem",
-              border: repaired === opt.value ? "2px solid #2563eb" : "1px solid #d1d5db",
-              borderRadius: "0.375rem",
-              backgroundColor: repaired === opt.value ? "#eff6ff" : "#fff",
-              cursor: "pointer",
-              textAlign: "left",
-              fontSize: "0.875rem",
-            }}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      {error && <p className="error-msg">{error}</p>}
 
-      <label style={{ ...labelStyle, display: "flex", alignItems: "center", gap: "0.5rem" }}>
-        <input
-          type="checkbox"
-          checked={waterExposure}
-          onChange={(e) => setWaterExposure(e.target.checked)}
-        />
-        Water exposure
-      </label>
-
-      {error && <p style={{ color: "#991b1b", fontSize: "0.875rem", marginTop: "0.5rem" }}>{error}</p>}
-
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
-        <button onClick={() => router.back()} style={secondaryBtnStyle}>Back</button>
-        <button onClick={handleSubmit} disabled={save.isPending} style={primaryBtnStyle}>
-          {save.isPending ? "Saving..." : "Next: Photos"}
+      <div className="actions">
+        <button onClick={() => router.back()} className="btn-secondary">← Back</button>
+        <button onClick={handleSubmit} disabled={save.isPending} className="btn-primary">
+          {save.isPending ? "Saving..." : "Next: Photos →"}
         </button>
       </div>
+
+      <style jsx>{`
+        .details-page {
+          max-width: 560px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .details-title {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          font-weight: 400;
+          margin: 0 0 0.25rem;
+          color: hsl(var(--foreground));
+        }
+
+        .form-section { padding: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-input {
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          border: 1px solid hsl(var(--input));
+          border-radius: 0.875rem;
+          font-size: 0.9375rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          box-sizing: border-box;
+        }
+        .form-input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: 1px; }
+
+        /* Cosmetic cards */
+        .cosmetic-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.5rem;
+        }
+        .radio-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.625rem;
+          padding: 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius);
+          background: hsl(var(--card));
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.15s;
+        }
+        .radio-card:hover { border-color: hsl(var(--muted)); }
+        .radio-card-active {
+          border-color: hsl(var(--primary));
+          background: hsl(var(--primary) / 0.04);
+        }
+        .radio-card-grade {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.25rem;
+          color: hsl(var(--foreground));
+          line-height: 1;
+          min-width: 1.5rem;
+        }
+        .radio-card-label { font-weight: 600; font-size: 0.875rem; color: hsl(var(--foreground)); }
+
+        /* Repair radios */
+        .repair-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.375rem;
+        }
+        .radio-row {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          padding: 0.625rem 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius);
+          background: hsl(var(--card));
+          cursor: pointer;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+          transition: all 0.15s;
+          text-align: left;
+        }
+        .radio-row:hover { border-color: hsl(var(--muted)); }
+        .radio-row-active {
+          border-color: hsl(var(--primary));
+          background: hsl(var(--primary) / 0.04);
+        }
+        .radio-dot {
+          width: 16px; height: 16px;
+          border-radius: 50%;
+          border: 2px solid hsl(var(--border));
+          flex-shrink: 0;
+          transition: all 0.15s;
+        }
+        .radio-dot-active {
+          border-color: hsl(var(--primary));
+          background: hsl(var(--primary));
+          box-shadow: inset 0 0 0 3px hsl(var(--card));
+        }
+
+        /* Water exposure */
+        .water-label {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          cursor: pointer;
+        }
+        .water-check {
+          width: 18px; height: 18px;
+          margin-top: 0.125rem;
+          accent-color: hsl(var(--primary));
+        }
+
+        .error-msg {
+          color: hsl(var(--destructive));
+          font-size: 0.875rem;
+          margin-top: 0.75rem;
+        }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 1.5rem;
+        }
+        .btn-primary {
+          padding: 0.625rem 1.5rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          border-radius: 9999px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: default; }
+        .btn-secondary {
+          padding: 0.625rem 1.25rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .btn-secondary:hover { background: hsl(var(--secondary)); }
+
+        @media (max-width: 480px) {
+          .cosmetic-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
     </div>
   );
 }
-
-function StepRail({ current }: { current: number }) {
-  const steps = ["Details", "Photos", "Diagnostics", "Grade", "Offer", "Book"];
-  return (
-    <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", overflowX: "auto" }}>
-      {steps.map((s, i) => (
-        <div key={s} style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-          <div style={{
-            width: 24, height: 24, borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "0.75rem", fontWeight: 500,
-            backgroundColor: i <= current ? "#2563eb" : "#e5e7eb",
-            color: i <= current ? "#fff" : "#6b7280",
-          }}>
-            {i + 1}
-          </div>
-          <span style={{ fontSize: "0.75rem", color: i <= current ? "#1e40af" : "#9ca3af", whiteSpace: "nowrap" }}>{s}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const labelStyle: React.CSSProperties = { display: "block", fontSize: "0.875rem", fontWeight: 500, marginBottom: "0.375rem" };
-const inputStyle: React.CSSProperties = { width: "100%", padding: "0.5rem 0.75rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", fontSize: "0.875rem", boxSizing: "border-box" };
-const primaryBtnStyle: React.CSSProperties = { padding: "0.5rem 1.25rem", backgroundColor: "#2563eb", color: "#fff", border: "none", borderRadius: "0.375rem", fontSize: "0.875rem", fontWeight: 500, cursor: "pointer" };
-const secondaryBtnStyle: React.CSSProperties = { padding: "0.5rem 1.25rem", backgroundColor: "#fff", color: "#374151", border: "1px solid #d1d5db", borderRadius: "0.375rem", fontSize: "0.875rem", cursor: "pointer" };

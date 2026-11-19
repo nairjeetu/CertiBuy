@@ -19,7 +19,7 @@ export function AuditLogClient() {
   const { data, isLoading, error } = useOpsAuditLog(params);
 
   if (isLoading) return <p>Loading audit log...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const logs = (data?.logs ?? []) as LogEntry[];
 
@@ -27,14 +27,14 @@ export function AuditLogClient() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>Audit log</h2>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }} />
+        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: "0.75rem", border: "1px solid hsl(var(--border))" }} />
       </div>
       {logs.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No log entries{date ? ` for ${date}` : ""}.</p>
+        <p style={{ color: "hsl(var(--muted))" }}>No log entries{date ? ` for ${date}` : ""}.</p>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
           <thead>
-            <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+            <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
               <th style={{ padding: "0.5rem" }}>Actor</th>
               <th style={{ padding: "0.5rem" }}>Action</th>
               <th style={{ padding: "0.5rem" }}>Entity</th>
@@ -45,7 +45,7 @@ export function AuditLogClient() {
           </thead>
           <tbody>
             {logs.map(l => (
-              <tr key={l.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+              <tr key={l.id} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 <td style={{ padding: "0.5rem" }}>{l.actor_name}</td>
                 <td style={{ padding: "0.5rem" }}>{l.text}</td>
                 <td style={{ padding: "0.5rem" }}>{l.entity}</td>

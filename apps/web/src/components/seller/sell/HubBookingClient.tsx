@@ -3,6 +3,7 @@
 import { useHubSlots, useBookInspection } from "@/hooks/use-seller";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { StepRail } from "./StepRail";
 
 interface HubData {
   id: string;
@@ -25,11 +26,10 @@ export function HubBookingClient({ submissionId }: { submissionId: string }) {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState("");
 
-  if (isLoading) return <p>Loading hubs...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading hubs...</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))", padding: "1rem" }}>{(error as Error).message}</p>;
 
   const hubs = ((data as { hubs?: HubData[] })?.hubs ?? []) as HubData[];
-
   const activeHub = hubs.find((h) => h.id === selectedHub);
 
   async function handleBook() {
@@ -44,44 +44,33 @@ export function HubBookingClient({ submissionId }: { submissionId: string }) {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>Book an inspection</h2>
+    <div className="hub-page">
+      <StepRail current={6} />
+      <h1 className="hub-title">Book an inspection</h1>
+      <p className="meta" style={{ marginBottom: "1.25rem" }}>Choose a hub, pick a date and time. Bring the device, your ID and the charger.</p>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1.5rem" }}>
+      {/* Hub list */}
+      <div className="hub-list">
         {hubs.map((hub) => (
           <button
             key={hub.id}
             onClick={() => { setSelectedHub(hub.id); setSelectedDate(null); setSelectedSlot(null); }}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.75rem 1rem",
-              border: selectedHub === hub.id ? "2px solid #2563eb" : "1px solid #e5e7eb",
-              borderRadius: "0.5rem",
-              backgroundColor: selectedHub === hub.id ? "#eff6ff" : "#fff",
-              cursor: "pointer",
-              textAlign: "left",
-              width: "100%",
-            }}
+            className={`hub-card surface ${selectedHub === hub.id ? "hub-active" : ""}`}
           >
-            <div>
-              <div style={{ fontWeight: 500 }}>{hub.name}</div>
-              <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>{hub.address}, {hub.city}</div>
+            <div className="hub-card-info">
+              <span className="hub-card-name">{hub.name}</span>
+              <span className="meta">{hub.address}, {hub.city}</span>
             </div>
-            <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
-              {hub.type} · {hub.distanceKm} km
-            </div>
+            <span className="meta">{hub.type} · {hub.distanceKm} km</span>
           </button>
         ))}
       </div>
 
+      {/* Date picker */}
       {activeHub && (
-        <>
-          <h3 style={{ fontSize: "0.9375rem", fontWeight: 500, marginBottom: "0.5rem" }}>
-            Choose a date
-          </h3>
-          <div style={{ display: "flex", gap: "0.5rem", overflowX: "auto", marginBottom: "1rem" }}>
+        <div className="section">
+          <h3 className="section-heading">Choose a date</h3>
+          <div className="date-row">
             {activeHub.dates.map((d) => {
               const dayLabel = new Date(d.date + "T00:00:00").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
               return (
@@ -89,82 +78,186 @@ export function HubBookingClient({ submissionId }: { submissionId: string }) {
                   key={d.date}
                   onClick={() => { setSelectedDate(d.date); setSelectedSlot(null); }}
                   disabled={d.available <= 0}
-                  style={{
-                    padding: "0.5rem 0.75rem",
-                    border: selectedDate === d.date ? "2px solid #2563eb" : "1px solid #d1d5db",
-                    borderRadius: "0.375rem",
-                    backgroundColor: selectedDate === d.date ? "#eff6ff" : d.available <= 0 ? "#f9fafb" : "#fff",
-                    cursor: d.available > 0 ? "pointer" : "not-allowed",
-                    opacity: d.available > 0 ? 1 : 0.5,
-                    textAlign: "center",
-                    minWidth: 80,
-                    whiteSpace: "nowrap",
-                  }}
+                  className={`date-chip ${selectedDate === d.date ? "date-active" : ""} ${d.available <= 0 ? "date-full" : ""}`}
                 >
-                  <div style={{ fontSize: "0.8125rem", fontWeight: 500 }}>{dayLabel}</div>
-                  <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>{d.available} slots</div>
+                  <span className="date-chip-day">{dayLabel}</span>
+                  <span className="meta">{d.available} slots</span>
                 </button>
               );
             })}
           </div>
-        </>
+        </div>
       )}
 
+      {/* Time picker */}
       {activeHub && selectedDate && (
-        <>
-          <h3 style={{ fontSize: "0.9375rem", fontWeight: 500, marginBottom: "0.5rem" }}>
-            Choose a time
-          </h3>
-          <div style={{ display: "flex", gap: "0.375rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <div className="section">
+          <h3 className="section-heading">Choose a time</h3>
+          <div className="time-row">
             {activeHub.slotTimes.map((slot) => (
               <button
                 key={slot}
                 onClick={() => setSelectedSlot(slot)}
-                style={{
-                  padding: "0.375rem 0.75rem",
-                  border: selectedSlot === slot ? "2px solid #2563eb" : "1px solid #d1d5db",
-                  borderRadius: "0.375rem",
-                  backgroundColor: selectedSlot === slot ? "#eff6ff" : "#fff",
-                  cursor: "pointer",
-                  fontSize: "0.8125rem",
-                }}
+                className={`time-chip ${selectedSlot === slot ? "time-active" : ""}`}
               >
                 {slot}
               </button>
             ))}
           </div>
-        </>
+        </div>
       )}
 
-      {submitError && <p style={{ color: "#991b1b", fontSize: "0.875rem" }}>{submitError}</p>}
+      {submitError && <p className="error-msg">{submitError}</p>}
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
-        <button onClick={() => router.back()} style={{ padding: "0.5rem 1.25rem", backgroundColor: "#fff", color: "#374151", border: "1px solid #d1d5db", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}>
-          Back
-        </button>
+      <div className="actions">
+        <button onClick={() => router.back()} className="btn-secondary">← Back</button>
         <button
           onClick={handleBook}
           disabled={!selectedHub || !selectedDate || !selectedSlot || book.isPending}
-          style={{
-            padding: "0.5rem 1.25rem",
-            backgroundColor: selectedHub && selectedDate && selectedSlot ? "#2563eb" : "#9ca3af",
-            color: "#fff",
-            border: "none",
-            borderRadius: "0.375rem",
-            cursor: selectedHub && selectedDate && selectedSlot ? "pointer" : "not-allowed",
-            fontSize: "0.875rem",
-            fontWeight: 500,
-          }}
+          className="btn-primary"
         >
-          {book.isPending ? "Booking..." : "Confirm booking"}
+          {book.isPending ? "Booking..." : "Confirm booking →"}
         </button>
       </div>
 
       {selectedHub && selectedDate && selectedSlot && (
-        <div style={{ marginTop: "1rem", padding: "0.75rem 1rem", backgroundColor: "#f9fafb", borderRadius: "0.375rem", fontSize: "0.8125rem", color: "#374151" }}>
+        <div className="reminder surface">
           <strong>What to bring:</strong> your device, a government-issued photo ID, and the charger.
         </div>
       )}
+
+      <style jsx>{`
+        .hub-page {
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .hub-title {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          font-weight: 400;
+          margin: 0 0 0.25rem;
+          color: hsl(var(--foreground));
+        }
+
+        .hub-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-bottom: 1.5rem;
+        }
+        .hub-card {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.875rem 1.25rem;
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+          border: none;
+          transition: all 0.15s;
+        }
+        .hub-active {
+          outline: 2px solid hsl(var(--primary));
+          outline-offset: -2px;
+          background: hsl(var(--primary) / 0.04);
+        }
+        .hub-card:hover:not(.hub-active) { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .hub-card-info { display: flex; flex-direction: column; gap: 0.125rem; }
+        .hub-card-name { font-weight: 600; font-size: 0.9375rem; color: hsl(var(--foreground)); }
+
+        .section { margin-bottom: 1.5rem; }
+        .section-heading {
+          font-size: 0.9375rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+          margin: 0 0 0.5rem;
+        }
+
+        .date-row {
+          display: flex;
+          gap: 0.5rem;
+          overflow-x: auto;
+          padding-bottom: 0.25rem;
+        }
+        .date-chip {
+          padding: 0.5rem 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius);
+          background: hsl(var(--card));
+          cursor: pointer;
+          text-align: center;
+          min-width: 80px;
+          white-space: nowrap;
+          transition: all 0.15s;
+        }
+        .date-active {
+          border-color: hsl(var(--primary));
+          background: hsl(var(--primary) / 0.04);
+        }
+        .date-full { opacity: 0.4; cursor: not-allowed; }
+        .date-chip-day { display: block; font-size: 0.8125rem; font-weight: 600; color: hsl(var(--foreground)); }
+
+        .time-row {
+          display: flex;
+          gap: 0.375rem;
+          flex-wrap: wrap;
+        }
+        .time-chip {
+          padding: 0.375rem 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          background: hsl(var(--card));
+          cursor: pointer;
+          font-size: 0.8125rem;
+          color: hsl(var(--foreground));
+          transition: all 0.15s;
+        }
+        .time-active {
+          border-color: hsl(var(--primary));
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+        }
+
+        .error-msg { color: hsl(var(--destructive)); font-size: 0.875rem; margin-top: 0.75rem; }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 1.5rem;
+        }
+        .btn-primary {
+          padding: 0.625rem 1.5rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          border-radius: 9999px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: default; }
+        .btn-secondary {
+          padding: 0.625rem 1.25rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          cursor: pointer;
+        }
+        .btn-secondary:hover { background: hsl(var(--secondary)); }
+
+        .reminder {
+          margin-top: 1rem;
+          padding: 0.875rem 1.25rem;
+          font-size: 0.8125rem;
+          color: hsl(var(--foreground));
+          line-height: 1.5;
+        }
+      `}</style>
     </div>
   );
 }

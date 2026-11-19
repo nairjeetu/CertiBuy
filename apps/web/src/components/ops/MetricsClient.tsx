@@ -25,7 +25,7 @@ export function MetricsClient() {
   const compute = useComputeMetrics();
 
   if (isLoading) return <p>Loading metrics...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const metrics = (data?.metrics ?? {}) as Record<string, Week[]>;
   const hasData = Object.keys(metrics).length > 0;
@@ -34,12 +34,12 @@ export function MetricsClient() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>Metrics</h2>
-        <button onClick={() => compute.mutate()} disabled={compute.isPending} style={{ padding: "0.5rem 1rem", borderRadius: 6, background: "#2563eb", color: "#fff", border: "none", cursor: "pointer", opacity: compute.isPending ? 0.6 : 1 }}>
+        <button onClick={() => compute.mutate()} disabled={compute.isPending} style={{ padding: "0.5rem 1rem", borderRadius: "0.75rem", background: "#2563eb", color: "hsl(var(--primary-foreground))", border: "none", cursor: "pointer", opacity: compute.isPending ? 0.6 : 1 }}>
           {compute.isPending ? "Computing..." : "Compute metrics"}
         </button>
       </div>
       {!hasData ? (
-        <p style={{ color: "#6b7280" }}>No metric data yet. Click &ldquo;Compute metrics&rdquo; to generate.</p>
+        <p style={{ color: "hsl(var(--muted))" }}>No metric data yet. Click &ldquo;Compute metrics&rdquo; to generate.</p>
       ) : (
         Object.entries(METRIC_LABELS).map(([key, label]) => {
           const weeks = metrics[key] ?? [];
@@ -49,7 +49,7 @@ export function MetricsClient() {
               <h3 style={{ fontSize: "1rem", fontWeight: 600, margin: "0 0 0.5rem" }}>{label}</h3>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
                 <thead>
-                  <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+                  <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
                     {weeks.map(w => <th key={w.week_start} style={{ padding: "0.375rem 0.5rem" }}>{w.week_start}</th>)}
                   </tr>
                 </thead>

@@ -30,7 +30,7 @@ export function RejectStep({ submissionId }: Props) {
       <select
         value={reasonCode}
         onChange={(e) => setReasonCode(e.target.value)}
-        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", marginBottom: "0.5rem", fontSize: "0.875rem" }}
+        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid hsl(var(--border))", borderRadius: "0.375rem", marginBottom: "0.5rem", fontSize: "0.875rem" }}
       >
         {REASONS.map((r) => (
           <option key={r.code} value={r.code}>{r.label}</option>
@@ -44,18 +44,18 @@ export function RejectStep({ submissionId }: Props) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         rows={2}
-        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", marginBottom: "1rem", fontSize: "0.875rem", resize: "vertical" }}
+        style={{ display: "block", width: "100%", padding: "0.5rem", border: "1px solid hsl(var(--border))", borderRadius: "0.375rem", marginBottom: "1rem", fontSize: "0.875rem", resize: "vertical" }}
       />
 
       <button
         onClick={() => reject.mutate({ submissionId, reasonCode, note: note || undefined })}
         disabled={reject.isPending}
-        style={{ padding: "0.5rem 1rem", backgroundColor: "#dc2626", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
+        style={{ padding: "0.5rem 1rem", backgroundColor: "#dc2626", color: "hsl(var(--primary-foreground))", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
       >
         {reject.isPending ? "Rejecting..." : "Reject device"}
       </button>
 
-      {reject.error && <p style={{ color: "#991b1b", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(reject.error as Error).message}</p>}
+      {reject.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(reject.error as Error).message}</p>}
     </div>
   );
 }

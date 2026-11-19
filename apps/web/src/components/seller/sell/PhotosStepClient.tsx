@@ -4,6 +4,7 @@ import { useSubmissionWizard, useWorkspace } from "@/hooks/use-seller";
 import { useRouter } from "next/navigation";
 import { useState, useRef } from "react";
 import { checkPhoto } from "@/lib/photo-check";
+import { StepRail } from "./StepRail";
 
 const PHOTO_TIPS: Record<string, string[]> = {
   phone: ["Front screen", "Back panel", "Top edge", "Bottom edge", "Left side", "Right side", "Camera lens", "Screen on (home screen)"],
@@ -38,9 +39,10 @@ export function PhotosStepClient({ submissionId }: { submissionId: string }) {
     tips.map((tip, i) => ({ key: `photo_${i}`, tip, file: null, brightness: 0, ok: false })),
   );
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading...</p>;
 
   const allOk = slots.every((s) => s.ok);
+  const doneCount = slots.filter((s) => s.ok).length;
 
   function handleSelectSlot(index: number) {
     setActiveSlot(index);
@@ -69,8 +71,6 @@ export function PhotosStepClient({ submissionId }: { submissionId: string }) {
   }
 
   async function handleNext() {
-    // In a real app, upload photos to Supabase Storage here.
-    // For Phase 3, we store the photo metadata on the submission.
     const photoData = slots.map((s) => ({
       key: s.key,
       brightness: s.brightness,
@@ -91,47 +91,149 @@ export function PhotosStepClient({ submissionId }: { submissionId: string }) {
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-        Photos ({slots.filter((s) => s.ok).length}/{slots.length})
-      </h2>
-      <p style={{ fontSize: "0.8125rem", color: "#6b7280", marginBottom: "1rem" }}>
+    <div className="photos-page">
+      <StepRail current={2} />
+      <h1 className="photos-title">
+        Photos
+        <span className="photos-count">{doneCount}/{slots.length}</span>
+      </h1>
+      <p className="meta" style={{ marginBottom: "1.25rem" }}>
         Take a clear photo for each angle. Minimum {minPx}px, good lighting.
       </p>
 
       <input ref={fileRef} type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={handleFileChange} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+      <div className="photo-grid">
         {slots.map((slot, i) => (
           <button
             key={slot.key}
             onClick={() => handleSelectSlot(i)}
-            style={{
-              padding: "0.75rem",
-              border: slot.ok ? "2px solid #16a34a" : slot.error ? "2px solid #dc2626" : "1px dashed #d1d5db",
-              borderRadius: "0.5rem",
-              backgroundColor: slot.ok ? "#f0fdf4" : "#fff",
-              cursor: "pointer",
-              textAlign: "center",
-              minHeight: 80,
-            }}
+            className={`photo-slot surface ${slot.ok ? "slot-done" : ""} ${slot.error ? "slot-error" : ""}`}
           >
-            <div style={{ fontSize: "0.8125rem", fontWeight: 500 }}>{slot.tip}</div>
-            {slot.ok && <div style={{ fontSize: "0.6875rem", color: "#16a34a", marginTop: "0.25rem" }}>Done</div>}
-            {slot.error && <div style={{ fontSize: "0.6875rem", color: "#dc2626", marginTop: "0.25rem" }}>{slot.error}</div>}
-            {!slot.ok && !slot.error && <div style={{ fontSize: "0.6875rem", color: "#9ca3af", marginTop: "0.25rem" }}>Tap to capture</div>}
+            <div className="slot-icon">
+              {slot.ok ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+              )}
+            </div>
+            <span className="slot-tip">{slot.tip}</span>
+            {slot.ok && <span className="slot-status slot-status-ok">Done</span>}
+            {slot.error && <span className="slot-status slot-status-err">{slot.error}</span>}
+            {!slot.ok && !slot.error && <span className="slot-status">Tap to capture</span>}
           </button>
         ))}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
-        <button onClick={() => router.back()} style={{ padding: "0.5rem 1.25rem", backgroundColor: "#fff", color: "#374151", border: "1px solid #d1d5db", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}>
-          Back
-        </button>
-        <button onClick={handleNext} disabled={!allOk} style={{ padding: "0.5rem 1.25rem", backgroundColor: allOk ? "#2563eb" : "#9ca3af", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: allOk ? "pointer" : "not-allowed", fontSize: "0.875rem", fontWeight: 500 }}>
-          Next: Diagnostics
+      <div className="actions">
+        <button onClick={() => router.back()} className="btn-secondary">← Back</button>
+        <button onClick={handleNext} disabled={!allOk} className="btn-primary">
+          Next: Diagnostics →
         </button>
       </div>
+
+      <style jsx>{`
+        .photos-page {
+          max-width: 560px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .photos-title {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          font-weight: 400;
+          margin: 0 0 0.25rem;
+          color: hsl(var(--foreground));
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
+        }
+        .photos-count {
+          font-family: var(--font-body);
+          font-style: normal;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: hsl(var(--muted));
+        }
+
+        .photo-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+        .photo-slot {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.375rem;
+          padding: 1rem 0.75rem;
+          cursor: pointer;
+          text-align: center;
+          min-height: 90px;
+          border: none;
+          transition: all 0.15s;
+        }
+        .photo-slot:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .slot-done {
+          outline: 2px solid hsl(var(--success));
+          outline-offset: -2px;
+          background: hsl(var(--success) / 0.04);
+        }
+        .slot-error {
+          outline: 2px solid hsl(var(--destructive));
+          outline-offset: -2px;
+        }
+        .slot-icon {
+          color: hsl(var(--muted));
+        }
+        .slot-tip {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+        .slot-status {
+          font-size: 0.6875rem;
+          color: hsl(var(--muted));
+        }
+        .slot-status-ok { color: hsl(var(--success)); }
+        .slot-status-err { color: hsl(var(--destructive)); }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 1.5rem;
+        }
+        .btn-primary {
+          padding: 0.625rem 1.5rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          border-radius: 9999px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: default; }
+        .btn-secondary {
+          padding: 0.625rem 1.25rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .btn-secondary:hover { background: hsl(var(--secondary)); }
+
+        @media (max-width: 480px) {
+          .photo-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+          .photo-slot { min-height: 80px; padding: 0.75rem 0.5rem; }
+        }
+      `}</style>
     </div>
   );
 }

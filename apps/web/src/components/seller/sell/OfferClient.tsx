@@ -3,6 +3,7 @@
 import { useOfferDetail } from "@/hooks/use-seller";
 import { formatINR, formatDate } from "@/lib/format";
 import { IC_REASON_COPY } from "@certibuy/contracts";
+import { StepRail } from "./StepRail";
 import Link from "next/link";
 
 interface OfferData {
@@ -24,8 +25,8 @@ interface OfferData {
 export function OfferClient({ submissionId }: { submissionId: string }) {
   const { data, isLoading, error } = useOfferDetail(submissionId);
 
-  if (isLoading) return <p>Loading offer...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading offer...</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))", padding: "1rem" }}>{(error as Error).message}</p>;
 
   const offer = data as unknown as OfferData;
   if (!offer) return <p>No offer found.</p>;
@@ -33,70 +34,121 @@ export function OfferClient({ submissionId }: { submissionId: string }) {
   const alreadyAccepted = offer.offerStatus === "accepted" || offer.chosenOption;
 
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-        Your offer for {offer.model.brand} {offer.model.name}
-      </h2>
-      <p style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "1rem" }}>
-        Band: {offer.band.join("–")} · Expires {formatDate(offer.expiresAt)}
-      </p>
+    <div className="offer-page">
+      <StepRail current={5} />
+      <h1 className="offer-title">Your offer</h1>
+      <p className="meta">{offer.model.brand} {offer.model.name} · {offer.model.storage} · Band {offer.band.join("–")} · Expires {formatDate(offer.expiresAt)}</p>
 
-      <div style={{ border: "1px solid #e5e7eb", borderRadius: "0.5rem", overflow: "hidden" }}>
-        <Row label="Market price" value={formatINR(offer.marketPrice)} />
-        <Row label="Inspection fee" value={`−${formatINR(offer.inspectionFee)}`} />
-        <Row label={`Risk deduction (${offer.riskPct}%)`} value={`−${formatINR(offer.riskDeduction)}`} />
-        <div style={{ borderTop: "2px solid #e5e7eb" }}>
-          <Row label="Sell For More (guaranteed)" value={formatINR(offer.guaranteedPrice)} bold />
-        </div>
+      {/* Price breakdown */}
+      <div className="breakdown surface">
+        <div className="row"><span>Market price</span><span>{formatINR(offer.marketPrice)}</span></div>
+        <div className="row"><span>Inspection fee</span><span>−{formatINR(offer.inspectionFee)}</span></div>
+        <div className="row"><span>Risk deduction ({offer.riskPct}%)</span><span>−{formatINR(offer.riskDeduction)}</span></div>
+        <div className="row row-total"><span>Sell For More (guaranteed)</span><span>{formatINR(offer.guaranteedPrice)}</span></div>
       </div>
 
+      {/* IC availability */}
       {offer.icEligible ? (
-        <div style={{ marginTop: "1rem", padding: "0.75rem 1rem", border: "1px solid #bbf7d0", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}>
-          <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>
-            Instant Cash available: {formatINR(offer.instantCashAmount)}
+        <div className="ic-card ic-eligible surface">
+          <div className="ic-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
           </div>
-          <div style={{ fontSize: "0.75rem", color: "#166534", marginTop: "0.25rem" }}>
-            Get paid immediately at the hub. 50% upfront, rest when it sells or on day 21.
+          <div>
+            <span className="ic-label">Instant Cash available: {formatINR(offer.instantCashAmount)}</span>
+            <span className="meta" style={{ display: "block" }}>Get paid immediately at the hub. 50% upfront, rest when it sells or on day 21.</span>
           </div>
         </div>
       ) : (
-        <div style={{ marginTop: "1rem", padding: "0.75rem 1rem", border: "1px solid #fde68a", borderRadius: "0.5rem", backgroundColor: "#fefce8" }}>
-          <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>Instant Cash not available</div>
-          <div style={{ fontSize: "0.75rem", color: "#854d0e", marginTop: "0.25rem" }}>
-            {offer.icReason ? IC_REASON_COPY[offer.icReason] ?? offer.icReason : ""}
+        <div className="ic-card ic-ineligible surface">
+          <div className="ic-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--warning))" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div>
+            <span className="ic-label">Instant Cash not available</span>
+            <span className="meta" style={{ display: "block" }}>{offer.icReason ? IC_REASON_COPY[offer.icReason] ?? offer.icReason : ""}</span>
           </div>
         </div>
       )}
 
+      {/* Actions */}
       {alreadyAccepted ? (
-        <div style={{ marginTop: "1.5rem" }}>
-          <p style={{ fontSize: "0.875rem", color: "#16a34a", fontWeight: 500 }}>
-            Offer accepted ({offer.chosenOption === "instant_cash" ? "Instant Cash" : "Sell For More"}).
+        <div className="accepted-state">
+          <p className="accepted-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+            Offer accepted ({offer.chosenOption === "instant_cash" ? "Instant Cash" : "Sell For More"})
           </p>
-          <Link
-            href={`/seller/sell/${submissionId}/hub`}
-            style={{ display: "inline-block", marginTop: "0.5rem", padding: "0.5rem 1.25rem", backgroundColor: "#2563eb", color: "#fff", borderRadius: "0.375rem", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}
-          >
-            Book inspection
-          </Link>
+          <Link href={`/seller/sell/${submissionId}/hub`} className="btn-primary">Book inspection →</Link>
         </div>
       ) : (
-        <Link
-          href={`/seller/sell/${submissionId}/confirm`}
-          style={{ display: "inline-block", marginTop: "1.5rem", padding: "0.5rem 1.25rem", backgroundColor: "#2563eb", color: "#fff", borderRadius: "0.375rem", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}
-        >
-          Accept offer
-        </Link>
+        <Link href={`/seller/sell/${submissionId}/confirm`} className="btn-primary" style={{ display: "inline-block", marginTop: "1.5rem" }}>Accept offer →</Link>
       )}
-    </div>
-  );
-}
 
-function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 1rem", fontSize: "0.875rem", fontWeight: bold ? 600 : 400 }}>
-      <span>{label}</span>
-      <span>{value}</span>
+      <style jsx>{`
+        .offer-page {
+          max-width: 560px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .offer-title {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          font-weight: 400;
+          margin: 0 0 0.25rem;
+          color: hsl(var(--foreground));
+        }
+        .breakdown {
+          margin-top: 1.25rem;
+          overflow: hidden;
+        }
+        .row {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.625rem 1.25rem;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+        }
+        .row-total {
+          border-top: 2px solid hsl(var(--border));
+          font-weight: 700;
+          font-size: 1rem;
+        }
+
+        .ic-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+          margin-top: 1rem;
+        }
+        .ic-eligible { border: 1px solid hsl(var(--success) / 0.3); background: hsl(var(--success) / 0.03); }
+        .ic-ineligible { border: 1px solid hsl(var(--warning) / 0.3); background: hsl(var(--warning) / 0.03); }
+        .ic-icon { flex-shrink: 0; margin-top: 0.125rem; }
+        .ic-label { font-weight: 600; font-size: 0.875rem; color: hsl(var(--foreground)); }
+
+        .accepted-state { margin-top: 1.5rem; }
+        .accepted-label {
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: hsl(var(--success));
+          margin: 0 0 0.75rem;
+        }
+        .btn-primary {
+          padding: 0.625rem 1.5rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          border-radius: 9999px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+          text-decoration: none;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+      `}</style>
     </div>
   );
 }

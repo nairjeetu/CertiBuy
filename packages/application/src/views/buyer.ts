@@ -27,7 +27,7 @@ export async function getShopHome(actor: Actor) {
         id: true,
         final_grade: true,
         device_model_id: true,
-        device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true } },
+        device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true, original_price: true } },
       },
     },
   } as const;
@@ -46,7 +46,17 @@ export async function getShopHome(actor: Actor) {
     include: listingInclude,
   });
 
-  const totalActive = await prisma.listing.count({ where: { status: "active" } });
+  const [totalActive, gradeCounts] = await Promise.all([
+    prisma.listing.count({ where: { status: "active" } }),
+    prisma.$queryRaw<Array<{ grade: string; count: bigint }>>`
+      SELECT d.final_grade AS grade, COUNT(*)::bigint AS count
+      FROM "Listing" l JOIN "Device" d ON d.id = l.device_id
+      WHERE l.status = 'active'
+      GROUP BY d.final_grade`,
+  ]);
+
+  const countByGrade: Record<string, number> = {};
+  for (const r of gradeCounts) countByGrade[r.grade] = Number(r.count);
 
   const toCard = (l: typeof newest[number]) => ({
     listingId: l.id,
@@ -57,6 +67,7 @@ export async function getShopHome(actor: Actor) {
     imageUrl: l.device.device_model.image_url,
     grade: l.device.final_grade,
     currentPrice: l.current_price,
+    originalPrice: l.device.device_model.original_price,
     warrantyMonths: l.warranty_months,
   });
 
@@ -64,6 +75,7 @@ export async function getShopHome(actor: Actor) {
     newest: newest.map(toCard),
     gradeAPicks: gradeAPicks.map(toCard),
     totalActive,
+    gradeCounts: countByGrade,
   };
 }
 
@@ -100,7 +112,7 @@ export async function getShopCatalogue(
       include: {
         device: {
           include: {
-            device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true } },
+            device_model: { select: { brand: true, model: true, storage: true, category: true, image_url: true, original_price: true } },
             hub: { select: { city: true } },
           },
         },
@@ -122,6 +134,7 @@ export async function getShopCatalogue(
       imageUrl: l.device.device_model.image_url,
       grade: l.device.final_grade,
       currentPrice: l.current_price,
+      originalPrice: l.device.device_model.original_price,
       warrantyMonths: l.warranty_months,
       hubCity: l.device.hub.city,
       listedAt: l.listed_at,
@@ -274,12 +287,20 @@ export async function getShopGrades(actor: Actor) {
   requireRole(actor, "customer");
   const settings = await readSettings();
 
+  const gradeCounts = await prisma.$queryRaw<Array<{ grade: string; count: bigint }>>`
+    SELECT d.final_grade AS grade, COUNT(*)::bigint AS count
+    FROM "Listing" l JOIN "Device" d ON d.id = l.device_id
+    WHERE l.status = 'active'
+    GROUP BY d.final_grade`;
+  const countByGrade: Record<string, number> = {};
+  for (const r of gradeCounts) countByGrade[r.grade] = Number(r.count);
+
   return {
     grades: [
-      { grade: "A", label: "Like new", description: "Minimal signs of use. Battery above " + settings.battery_a_min + "%.", batteryMin: settings.battery_a_min },
-      { grade: "B", label: "Good", description: "Light wear, fully functional. Battery above " + settings.battery_b_min + "%.", batteryMin: settings.battery_b_min },
-      { grade: "C", label: "Fair", description: "Visible wear, all features work. Battery above " + settings.battery_c_min + "%.", batteryMin: settings.battery_c_min },
-      { grade: "D", label: "Refurbished", description: "Repaired and tested. Listed with no warranty.", batteryMin: 0 },
+      { grade: "A", label: "Like new", description: "No marks on the body or the glass, and the battery is at " + settings.battery_a_min + "% or better.", batteryRange: settings.battery_a_min + "% or better", stock: countByGrade["A"] ?? 0, warranty: "12-month warranty" },
+      { grade: "B", label: "Light signs of use", description: "Small scratches you only catch at an angle. Battery between " + settings.battery_b_min + "% and " + (settings.battery_a_min - 1) + "%.", batteryRange: settings.battery_b_min + "% to " + (settings.battery_a_min - 1) + "%", stock: countByGrade["B"] ?? 0, warranty: "12-month warranty" },
+      { grade: "C", label: "Visible wear", description: "Scratches or small dents you can see at a glance. Battery between " + settings.battery_c_min + "% and " + (settings.battery_b_min - 1) + "%.", batteryRange: settings.battery_c_min + "% to " + (settings.battery_b_min - 1) + "%", stock: countByGrade["C"] ?? 0, warranty: "12-month warranty" },
+      { grade: "D", label: "Flawed, refurbished", description: "Heavy wear or a fault repaired in our workshop. Sold without a warranty and only once it passes re-inspection.", batteryRange: "Below " + settings.battery_c_min + "%", stock: countByGrade["D"] ?? 0, warranty: "No warranty" },
     ],
   };
 }

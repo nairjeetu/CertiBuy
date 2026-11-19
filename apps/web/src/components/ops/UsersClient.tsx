@@ -21,7 +21,7 @@ export function UsersClient() {
   const { data, isLoading, error } = useOpsUsers(params);
 
   if (isLoading) return <p>Loading users...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const users = (data?.users ?? []) as User[];
 
@@ -29,7 +29,7 @@ export function UsersClient() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>Users</h2>
-        <select value={role} onChange={e => setRole(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}>
+        <select value={role} onChange={e => setRole(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: "0.75rem", border: "1px solid hsl(var(--border))" }}>
           <option value="">All roles</option>
           <option value="customer">Customer</option>
           <option value="technician">Technician</option>
@@ -37,11 +37,11 @@ export function UsersClient() {
         </select>
       </div>
       {users.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No users found.</p>
+        <p style={{ color: "hsl(var(--muted))" }}>No users found.</p>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
           <thead>
-            <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+            <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
               <th style={{ padding: "0.5rem" }}>Name</th>
               <th style={{ padding: "0.5rem" }}>Role</th>
               <th style={{ padding: "0.5rem" }}>Mode</th>
@@ -53,7 +53,7 @@ export function UsersClient() {
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+              <tr key={u.id} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 <td style={{ padding: "0.5rem" }}>{u.full_name}</td>
                 <td style={{ padding: "0.5rem" }}>{u.app_role}</td>
                 <td style={{ padding: "0.5rem" }}>{u.active_mode}</td>

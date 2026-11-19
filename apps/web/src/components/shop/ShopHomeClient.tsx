@@ -76,6 +76,15 @@ const FEATURES = [
   },
 ];
 
+/* ── Grade descriptions for "Shop by grade" section ──────────────────── */
+
+const GRADES = [
+  { grade: "A", label: "Like new", desc: "No marks on the body or the glass, and the battery is at 90% or better." },
+  { grade: "B", label: "Light signs of use", desc: "Small scratches you only catch at an angle. Battery between 85% and 89%." },
+  { grade: "C", label: "Visible wear", desc: "Scratches or small dents you can see at a glance. Battery between 80% and 84%." },
+  { grade: "D", label: "Flawed, refurbished", desc: "Heavy wear or a fault repaired in our workshop. Sold without a warranty and only once it passes re-inspection." },
+];
+
 /* ── Main component ───────────────────────────────────────────────────── */
 
 export function ShopHomeClient() {
@@ -95,6 +104,7 @@ export function ShopHomeClient() {
   const newest = (data?.newest ?? []) as Card[];
   const gradeAPicks = (data?.gradeAPicks ?? []) as Card[];
   const totalActive = (data?.totalActive ?? 0) as number;
+  const gradeCounts = (data?.gradeCounts ?? {}) as Record<string, number>;
 
   return (
     <div className="shop-container">
@@ -150,21 +160,55 @@ export function ShopHomeClient() {
         ))}
       </section>
 
-      {/* ── Just listed ───────────────────────────────────────────────── */}
+      {/* ── Shop by grade ──────────────────────────────────────────── */}
+      <section className="shop-section">
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">Shop by grade</h2>
+            <p className="section-subtitle">The grade is the technician&apos;s verdict, not the seller&apos;s description.</p>
+          </div>
+          <Link href="/shop/grades" className="section-link">What the grades mean →</Link>
+        </div>
+        <div className="grade-cards-grid">
+          {GRADES.map((g) => (
+            <Link key={g.grade} href={`/shop/browse?grade=${g.grade}`} className="grade-card surface">
+              <div className="grade-card-top">
+                <span className="grade-card-letter">{g.grade}</span>
+                <span className="meta">{gradeCounts[g.grade] ?? 0} in stock</span>
+              </div>
+              <p className="grade-card-label">{g.label}</p>
+              <p className="grade-card-desc">{g.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Grade A, ready to ship ───────────────────────────────────── */}
       {isLoading ? (
         <section className="shop-section">
-          <h2 className="section-title">Just listed</h2>
+          <h2 className="section-title">Grade A, ready to ship</h2>
           <div className="listing-grid">
             {[1, 2, 3, 4].map((i) => <CardSkeleton key={i} />)}
+          </div>
+        </section>
+      ) : gradeAPicks.length > 0 ? (
+        <section className="shop-section animate-fade">
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">Grade A, ready to ship</h2>
+              <p className="section-subtitle">Like new, battery checked, every one photographed at the hub.</p>
+            </div>
+            <Link href="/shop/browse?grade=A" className="section-link">All {totalActive} devices →</Link>
+          </div>
+          <div className="listing-grid">
+            {gradeAPicks.map((c) => <ListingCard key={c.listingId} {...c} />)}
           </div>
         </section>
       ) : newest.length > 0 ? (
         <section className="shop-section animate-fade">
           <div className="section-header">
             <h2 className="section-title">Just listed</h2>
-            <Link href="/shop/browse" className="section-link">
-              View all {totalActive} devices →
-            </Link>
+            <Link href="/shop/browse" className="section-link">View all {totalActive} devices →</Link>
           </div>
           <div className="listing-grid">
             {newest.map((c) => <ListingCard key={c.listingId} {...c} />)}
@@ -174,21 +218,6 @@ export function ShopHomeClient() {
         <section className="shop-section">
           <div className="shop-empty surface">
             <p>No devices listed yet. Check back soon.</p>
-          </div>
-        </section>
-      )}
-
-      {/* ── Grade A picks ─────────────────────────────────────────────── */}
-      {!isLoading && gradeAPicks.length > 0 && (
-        <section className="shop-section animate-fade">
-          <div className="section-header">
-            <h2 className="section-title">
-              <span className="grade-a-dot" /> Grade A picks
-            </h2>
-            <Link href="/shop/browse?grade=A" className="section-link">See all Grade A →</Link>
-          </div>
-          <div className="listing-grid">
-            {gradeAPicks.map((c) => <ListingCard key={c.listingId} {...c} />)}
           </div>
         </section>
       )}
@@ -351,6 +380,49 @@ export function ShopHomeClient() {
           margin: 0;
         }
 
+        /* ── Grade cards ──────────────────────────────────────────── */
+        .grade-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+        }
+        .grade-card {
+          display: block;
+          text-decoration: none;
+          color: inherit;
+          padding: 1.25rem;
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .grade-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+        .grade-card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 0.5rem;
+        }
+        .grade-card-letter {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.75rem;
+          color: hsl(var(--foreground));
+          line-height: 1;
+        }
+        .grade-card-label {
+          margin: 0 0 0.25rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+        .grade-card-desc {
+          margin: 0;
+          font-size: 0.8125rem;
+          line-height: 1.5;
+          color: hsl(var(--muted));
+        }
+
         /* ── Listings ─────────────────────────────────────────────── */
         .shop-section { margin-bottom: 2rem; }
         .section-header {
@@ -368,18 +440,17 @@ export function ShopHomeClient() {
           gap: 0.5rem;
           color: hsl(var(--foreground));
         }
+        .section-subtitle {
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+          margin: 0.25rem 0 0;
+        }
         .section-link {
           font-size: 0.8125rem;
           font-weight: 500;
           color: hsl(var(--primary));
           text-decoration: none;
-        }
-        .grade-a-dot {
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: hsl(var(--success));
+          white-space: nowrap;
         }
         .listing-grid {
           display: grid;
@@ -422,9 +493,11 @@ export function ShopHomeClient() {
           .hero-visual { display: none; }
           .hero-headline { font-size: 2rem; }
           .features-grid { grid-template-columns: repeat(2, 1fr); }
+          .grade-cards-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 480px) {
           .features-grid { grid-template-columns: 1fr; }
+          .grade-cards-grid { grid-template-columns: 1fr; }
           .listing-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
           .hero-actions { flex-direction: column; }
           .btn-primary, .btn-secondary { justify-content: center; }

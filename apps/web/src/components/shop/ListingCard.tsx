@@ -15,9 +15,11 @@ interface Props {
   warrantyMonths: number;
   imageUrl?: string;
   category?: string;
+  originalPrice?: number;
+  batteryHealth?: number;
 }
 
-export function ListingCard({ listingId, brand, model, storage, grade, currentPrice, warrantyMonths, imageUrl, category }: Props) {
+export function ListingCard({ listingId, brand, model, storage, grade, currentPrice, warrantyMonths, imageUrl, category, originalPrice, batteryHealth }: Props) {
   return (
     <Link href={`/shop/${listingId}`} className="listing-card surface">
       <div className="listing-card-image">
@@ -28,12 +30,23 @@ export function ListingCard({ listingId, brand, model, storage, grade, currentPr
       </div>
       <div className="listing-card-body">
         <p className="listing-card-title">{brand} {model}</p>
-        <p className="listing-card-storage">{storage}</p>
+        <p className="listing-card-meta">
+          {storage}
+          {warrantyMonths > 0 && <> · {warrantyMonths}-month warranty</>}
+        </p>
+        {batteryHealth && batteryHealth > 0 && (
+          <p className="listing-card-battery">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="6" width="18" height="12" rx="2"/><path d="M23 13v-2"/></svg>
+            {batteryHealth}% battery
+          </p>
+        )}
         <div className="listing-card-footer">
-          <span className="listing-card-price">{formatINR(currentPrice)}</span>
-          {warrantyMonths > 0 && (
-            <span className="listing-card-warranty">{warrantyMonths} mo</span>
-          )}
+          <div className="listing-card-prices">
+            <span className="listing-card-price">{formatINR(currentPrice)}</span>
+            {originalPrice && originalPrice > currentPrice && (
+              <span className="listing-card-original">{formatINR(originalPrice)}</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -73,29 +86,40 @@ export function ListingCard({ listingId, brand, model, storage, grade, currentPr
           line-height: 1.3;
           color: hsl(var(--foreground));
         }
-        .listing-card-storage {
+        .listing-card-meta {
           margin: 0.125rem 0 0;
           font-size: 0.8125rem;
           color: hsl(var(--muted));
         }
+        .listing-card-battery {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          margin: 0.375rem 0 0;
+          font-size: 0.75rem;
+          color: hsl(var(--success));
+          background: hsl(var(--success) / 0.08);
+          padding: 0.125rem 0.5rem;
+          border-radius: 9999px;
+          font-weight: 500;
+        }
         .listing-card-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
           margin-top: 0.75rem;
+        }
+        .listing-card-prices {
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
         }
         .listing-card-price {
           font-size: 1.125rem;
           font-weight: 700;
           color: hsl(var(--foreground));
         }
-        .listing-card-warranty {
-          font-size: 0.6875rem;
-          color: hsl(var(--success));
-          background: hsl(var(--success) / 0.1);
-          padding: 0.125rem 0.5rem;
-          border-radius: 100px;
-          font-weight: 500;
+        .listing-card-original {
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+          text-decoration: line-through;
         }
       `}</style>
     </Link>

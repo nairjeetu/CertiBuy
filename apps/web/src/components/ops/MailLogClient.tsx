@@ -16,7 +16,7 @@ export function MailLogClient() {
   const { data, isLoading, error } = useOpsMailLog();
 
   if (isLoading) return <p>Loading mail log...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const notifications = (data?.notifications ?? []) as Notif[];
 
@@ -24,11 +24,11 @@ export function MailLogClient() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>Mail / notification log</h2>
       {notifications.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No notifications sent yet.</p>
+        <p style={{ color: "hsl(var(--muted))" }}>No notifications sent yet.</p>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
           <thead>
-            <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+            <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
               <th style={{ padding: "0.5rem" }}>User</th>
               <th style={{ padding: "0.5rem" }}>Event</th>
               <th style={{ padding: "0.5rem" }}>Title</th>
@@ -39,7 +39,7 @@ export function MailLogClient() {
           </thead>
           <tbody>
             {notifications.map(n => (
-              <tr key={n.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+              <tr key={n.id} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 <td style={{ padding: "0.5rem", fontFamily: "monospace", fontSize: "0.75rem" }}>{n.user_id.slice(0, 8)}...</td>
                 <td style={{ padding: "0.5rem" }}>{n.event}</td>
                 <td style={{ padding: "0.5rem" }}>{n.title}</td>

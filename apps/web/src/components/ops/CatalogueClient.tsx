@@ -21,7 +21,7 @@ export function CatalogueClient() {
   const { data, isLoading, error } = useOpsCatalogue();
   const pauseIc = usePauseIcForModel();
   if (isLoading) return <p>Loading catalogue...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const models = ((data as any)?.models ?? []) as Model[];
 
@@ -30,7 +30,7 @@ export function CatalogueClient() {
       <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "1rem" }}>Device catalogue</h2>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
         <thead>
-          <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+          <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
             <th style={{ padding: "0.5rem" }}>Brand</th>
             <th style={{ padding: "0.5rem" }}>Model</th>
             <th style={{ padding: "0.5rem" }}>Storage</th>
@@ -44,7 +44,7 @@ export function CatalogueClient() {
         </thead>
         <tbody>
           {models.map(m => (
-            <tr key={m.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+            <tr key={m.id} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
               <td style={{ padding: "0.5rem" }}>{m.brand}</td>
               <td style={{ padding: "0.5rem" }}>{m.model}</td>
               <td style={{ padding: "0.5rem" }}>{m.storage}</td>
@@ -59,11 +59,11 @@ export function CatalogueClient() {
                   style={{
                     padding: "0.125rem 0.5rem",
                     fontSize: "0.75rem",
-                    border: "1px solid #d1d5db",
+                    border: "1px solid hsl(var(--border))",
                     borderRadius: 4,
                     cursor: "pointer",
-                    background: m.ic_paused ? "#fef2f2" : "#f0fdf4",
-                    color: m.ic_paused ? "#991b1b" : "#166534",
+                    background: m.ic_paused ? "#fef2f2" : "hsl(var(--success) / 0.05)",
+                    color: m.ic_paused ? "#991b1b" : "hsl(var(--success))",
                   }}
                 >
                   {m.ic_paused ? "Paused" : "On"}

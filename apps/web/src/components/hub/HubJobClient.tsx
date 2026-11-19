@@ -55,7 +55,7 @@ export function HubJobClient({ submissionId }: { submissionId: string }) {
   const router = useRouter();
 
   if (isLoading) return <p>Loading job...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const job = data as unknown as HubJobData;
 
@@ -65,7 +65,7 @@ export function HubJobClient({ submissionId }: { submissionId: string }) {
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
       <button
         onClick={() => router.push("/hub")}
-        style={{ fontSize: "0.8125rem", color: "#2563eb", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: "0.5rem" }}
+        style={{ fontSize: "0.8125rem", color: "hsl(var(--primary))", background: "none", border: "none", cursor: "pointer", padding: 0, marginBottom: "0.5rem" }}
       >
         &larr; Back to queue
       </button>
@@ -75,11 +75,11 @@ export function HubJobClient({ submissionId }: { submissionId: string }) {
           <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>
             {job.model.brand} {job.model.name} {job.model.storage}
           </h2>
-          <p style={{ fontSize: "0.8125rem", color: "#6b7280", margin: "0.25rem 0 0" }}>
+          <p style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", margin: "0.25rem 0 0" }}>
             IMEI: {job.imei} · {job.chosenOption === "instant_cash" ? "Instant Cash" : "Sell For More"}
           </p>
           {job.offer && (
-            <p style={{ fontSize: "0.8125rem", color: "#6b7280", margin: "0.125rem 0 0" }}>
+            <p style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", margin: "0.125rem 0 0" }}>
               Offer: {formatINR(job.offer.guaranteedPrice)}
               {job.offer.icEligible && ` (IC: ${formatINR(job.offer.instantCashAmount)})`}
             </p>
@@ -89,13 +89,13 @@ export function HubJobClient({ submissionId }: { submissionId: string }) {
       </div>
 
       {job.booking && (
-        <p style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "1rem" }}>
+        <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", marginBottom: "1rem" }}>
           {job.booking.hubName} · {job.booking.date} · {job.booking.slot}
         </p>
       )}
 
       {job.aiAssessment && (
-        <p style={{ fontSize: "0.75rem", color: "#6b7280", marginBottom: "1rem" }}>
+        <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", marginBottom: "1rem" }}>
           AI band: {(job.aiAssessment.band as string[]).join("–")} · confidence: {job.aiAssessment.confidence}
         </p>
       )}
@@ -132,16 +132,16 @@ export function HubJobClient({ submissionId }: { submissionId: string }) {
         </>
       )}
       {job.nextStep === "done" && job.device && (
-        <div style={{ padding: "1rem", border: "1px solid #dcfce7", borderRadius: "0.5rem", backgroundColor: "#f0fdf4" }}>
-          <p style={{ fontWeight: 600, color: "#166534", margin: 0 }}>Handover complete</p>
-          <p style={{ fontSize: "0.8125rem", color: "#374151", margin: "0.25rem 0 0" }}>
+        <div style={{ padding: "1rem", border: "1px solid #dcfce7", borderRadius: "0.5rem", backgroundColor: "hsl(var(--success) / 0.05)" }}>
+          <p style={{ fontWeight: 600, color: "hsl(var(--success))", margin: 0 }}>Handover complete</p>
+          <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground))", margin: "0.25rem 0 0" }}>
             Tag: {job.device.tagId} · Status: {job.device.status}
           </p>
         </div>
       )}
       {job.nextStep === "done" && !job.device && (job.status === "rejected" || job.status === "abandoned") && (
-        <div style={{ padding: "1rem", border: "1px solid #fecaca", borderRadius: "0.5rem", backgroundColor: "#fef2f2" }}>
-          <p style={{ fontWeight: 600, color: "#991b1b", margin: 0 }}>
+        <div style={{ padding: "1rem", border: "1px solid hsl(var(--destructive) / 0.3)", borderRadius: "0.5rem", backgroundColor: "hsl(var(--destructive) / 0.05)" }}>
+          <p style={{ fontWeight: 600, color: "hsl(var(--destructive))", margin: 0 }}>
             {job.status === "rejected" ? "Device rejected" : "Seller declined"}
           </p>
         </div>

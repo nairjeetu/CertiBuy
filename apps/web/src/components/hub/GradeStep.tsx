@@ -31,7 +31,7 @@ export function GradeStep({ report, children }: Props) {
       <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>Grade result</h3>
 
       <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "0.75rem" }}>
-        <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", backgroundColor: "#f3f4f6", fontSize: "1.5rem", fontWeight: 700 }}>
+        <div style={{ width: 56, height: 56, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "0.5rem", backgroundColor: "hsl(var(--secondary))", fontSize: "1.5rem", fontWeight: 700 }}>
           {report.computedGrade}
         </div>
         <div>
@@ -43,7 +43,7 @@ export function GradeStep({ report, children }: Props) {
               fontSize: "0.75rem",
               fontWeight: 500,
               backgroundColor: v.tone === "success" ? "#dcfce7" : v.tone === "warning" ? "#fef9c3" : "#fecaca",
-              color: v.tone === "success" ? "#166534" : v.tone === "warning" ? "#854d0e" : "#991b1b",
+              color: v.tone === "success" ? "hsl(var(--success))" : v.tone === "warning" ? "hsl(var(--warning))" : "#991b1b",
             }}
           >
             {v.label}
@@ -54,7 +54,7 @@ export function GradeStep({ report, children }: Props) {
       {report.componentGrades && (
         <div style={{ display: "flex", gap: "0.75rem", fontSize: "0.8125rem", marginBottom: "0.75rem" }}>
           {Object.entries(report.componentGrades).map(([k, g]) => (
-            <span key={k} style={{ color: "#374151" }}>
+            <span key={k} style={{ color: "hsl(var(--foreground))" }}>
               {k}: <strong>{g as string}</strong>
             </span>
           ))}

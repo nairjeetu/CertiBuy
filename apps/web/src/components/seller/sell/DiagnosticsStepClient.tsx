@@ -3,6 +3,7 @@
 import { useSaveDiagnostics } from "@/hooks/use-seller";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { StepRail } from "./StepRail";
 
 const CHECKS = [
   { key: "battery", label: "Battery", hint: "Does the battery hold a charge?" },
@@ -59,72 +60,155 @@ export function DiagnosticsStepClient({ submissionId }: { submissionId: string }
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto" }}>
-      <h2 style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "1rem" }}>Diagnostics</h2>
+    <div className="diag-page">
+      <StepRail current={3} />
+      <h1 className="diag-title">Diagnostics</h1>
+      <p className="meta" style={{ marginBottom: "1.25rem" }}>Run each test on the device now. The technician will verify at the hub.</p>
 
-      <label style={{ display: "block", fontSize: "0.875rem", fontWeight: 500, marginBottom: "0.375rem" }}>
-        Battery health (%)
-      </label>
-      <input
-        type="number"
-        min={0}
-        max={100}
-        value={batteryHealth}
-        onChange={(e) => setBatteryHealth(e.target.value)}
-        style={{ width: "100%", padding: "0.5rem 0.75rem", border: "1px solid #d1d5db", borderRadius: "0.375rem", fontSize: "0.875rem", marginBottom: "1rem", boxSizing: "border-box" }}
-      />
+      <div className="form-section surface">
+        <div className="form-group">
+          <label className="field-label">Battery health (%)</label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={batteryHealth}
+            onChange={(e) => setBatteryHealth(e.target.value)}
+            className="form-input"
+          />
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-        {CHECKS.map((c) => (
-          <div key={c.key} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 0.75rem", border: "1px solid #e5e7eb", borderRadius: "0.375rem" }}>
-            <div>
-              <div style={{ fontWeight: 500, fontSize: "0.875rem" }}>{c.label}</div>
-              <div style={{ fontSize: "0.6875rem", color: "#6b7280" }}>{c.hint}</div>
+        <div className="check-list">
+          {CHECKS.map((c) => (
+            <div key={c.key} className="check-row">
+              <div className="check-info">
+                <span className="check-label">{c.label}</span>
+                <span className="meta">{c.hint}</span>
+              </div>
+              <div className="check-btns">
+                <button
+                  type="button"
+                  onClick={() => toggle(c.key, "pass")}
+                  className={`check-btn ${checks[c.key] === "pass" ? "check-pass" : ""}`}
+                >Pass</button>
+                <button
+                  type="button"
+                  onClick={() => toggle(c.key, "fail")}
+                  className={`check-btn ${checks[c.key] === "fail" ? "check-fail" : ""}`}
+                >Fail</button>
+              </div>
             </div>
-            <div style={{ display: "flex", gap: "0.375rem" }}>
-              <button
-                onClick={() => toggle(c.key, "pass")}
-                style={{
-                  padding: "0.25rem 0.625rem",
-                  borderRadius: "0.25rem",
-                  border: checks[c.key] === "pass" ? "2px solid #16a34a" : "1px solid #d1d5db",
-                  backgroundColor: checks[c.key] === "pass" ? "#f0fdf4" : "#fff",
-                  cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                }}
-              >
-                Pass
-              </button>
-              <button
-                onClick={() => toggle(c.key, "fail")}
-                style={{
-                  padding: "0.25rem 0.625rem",
-                  borderRadius: "0.25rem",
-                  border: checks[c.key] === "fail" ? "2px solid #dc2626" : "1px solid #d1d5db",
-                  backgroundColor: checks[c.key] === "fail" ? "#fef2f2" : "#fff",
-                  cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                }}
-              >
-                Fail
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
-      {error && <p style={{ color: "#991b1b", fontSize: "0.875rem", marginTop: "0.75rem" }}>{error}</p>}
+      {error && <p className="error-msg">{error}</p>}
 
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem" }}>
-        <button onClick={() => router.back()} style={{ padding: "0.5rem 1.25rem", backgroundColor: "#fff", color: "#374151", border: "1px solid #d1d5db", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}>
-          Back
-        </button>
-        <button onClick={handleNext} disabled={!allAnswered || save.isPending} style={{ padding: "0.5rem 1.25rem", backgroundColor: allAnswered ? "#2563eb" : "#9ca3af", color: "#fff", border: "none", borderRadius: "0.375rem", cursor: allAnswered ? "pointer" : "not-allowed", fontSize: "0.875rem", fontWeight: 500 }}>
-          {save.isPending ? "Saving..." : "Next: Get grade"}
+      <div className="actions">
+        <button onClick={() => router.back()} className="btn-secondary">← Back</button>
+        <button onClick={handleNext} disabled={!allAnswered || save.isPending} className="btn-primary">
+          {save.isPending ? "Saving..." : "Next: Get grade →"}
         </button>
       </div>
+
+      <style jsx>{`
+        .diag-page {
+          max-width: 560px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .diag-title {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          font-weight: 400;
+          margin: 0 0 0.25rem;
+          color: hsl(var(--foreground));
+        }
+        .form-section { padding: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-input {
+          width: 100%;
+          padding: 0.5rem 0.75rem;
+          border: 1px solid hsl(var(--input));
+          border-radius: 0.875rem;
+          font-size: 0.9375rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          box-sizing: border-box;
+        }
+        .form-input:focus { outline: 2px solid hsl(var(--ring)); outline-offset: 1px; }
+
+        .check-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+        .check-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.625rem 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius);
+        }
+        .check-info { display: flex; flex-direction: column; gap: 0.125rem; }
+        .check-label { font-weight: 600; font-size: 0.875rem; color: hsl(var(--foreground)); }
+        .check-btns { display: flex; gap: 0.375rem; }
+        .check-btn {
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+          border: 1px solid hsl(var(--border));
+          background: hsl(var(--card));
+          cursor: pointer;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+          transition: all 0.15s;
+        }
+        .check-pass {
+          border-color: hsl(var(--success));
+          background: hsl(var(--success) / 0.08);
+          color: hsl(var(--success));
+        }
+        .check-fail {
+          border-color: hsl(var(--destructive));
+          background: hsl(var(--destructive) / 0.08);
+          color: hsl(var(--destructive));
+        }
+
+        .error-msg { color: hsl(var(--destructive)); font-size: 0.875rem; margin-top: 0.75rem; }
+
+        .actions {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 1.5rem;
+        }
+        .btn-primary {
+          padding: 0.625rem 1.5rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border: none;
+          border-radius: 9999px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: default; }
+        .btn-secondary {
+          padding: 0.625rem 1.25rem;
+          background: hsl(var(--card));
+          color: hsl(var(--foreground));
+          border: 1px solid hsl(var(--border));
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .btn-secondary:hover { background: hsl(var(--secondary)); }
+      `}</style>
     </div>
   );
 }

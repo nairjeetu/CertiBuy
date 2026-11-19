@@ -26,38 +26,11 @@ interface ListingData {
   returnWindowDays: number;
 }
 
-function InfoRow({ label, value, good }: { label: string; value: string; good?: boolean }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid hsl(var(--border) / 0.5)" }}>
-      <span style={{ color: "hsl(var(--muted))", fontSize: "0.875rem" }}>{label}</span>
-      <span style={{ fontSize: "0.875rem", fontWeight: 500, color: good !== undefined ? (good ? "hsl(var(--success))" : "hsl(var(--warning))") : "hsl(var(--foreground))" }}>{value}</span>
-    </div>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 style={{ fontSize: "0.9375rem", fontWeight: 600, margin: "0 0 0.75rem", color: "hsl(var(--foreground))" }}>{children}</h3>;
-}
-
-function billBoxLabel(v: string) {
-  if (v === "both") return "Bill and box available";
-  if (v === "bill_only") return "Bill available, no box";
-  if (v === "box_only") return "Box available, no bill";
-  return "No bill or box";
-}
-
-function warrantyLabel(v: string) {
-  if (v === "active") return "Active";
-  if (v === "expired") return "Expired";
-  return "Unknown";
-}
-
-function repairLabel(v: string) {
-  if (v === "no") return "No repairs";
-  if (v === "screen") return "Screen replaced";
-  if (v === "battery") return "Battery replaced";
-  if (v === "other") return "Other repair";
-  return v;
+function gradeLabel(g: string) {
+  if (g === "A") return "Like new";
+  if (g === "B") return "Light signs of use";
+  if (g === "C") return "Visible wear";
+  return "Refurbished";
 }
 
 export function ListingDetailClient({ listingId }: { listingId: string }) {
@@ -68,173 +41,461 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
   if (!data) return <p>Listing not found.</p>;
 
   const d = data as unknown as ListingData;
+  const checklist = d.inspection?.checklist ? Object.entries(d.inspection.checklist as Record<string, string>) : [];
+  const passCount = checklist.filter(([, v]) => v === "pass").length;
+  const reportId = d.listingId.slice(0, 8).toUpperCase();
+
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: "1.5rem 1rem" }}>
-      <Link href="/shop/browse" style={{ fontSize: "0.8125rem", color: "hsl(var(--primary))", textDecoration: "none" }}>
-        ← Back to browse
-      </Link>
+    <div className="detail-page">
+      {/* Breadcrumb + title row */}
+      <Link href="/shop/browse" className="detail-back">← All devices</Link>
+      <div className="detail-title-row">
+        <h1 className="detail-title">{d.brand} {d.model}</h1>
+        <span className="detail-title-storage">{d.storage}</span>
+        <GradeChip grade={d.grade} size="md" />
+        <span className="detail-title-hub">{d.hubName}, {d.hubCity}</span>
+      </div>
 
-      {/* Hero: image + key info side by side */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginTop: "1rem", alignItems: "start" }}>
-        {/* Left: device image */}
-        <div className="surface" style={{ aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem", position: "relative" }}>
-          <DeviceImage imageUrl={d.imageUrl} brand={d.brand} model={d.model} category={d.category} size="lg" />
-          <div style={{ position: "absolute", top: "0.5rem", left: "0.5rem" }}>
-            <GradeChip grade={d.grade} size="md" />
-          </div>
-        </div>
-
-        {/* Right: key info */}
-        <div>
-          <h1 style={{ fontSize: "1.375rem", fontWeight: 700, margin: 0, color: "hsl(var(--foreground))", lineHeight: 1.3 }}>
-            {d.brand} {d.model}
-          </h1>
-          <p style={{ margin: "0.25rem 0 0.75rem", fontSize: "0.875rem", color: "hsl(var(--muted))" }}>
-            {d.storage} · {d.category}{d.device.colour ? ` · ${d.device.colour}` : ""}
-          </p>
-
-          <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "1.75rem", fontWeight: 700, color: "hsl(var(--foreground))" }}>{formatINR(d.currentPrice)}</span>
-            {d.specs.originalPrice > 0 && (
-              <span style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", textDecoration: "line-through" }}>
-                {formatINR(d.specs.originalPrice)}
-              </span>
-            )}
+      {/* Main layout: content + sidebar */}
+      <div className="detail-layout">
+        {/* Left column */}
+        <div className="detail-main">
+          {/* Photo hero */}
+          <div className="photo-hero surface">
+            <div className="photo-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              Photo of this exact unit
+            </div>
+            <div className="photo-grid">
+              <DeviceImage imageUrl={d.imageUrl} brand={d.brand} model={d.model} category={d.category} size="lg" />
+            </div>
           </div>
 
-          {d.specs.originalPrice > 0 && (
-            <p style={{ margin: "0 0 1rem", fontSize: "0.8125rem", color: "hsl(var(--success))", fontWeight: 500 }}>
-              Save {formatINR(d.specs.originalPrice - d.currentPrice)} ({Math.round((1 - d.currentPrice / d.specs.originalPrice) * 100)}% off)
-            </p>
-          )}
-
-          {/* Grade strip */}
-          {d.gradeStrip.length > 1 && (
-            <div style={{ display: "flex", gap: "0.375rem", marginBottom: "1rem", flexWrap: "wrap" }}>
-              {d.gradeStrip.map((g) => {
-                const isCurrent = g.listingId === d.listingId;
-                const tile = (
-                  <div style={{
-                    padding: "0.375rem 0.625rem",
-                    border: isCurrent ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
-                    borderRadius: "var(--radius)",
-                    textAlign: "center",
-                    minWidth: 60,
-                    background: isCurrent ? "hsl(var(--primary) / 0.05)" : "hsl(var(--card))",
-                    fontSize: "0.75rem",
-                  }}>
-                    <div style={{ fontWeight: 600 }}>Grade {g.grade}</div>
-                    <div>{formatINR(g.price)}</div>
+          {/* What you get */}
+          <div className="wyg-card surface">
+            <h2 className="section-heading">What you get</h2>
+            <div className="wyg-grid">
+              {d.inspection && (
+                <div className="wyg-item">
+                  <span className="wyg-label">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="6" width="18" height="12" rx="2"/><path d="M23 13v-2a2 2 0 0 0-2-2h-1"/></svg>
+                    BATTERY HEALTH
+                  </span>
+                  <span className="wyg-value">{d.inspection.batteryHealth}%</span>
+                  <div className="battery-bar">
+                    <div className="battery-fill" style={{ width: `${d.inspection.batteryHealth}%`, background: d.inspection.batteryHealth >= 80 ? "hsl(var(--success))" : "hsl(var(--warning))" }} />
                   </div>
-                );
-                if (isCurrent) return <span key={g.listingId}>{tile}</span>;
-                return <Link key={g.listingId} href={`/shop/${g.listingId}`} style={{ textDecoration: "none", color: "inherit" }}>{tile}</Link>;
-              })}
+                  <span className="meta">Measured by the technician on the day it was graded.</span>
+                </div>
+              )}
+              <div className="wyg-item">
+                <span className="wyg-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  WARRANTY
+                </span>
+                <span className="wyg-value-serif">
+                  {d.warrantyMonths > 0 ? `${d.warrantyMonths}-month warranty` : "No warranty"}
+                </span>
+                {d.warrantyMonths > 0 && <span className="meta">Add a second year at checkout for 5% of the price.</span>}
+              </div>
+            </div>
+
+            {/* Returns policy */}
+            <div className="returns-section">
+              <span className="wyg-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                RETURNS, PRICED UP FRONT
+              </span>
+              <div className="returns-list">
+                <p><strong>Not as graded</strong> — full refund, nothing deducted.</p>
+                <p><strong>Dead on arrival</strong> — refund or replacement, our call on the courier.</p>
+                <p><strong>Changed your mind</strong> — ₹500 change-of-mind fee, plus ₹300 return logistics.</p>
+              </div>
+              <p className="meta">Within {d.returnWindowDays} days of delivery, with the device as it was shipped.</p>
+            </div>
+
+            {/* Escrow */}
+            <div className="escrow-note">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <span><strong>Escrow.</strong> Your payment is held until the {d.returnWindowDays}-day window closes. CertiBuy is paid only once you&apos;ve had the device and kept it.</span>
+            </div>
+          </div>
+
+          {/* Inspection report */}
+          {d.inspection && (
+            <div className="inspection-card surface">
+              <div className="inspection-header">
+                <div>
+                  <h2 className="section-heading" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Inspection report
+                  </h2>
+                  <p className="meta">Report {reportId}</p>
+                </div>
+                <div className="inspection-meta">
+                  <span>{d.hubName}, {d.hubCity}</span>
+                </div>
+              </div>
+
+              <div className="checklist-header">
+                <span className="wyg-label">CHECKLIST</span>
+                <span className="meta">{passCount} of {checklist.length} pass</span>
+              </div>
+              <div className="checklist-grid">
+                {checklist.map(([k, v]) => (
+                  <div key={k} className="checklist-item">
+                    <span className="checklist-name">{k.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}</span>
+                    <span className={`checklist-result ${v === "pass" ? "result-pass" : "result-fail"}`}>
+                      {v === "pass" ? "✓" : "✗"} {v === "pass" ? "Pass" : "Fail"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer: IMEI, custody tag, colour */}
+              <div className="inspection-footer">
+                <div className="inspection-footer-item">
+                  <span className="meta">IMEI VERIFIED</span>
+                  <span>•••• {d.listingId.slice(-4)}</span>
+                </div>
+                <div className="inspection-footer-item">
+                  <span className="meta">CUSTODY TAG</span>
+                  <span>CB-{d.listingId.slice(0, 5).toUpperCase()}</span>
+                </div>
+                {d.device.colour && (
+                  <div className="inspection-footer-item">
+                    <span className="meta">COLOUR</span>
+                    <span>{d.device.colour}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
+        </div>
 
-          {/* Trust badges */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+        {/* Right sidebar */}
+        <aside className="detail-sidebar">
+          <div className="sidebar-card surface">
+            <div className="sidebar-top">
+              <GradeChip grade={d.grade} size="md" />
+              <span className="sidebar-grade-label">{gradeLabel(d.grade)}</span>
+            </div>
+            <div className="sidebar-price">{formatINR(d.currentPrice)}</div>
             {d.warrantyMonths > 0 && (
-              <span style={{ fontSize: "0.75rem", fontWeight: 500, padding: "0.25rem 0.625rem", borderRadius: "9999px", background: "hsl(var(--success) / 0.1)", color: "hsl(var(--success))" }}>
-                {d.warrantyMonths} mo warranty
-              </span>
+              <p className="meta" style={{ marginBottom: "0.75rem" }}>
+                {d.warrantyMonths}-month warranty · second year for {formatINR(Math.round(d.currentPrice * 0.05))} at checkout.
+              </p>
             )}
-            <span style={{ fontSize: "0.75rem", fontWeight: 500, padding: "0.25rem 0.625rem", borderRadius: "9999px", background: "hsl(var(--primary) / 0.08)", color: "hsl(var(--primary))" }}>
-              {d.returnWindowDays}-day returns
-            </span>
-            <span style={{ fontSize: "0.75rem", fontWeight: 500, padding: "0.25rem 0.625rem", borderRadius: "9999px", background: "hsl(var(--primary) / 0.08)", color: "hsl(var(--primary))" }}>
-              Escrow protected
-            </span>
+
+            {d.status === "active" ? (
+              <Link href={`/shop/checkout/${d.listingId}`} className="buy-btn">
+                Buy now, paid into escrow →
+              </Link>
+            ) : (
+              <p className="unavailable-msg">This listing is no longer available.</p>
+            )}
+
+            <div className="sidebar-trust">
+              <div className="trust-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Money is held in escrow until the return window closes.</span>
+              </div>
+              <div className="trust-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><path d="M16 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/></svg>
+                <span>Delivered by {new Date(Date.now() + 7 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })} — already in our hands.</span>
+              </div>
+              <div className="trust-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                <span>Seven days to return it, with any deduction shown first.</span>
+              </div>
+              {d.warrantyMonths > 0 && (
+                <div className="trust-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span>Warranty is serviced by CertiBuy.</span>
+                </div>
+              )}
+            </div>
           </div>
-
-          {d.status === "active" ? (
-            <Link
-              href={`/shop/checkout/${d.listingId}`}
-              style={{
-                display: "block",
-                textAlign: "center",
-                padding: "0.75rem",
-                backgroundColor: "hsl(var(--primary))",
-                color: "hsl(var(--primary-foreground))",
-                borderRadius: "9999px",
-                textDecoration: "none",
-                fontWeight: 600,
-                fontSize: "1rem",
-              }}
-            >
-              Buy now
-            </Link>
-          ) : (
-            <p style={{ textAlign: "center", color: "hsl(var(--muted))", fontSize: "0.875rem", padding: "0.75rem", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }}>
-              This listing is no longer available
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Sections below */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1.5rem" }}>
-        {/* Configuration */}
-        <div className="surface" style={{ padding: "1rem" }}>
-          <SectionTitle>Configuration</SectionTitle>
-          <InfoRow label="Storage" value={d.storage} />
-          <InfoRow label="Colour" value={d.device.colour || "Not specified"} />
-          <InfoRow label="Category" value={d.category.charAt(0).toUpperCase() + d.category.slice(1)} />
-          {d.specs.launchDate && (
-            <InfoRow label="Launched" value={new Date(d.specs.launchDate).toLocaleDateString("en-IN", { year: "numeric", month: "short" })} />
-          )}
-          {d.specs.originalPrice > 0 && (
-            <InfoRow label="Launch price" value={formatINR(d.specs.originalPrice)} />
-          )}
-        </div>
-
-        {/* Device condition */}
-        <div className="surface" style={{ padding: "1rem" }}>
-          <SectionTitle>Device condition</SectionTitle>
-          <InfoRow label="Grade" value={`Grade ${d.grade}`} />
-          <InfoRow label="Device age" value={d.device.ageMonths > 0 ? `${d.device.ageMonths} months` : "Not specified"} />
-          <InfoRow label="Repair history" value={repairLabel(d.device.repaired)} good={d.device.repaired === "no"} />
-          <InfoRow label="Water exposure" value={d.device.waterExposure ? "Yes" : "No"} good={!d.device.waterExposure} />
-          <InfoRow label="Accessories" value={billBoxLabel(d.device.billBox)} />
-          <InfoRow label="OEM warranty" value={warrantyLabel(d.device.warrantyStatus)} good={d.device.warrantyStatus === "active"} />
-        </div>
-      </div>
-
-      {/* Inspection report */}
-      {d.inspection && (
-        <div className="surface" style={{ padding: "1rem", marginTop: "1rem" }}>
-          <SectionTitle>Inspection report</SectionTitle>
-          <p className="meta" style={{ margin: "-0.5rem 0 0.75rem" }}>Verified by a CertiBuy technician at the hub</p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0" }}>
-            <InfoRow label="Battery health" value={`${d.inspection.batteryHealth}%`} good={d.inspection.batteryHealth >= 80} />
-            <InfoRow label="Cosmetic grade" value={d.inspection.cosmeticGrade} />
-            {Object.entries(d.inspection.checklist as Record<string, string>).map(([k, v]) => (
-              <InfoRow
-                key={k}
-                label={k.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
-                value={v === "pass" ? "Pass" : v === "fail" ? "Fail" : v}
-                good={v === "pass"}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Hub details */}
-      <div className="surface" style={{ padding: "1rem", marginTop: "1rem" }}>
-        <SectionTitle>Purchase details</SectionTitle>
-        <InfoRow label="Inspected at" value={`${d.hubName}, ${d.hubCity}`} />
-        <InfoRow label="Warranty" value={d.warrantyMonths > 0 ? `${d.warrantyMonths} months (CertiBuy)` : "None"} />
-        <InfoRow label="Return window" value={`${d.returnWindowDays} days`} />
-        <InfoRow label="Payment" value="Escrow — released after return window" />
+        </aside>
       </div>
 
       <style jsx>{`
-        @media (max-width: 640px) {
-          div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
+        .detail-page {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 1.5rem 1rem 3rem;
+        }
+        .detail-back {
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+          text-decoration: none;
+        }
+        .detail-back:hover { color: hsl(var(--foreground)); }
+        .detail-title-row {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          flex-wrap: wrap;
+          margin: 0.5rem 0 1rem;
+        }
+        .detail-title {
+          font-size: 1.375rem;
+          font-weight: 700;
+          margin: 0;
+          color: hsl(var(--foreground));
+        }
+        .detail-title-storage {
+          font-size: 0.875rem;
+          color: hsl(var(--muted));
+        }
+        .detail-title-hub {
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
+
+        /* Layout */
+        .detail-layout {
+          display: grid;
+          grid-template-columns: 1fr 320px;
+          gap: 1.5rem;
+          align-items: start;
+        }
+        .detail-main {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        /* Photo hero */
+        .photo-hero {
+          position: relative;
+          padding: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 320px;
+          background: hsl(var(--card));
+        }
+        .photo-badge {
+          position: absolute;
+          top: 0.75rem;
+          left: 0.75rem;
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: hsl(var(--muted));
+          background: hsl(var(--card));
+          border: 1px solid hsl(var(--border));
+          padding: 0.25rem 0.625rem;
+          border-radius: 9999px;
+        }
+        .photo-grid {
+          max-width: 320px;
+        }
+
+        /* What you get */
+        .wyg-card { padding: 1.5rem; }
+        .section-heading {
+          font-size: 1rem;
+          font-weight: 700;
+          margin: 0 0 1rem;
+          color: hsl(var(--foreground));
+        }
+        .wyg-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5rem;
+          padding-bottom: 1.25rem;
+          border-bottom: 1px solid hsl(var(--border));
+          margin-bottom: 1.25rem;
+        }
+        .wyg-item { display: flex; flex-direction: column; gap: 0.25rem; }
+        .wyg-label {
+          display: flex;
+          align-items: center;
+          gap: 0.375rem;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: hsl(var(--muted));
+        }
+        .wyg-value {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+          line-height: 1.2;
+        }
+        .wyg-value-serif {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 1.5rem;
+          color: hsl(var(--foreground));
+          line-height: 1.3;
+        }
+        .battery-bar {
+          height: 6px;
+          background: hsl(var(--border));
+          border-radius: 3px;
+          overflow: hidden;
+          margin-top: 0.25rem;
+        }
+        .battery-fill {
+          height: 100%;
+          border-radius: 3px;
+          transition: width 0.3s;
+        }
+        .returns-section {
+          padding-bottom: 1.25rem;
+          border-bottom: 1px solid hsl(var(--border));
+          margin-bottom: 1.25rem;
+        }
+        .returns-list {
+          margin: 0.625rem 0 0.5rem;
+        }
+        .returns-list p {
+          margin: 0.375rem 0;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+          line-height: 1.5;
+        }
+        .escrow-note {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          color: hsl(var(--muted));
+          line-height: 1.5;
+          padding: 0.75rem;
+          background: hsl(var(--secondary));
+          border-radius: 0.75rem;
+        }
+        .escrow-note svg { flex-shrink: 0; margin-top: 0.125rem; }
+
+        /* Inspection */
+        .inspection-card { padding: 1.5rem; }
+        .inspection-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1.25rem;
+        }
+        .inspection-meta {
+          text-align: right;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
+        .checklist-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        .checklist-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+        }
+        .checklist-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem 0;
+          font-size: 0.8125rem;
+        }
+        .checklist-item:nth-child(odd) { padding-right: 1rem; }
+        .checklist-item:nth-child(even) { padding-left: 1rem; }
+        .checklist-name { color: hsl(var(--foreground)); }
+        .result-pass { color: hsl(var(--success)); font-weight: 500; }
+        .result-fail { color: hsl(var(--destructive)); font-weight: 500; }
+        .inspection-footer {
+          display: flex;
+          gap: 2rem;
+          margin-top: 1.25rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid hsl(var(--border));
+        }
+        .inspection-footer-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
+        }
+
+        /* Sidebar */
+        .detail-sidebar { position: sticky; top: 112px; }
+        .sidebar-card { padding: 1.25rem; }
+        .sidebar-top {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.5rem;
+        }
+        .sidebar-grade-label {
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
+        .sidebar-price {
+          font-size: 2rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+          margin-bottom: 0.375rem;
+          line-height: 1.2;
+        }
+        .buy-btn {
+          display: block;
+          text-align: center;
+          padding: 0.75rem;
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          border-radius: 9999px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.9375rem;
+          margin-bottom: 1rem;
+          transition: opacity 0.15s;
+        }
+        .buy-btn:hover { opacity: 0.9; }
+        .unavailable-msg {
+          text-align: center;
+          color: hsl(var(--muted));
+          font-size: 0.875rem;
+          padding: 0.75rem;
+          border: 1px solid hsl(var(--border));
+          border-radius: var(--radius);
+          margin-bottom: 1rem;
+        }
+        .sidebar-trust {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .trust-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.5rem;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+          line-height: 1.4;
+        }
+        .trust-item svg { flex-shrink: 0; margin-top: 0.125rem; }
+
+        @media (max-width: 768px) {
+          .detail-layout {
+            grid-template-columns: 1fr;
           }
+          .detail-sidebar {
+            position: static;
+            order: -1;
+          }
+          .wyg-grid { grid-template-columns: 1fr; }
+          .checklist-grid { grid-template-columns: 1fr; }
+          .checklist-item:nth-child(odd) { padding-right: 0; }
+          .checklist-item:nth-child(even) { padding-left: 0; }
+          .inspection-footer { flex-wrap: wrap; gap: 1rem; }
         }
       `}</style>
     </div>

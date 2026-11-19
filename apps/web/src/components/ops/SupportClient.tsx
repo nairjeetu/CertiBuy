@@ -20,7 +20,7 @@ export function SupportClient() {
   const { data, isLoading, error } = useOpsSupportInbox(params);
 
   if (isLoading) return <p>Loading support inbox...</p>;
-  if (error) return <p style={{ color: "#991b1b" }}>{(error as Error).message}</p>;
+  if (error) return <p style={{ color: "hsl(var(--destructive))" }}>{(error as Error).message}</p>;
 
   const requests = (data?.requests ?? []) as SupportReq[];
 
@@ -28,7 +28,7 @@ export function SupportClient() {
     <div style={{ maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h2 style={{ fontSize: "1.25rem", fontWeight: 600, margin: 0 }}>Support inbox</h2>
-        <select value={status} onChange={e => setStatus(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: 6, border: "1px solid #d1d5db" }}>
+        <select value={status} onChange={e => setStatus(e.target.value)} style={{ padding: "0.375rem 0.5rem", borderRadius: "0.75rem", border: "1px solid hsl(var(--border))" }}>
           <option value="">All</option>
           <option value="open">Open</option>
           <option value="replied">Replied</option>
@@ -36,11 +36,11 @@ export function SupportClient() {
         </select>
       </div>
       {requests.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No support requests.</p>
+        <p style={{ color: "hsl(var(--muted))" }}>No support requests.</p>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
           <thead>
-            <tr style={{ borderBottom: "2px solid #e5e7eb", textAlign: "left" }}>
+            <tr style={{ borderBottom: "2px solid hsl(var(--border))", textAlign: "left" }}>
               <th style={{ padding: "0.5rem" }}>Topic</th>
               <th style={{ padding: "0.5rem" }}>Message</th>
               <th style={{ padding: "0.5rem" }}>Status</th>
@@ -50,7 +50,7 @@ export function SupportClient() {
           </thead>
           <tbody>
             {requests.map(r => (
-              <tr key={r.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+              <tr key={r.id} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                 <td style={{ padding: "0.5rem" }}>{r.topic}</td>
                 <td style={{ padding: "0.5rem", maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.message}</td>
                 <td style={{ padding: "0.5rem" }}>{r.status}</td>
