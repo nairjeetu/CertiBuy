@@ -50,7 +50,7 @@ export async function getShopHome(actor: Actor) {
     prisma.listing.count({ where: { status: "active" } }),
     prisma.$queryRaw<Array<{ grade: string; count: bigint }>>`
       SELECT d.final_grade AS grade, COUNT(*)::bigint AS count
-      FROM "Listing" l JOIN "Device" d ON d.id = l.device_id
+      FROM listings l JOIN devices d ON d.id = l.device_id
       WHERE l.status = 'active'
       GROUP BY d.final_grade`,
   ]);
@@ -289,7 +289,7 @@ export async function getShopGrades(actor: Actor) {
 
   const gradeCounts = await prisma.$queryRaw<Array<{ grade: string; count: bigint }>>`
     SELECT d.final_grade AS grade, COUNT(*)::bigint AS count
-    FROM "Listing" l JOIN "Device" d ON d.id = l.device_id
+    FROM listings l JOIN devices d ON d.id = l.device_id
     WHERE l.status = 'active'
     GROUP BY d.final_grade`;
   const countByGrade: Record<string, number> = {};
