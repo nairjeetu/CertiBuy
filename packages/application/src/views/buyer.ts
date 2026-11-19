@@ -5,7 +5,6 @@ import {
   cancelRefund,
   raiseMath,
   outcomesFor,
-  gradePrice,
 } from "@certibuy/domain";
 import { orderStatuses, escrowStatuses, returnStatuses } from "@certibuy/contracts";
 import type { Actor } from "../actor";
@@ -162,10 +161,19 @@ export async function getListingDetail(actor: Actor, listingId: string) {
 
   const settings = await readSettings();
 
-  const gradeStrip = (["A", "B", "C", "D"] as const).map((g) => ({
-    grade: g,
-    price: gradePrice(listing.device.device_model, g, settings),
-  }));
+  const siblingListings = await prisma.listing.findMany({
+    where: {
+      status: "active",
+      device: { device_model_id: listing.device.device_model_id },
+    },
+    select: { id: true, current_price: true, device: { select: { final_grade: true } } },
+  });
+
+  const gradeStrip = siblingListings.map((sl) => ({
+    grade: sl.device.final_grade,
+    price: sl.current_price,
+    listingId: sl.id,
+  })).sort((a, b) => a.grade.localeCompare(b.grade));
 
   return {
     listingId: listing.id,
