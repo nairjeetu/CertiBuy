@@ -366,44 +366,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           overflow-x: auto;
           padding: 0.25rem 0;
         }
-        .nav-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.625rem;
-          padding: 0.4375rem 1rem;
-          border-radius: 9999px;
-          font-family: var(--font-body);
-          font-size: 0.75rem;
-          font-weight: 500;
-          color: hsl(var(--primary-foreground));
-          text-decoration: none;
-          white-space: nowrap;
-          transition: all 0.15s;
-          letter-spacing: 0.01em;
-        }
-        .nav-pill svg {
-          flex-shrink: 0;
-          opacity: 0.7;
-        }
-        .nav-pill:hover {
-          color: hsl(var(--primary-foreground));
-          background: hsla(0, 0%, 100%, 0.12);
-        }
-        .nav-pill:hover svg {
-          opacity: 1;
-        }
-        .nav-pill-active {
-          background: hsla(0, 0%, 100%, 0.15);
-          color: hsl(var(--primary-foreground));
-          font-weight: 600;
-        }
-        .nav-pill-active svg {
-          opacity: 1;
-        }
-        .nav-pill-active:hover {
-          background: hsla(0, 0%, 100%, 0.18);
-          color: hsl(var(--primary-foreground));
-        }
+        /* nav-pill styles are in globals.css (Link scoping) */
 
         @media (max-width: 768px) {
           .header-tagline { display: none; }
