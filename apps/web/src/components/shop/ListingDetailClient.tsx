@@ -48,7 +48,7 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
   return (
     <div className="detail-page">
       {/* Breadcrumb + title row */}
-      <Link href="/shop/browse" className="detail-back">← All devices</Link>
+      <Link href="/shop/browse" className="detail-back" style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", textDecoration: "none" }}>← All devices</Link>
       <div className="detail-title-row">
         <h1 className="detail-title">{d.brand} {d.model}</h1>
         <span className="detail-title-storage">{d.storage}</span>
@@ -188,7 +188,7 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
             )}
 
             {d.status === "active" ? (
-              <Link href={`/shop/checkout/${d.listingId}`} className="buy-btn">
+              <Link href={`/shop/checkout/${d.listingId}`} className="buy-btn" style={{ marginBottom: "1rem" }}>
                 Buy now, paid into escrow →
               </Link>
             ) : (
@@ -225,12 +225,6 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           margin: 0 auto;
           padding: 1.5rem 1rem 3rem;
         }
-        .detail-back {
-          font-size: 0.8125rem;
-          color: hsl(var(--muted));
-          text-decoration: none;
-        }
-        .detail-back:hover { color: hsl(var(--foreground)); }
         .detail-title-row {
           display: flex;
           align-items: center;
@@ -445,20 +439,6 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           margin-bottom: 0.375rem;
           line-height: 1.2;
         }
-        .buy-btn {
-          display: block;
-          text-align: center;
-          padding: 0.75rem;
-          background: hsl(var(--primary));
-          color: hsl(var(--primary-foreground));
-          border-radius: 9999px;
-          text-decoration: none;
-          font-weight: 600;
-          font-size: 0.9375rem;
-          margin-bottom: 1rem;
-          transition: opacity 0.15s;
-        }
-        .buy-btn:hover { opacity: 0.9; }
         .unavailable-msg {
           text-align: center;
           color: hsl(var(--muted));
