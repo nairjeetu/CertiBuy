@@ -8,30 +8,54 @@ import type { Actor } from "@certibuy/application";
 
 /* ── Nav definitions per role ─────────────────────────────────────────── */
 
+function NavIcon({ name }: { name: string }) {
+  const paths: Record<string, string> = {
+    home: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z|M9 22V12h6v10",
+    shop: "M6 2L3 7v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-3-5z|M3 7h18",
+    grades: "M9 11l3 3L22 4|M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11",
+    orders: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z",
+    sell: "M17 1l4 4-4 4|M3 11V9a4 4 0 0 1 4-4h14|M7 23l-4-4 4-4|M21 13v2a4 4 0 0 1-4 4H3",
+    payouts: "M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6",
+    overview: "M18 20V10|M12 20V4|M6 20v-6",
+    inventory: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z|M14 2v6h6|M16 13H8|M16 17H8|M10 9H8",
+    catalogue: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z|M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z",
+    exceptions: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z|M12 9v4|M12 17h.01",
+    jobs: "M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.49 8.49l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.49-8.49l2.83-2.83",
+    demo: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
+    queue: "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2|M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z",
+  };
+  const d = paths[name] ?? paths.home ?? "";
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {d.split("|").map((p, i) => <path key={i} d={p} />)}
+    </svg>
+  );
+}
+
 const BUYER_NAV = [
-  { href: "/shop", label: "Home", icon: "🏠" },
-  { href: "/shop/browse", label: "Shop", icon: "🛍" },
-  { href: "/shop/grades", label: "Grades explained", icon: "📋" },
-  { href: "/shop/orders", label: "My orders", icon: "📦" },
+  { href: "/shop", label: "Home", icon: "home" },
+  { href: "/shop/browse", label: "Shop", icon: "shop" },
+  { href: "/shop/grades", label: "Grades explained", icon: "grades" },
+  { href: "/shop/orders", label: "My orders", icon: "orders" },
 ];
 
 const SELLER_NAV = [
-  { href: "/seller", label: "Home", icon: "🏠" },
-  { href: "/seller/sell", label: "Sell device", icon: "📲" },
-  { href: "/seller/payouts", label: "Payouts", icon: "💰" },
+  { href: "/seller", label: "Home", icon: "home" },
+  { href: "/seller/sell", label: "Sell device", icon: "sell" },
+  { href: "/seller/payouts", label: "Payouts", icon: "payouts" },
 ];
 
 const OPS_NAV = [
-  { href: "/ops", label: "Overview", icon: "📊" },
-  { href: "/ops/inventory", label: "Inventory", icon: "📋" },
-  { href: "/ops/catalogue", label: "Catalogue", icon: "📱" },
-  { href: "/ops/exceptions", label: "Exceptions", icon: "⚠" },
-  { href: "/ops/jobs", label: "Jobs", icon: "⚙" },
-  { href: "/ops/demo", label: "Demo", icon: "🧪" },
+  { href: "/ops", label: "Overview", icon: "overview" },
+  { href: "/ops/inventory", label: "Inventory", icon: "inventory" },
+  { href: "/ops/catalogue", label: "Catalogue", icon: "catalogue" },
+  { href: "/ops/exceptions", label: "Exceptions", icon: "exceptions" },
+  { href: "/ops/jobs", label: "Jobs", icon: "jobs" },
+  { href: "/ops/demo", label: "Demo", icon: "demo" },
 ];
 
 const HUB_NAV = [
-  { href: "/hub", label: "Queue", icon: "📋" },
+  { href: "/hub", label: "Queue", icon: "queue" },
 ];
 
 function getInitials(name: string) {
@@ -158,7 +182,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
                 href={n.href}
                 className={`nav-pill ${active ? "nav-pill-active" : ""}`}
               >
-                <span className="nav-pill-icon">{n.icon}</span>
+                <NavIcon name={n.icon} />
                 {n.label}
               </Link>
             );
@@ -333,42 +357,53 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
         .header-nav {
           display: flex;
           align-items: center;
-          height: 44px;
+          height: 46px;
           border-top: 1px solid hsl(var(--border));
         }
         .header-nav-pills {
           display: flex;
-          gap: 0.25rem;
+          gap: 0.375rem;
           overflow-x: auto;
+          padding: 0.25rem 0;
         }
         .nav-pill {
           display: inline-flex;
           align-items: center;
-          gap: 0.375rem;
-          padding: 0.375rem 0.75rem;
+          gap: 0.5rem;
+          padding: 0.4375rem 0.875rem;
           border-radius: 9999px;
+          font-family: var(--font-body);
           font-size: 0.8125rem;
           font-weight: 500;
           color: hsl(var(--muted));
           text-decoration: none;
           white-space: nowrap;
           transition: all 0.15s;
+          letter-spacing: 0.01em;
+        }
+        .nav-pill svg {
+          flex-shrink: 0;
+          opacity: 0.7;
         }
         .nav-pill:hover {
           color: hsl(var(--foreground));
           background: hsl(var(--secondary));
         }
+        .nav-pill:hover svg {
+          opacity: 1;
+        }
         .nav-pill-active {
-          background: hsl(var(--primary));
-          color: hsl(var(--primary-foreground));
+          background: hsl(var(--secondary));
+          color: hsl(var(--foreground));
+          font-weight: 600;
+          border: 1px solid hsl(var(--border));
+        }
+        .nav-pill-active svg {
+          opacity: 1;
         }
         .nav-pill-active:hover {
-          background: hsl(var(--primary));
-          color: hsl(var(--primary-foreground));
-        }
-        .nav-pill-icon {
-          font-size: 0.875rem;
-          line-height: 1;
+          background: hsl(var(--secondary));
+          color: hsl(var(--foreground));
         }
 
         @media (max-width: 768px) {
