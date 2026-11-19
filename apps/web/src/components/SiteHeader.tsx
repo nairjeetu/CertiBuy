@@ -358,7 +358,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           display: flex;
           align-items: center;
           height: 46px;
-          border-top: 1px solid hsl(var(--border));
+          background: hsl(var(--primary));
         }
         .header-nav-pills {
           display: flex;
@@ -373,9 +373,9 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           padding: 0.4375rem 1rem;
           border-radius: 9999px;
           font-family: var(--font-body);
-          font-size: 0.8125rem;
+          font-size: 0.75rem;
           font-weight: 500;
-          color: hsl(var(--muted));
+          color: hsl(var(--primary-foreground));
           text-decoration: none;
           white-space: nowrap;
           transition: all 0.15s;
@@ -387,13 +387,13 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
         }
         .nav-pill:hover {
           color: hsl(var(--primary-foreground));
-          background: hsl(var(--primary));
+          background: hsla(0, 0%, 100%, 0.12);
         }
         .nav-pill:hover svg {
           opacity: 1;
         }
         .nav-pill-active {
-          background: hsl(var(--primary));
+          background: hsla(0, 0%, 100%, 0.15);
           color: hsl(var(--primary-foreground));
           font-weight: 600;
         }
@@ -401,7 +401,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           opacity: 1;
         }
         .nav-pill-active:hover {
-          background: hsl(var(--primary));
+          background: hsla(0, 0%, 100%, 0.18);
           color: hsl(var(--primary-foreground));
         }
 
