@@ -170,7 +170,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
       </div>
 
       {/* Row 2: Navigation pills */}
-      <nav className="header-row header-nav" aria-label="Main navigation">
+      <nav className="header-row header-nav" aria-label="Main navigation" style={{ background: "transparent", backgroundColor: "transparent" }}>
         <div className="header-nav-pills no-scrollbar">
           {navItems.map((n) => {
             const active =
