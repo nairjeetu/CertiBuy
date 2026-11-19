@@ -28,18 +28,34 @@ export async function getOpsOverview(actor: Actor, _params: Record<string, strin
   const settings = await readSettings();
   const today = bDate(settings, now);
 
-  const [activeListings, pendingPayouts, openExceptions, todayBookings, recentActivity] =
-    await Promise.all([
-      prisma.listing.count({ where: { status: "active" } }),
-      prisma.payout.count({ where: { status: { in: ["pending", "approved"] } } }),
-      prisma.exceptionCase.count({ where: { status: "open" } }),
-      prisma.booking.count({ where: { status: "booked", date: today } }),
-      prisma.activityLog.findMany({ orderBy: { created_at: "desc" }, take: 10 }),
-    ]);
+  const [
+    activeListings, pendingPayouts, openExceptions, todayBookings,
+    totalDevices, activeOrders, pendingReturns, registeredUsers,
+    hubCount, catalogueModels, totalSubmissions, reservedListings,
+    recentActivity,
+  ] = await Promise.all([
+    prisma.listing.count({ where: { status: "active" } }),
+    prisma.payout.count({ where: { status: { in: ["pending", "approved"] } } }),
+    prisma.exceptionCase.count({ where: { status: "open" } }),
+    prisma.booking.count({ where: { status: "booked", date: today } }),
+    prisma.device.count({ where: { owner: "certibuy" } }),
+    prisma.order.count({ where: { status: { in: ["paid", "dispatched", "in_transit"] } } }),
+    prisma.returnRequest.count({ where: { status: { in: ["awaiting_reinspection", "awaiting_decision"] } } }),
+    prisma.profile.count(),
+    prisma.hub.count({ where: { active: true } }),
+    prisma.deviceModel.count(),
+    prisma.submission.count(),
+    prisma.listing.count({ where: { status: "reserved" } }),
+    prisma.activityLog.findMany({ orderBy: { created_at: "desc" }, take: 10 }),
+  ]);
 
   return {
     businessDate: today,
-    kpi: { activeListings, pendingPayouts, openExceptions, todayBookings },
+    kpi: {
+      activeListings, pendingPayouts, openExceptions, todayBookings,
+      totalDevices, activeOrders, pendingReturns, registeredUsers,
+      hubCount, catalogueModels, totalSubmissions, reservedListings,
+    },
     recentActivity: recentActivity.map(a => ({
       id: a.id,
       actor_name: a.actor_name,
