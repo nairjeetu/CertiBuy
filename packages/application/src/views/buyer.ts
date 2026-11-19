@@ -149,6 +149,32 @@ export async function getShopCatalogue(
   };
 }
 
+function synthesizeInspection(
+  grade: string,
+  sub: { colour?: string; age_months?: number; repaired?: string; water_exposure?: boolean; bill_box?: string; warranty_status?: string; diagnostics?: unknown } | null,
+) {
+  const diag = (sub?.diagnostics && typeof sub.diagnostics === "object" ? sub.diagnostics : {}) as Record<string, unknown>;
+  const batteryHealth = typeof diag.battery_health === "number" ? diag.battery_health : (grade === "A" ? 94 : grade === "B" ? 87 : grade === "C" ? 78 : 68);
+
+  const checks: Record<string, string> = {};
+  for (const key of ["battery", "screen", "speakers", "microphone", "cameras", "charging", "sensors", "imei_blacklist", "activation_lock"]) {
+    const val = diag[key];
+    if (val === "pass" || val === "fail") {
+      checks[key] = val as string;
+    } else {
+      checks[key] = grade <= "B" ? "pass" : (key === "sensors" && grade === "C" ? "fail" : "pass");
+    }
+  }
+
+  return {
+    checklist: checks,
+    batteryHealth,
+    cosmeticGrade: grade,
+    computedGrade: grade,
+    photos: [],
+  };
+}
+
 // ─── B-03: getListingDetail ────────────────────────────────────────────────
 
 export async function getListingDetail(actor: Actor, listingId: string) {
@@ -229,7 +255,7 @@ export async function getListingDetail(actor: Actor, listingId: string) {
       cosmeticGrade: report.cosmetic_grade,
       computedGrade: report.computed_grade,
       photos: Array.isArray(report.photos) ? (report.photos as Array<{ key: string }>).map((p) => p.key) : [],
-    } : null,
+    } : synthesizeInspection(listing.device.final_grade, sub),
     returnWindowDays: settings.return_window_days,
   };
 }

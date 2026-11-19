@@ -33,6 +33,21 @@ function gradeLabel(g: string) {
   return "Refurbished";
 }
 
+function checkLabel(key: string) {
+  const map: Record<string, string> = {
+    battery: "Battery",
+    screen: "Screen & touch",
+    speakers: "Speakers",
+    microphone: "Microphone",
+    cameras: "Cameras",
+    charging: "Charging port",
+    sensors: "Sensors",
+    imei_blacklist: "IMEI clear",
+    activation_lock: "Activation lock",
+  };
+  return map[key] ?? key.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+}
+
 export function ListingDetailClient({ listingId }: { listingId: string }) {
   const { data, isLoading, error } = useListingDetail(listingId);
 
@@ -47,18 +62,20 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
 
   return (
     <div className="detail-page">
-      {/* Breadcrumb + title row */}
-      <Link href="/shop/browse" className="detail-back" style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", textDecoration: "none" }}>← All devices</Link>
+      <Link href="/shop/browse" className="detail-back" style={{ fontSize: "0.8125rem", color: "hsl(var(--muted))", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "0.25rem" }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+        All devices
+      </Link>
+
       <div className="detail-title-row">
         <h1 className="detail-title">{d.brand} {d.model}</h1>
         <span className="detail-title-storage">{d.storage}</span>
         <GradeChip grade={d.grade} size="md" />
-        <span className="detail-title-hub">{d.hubName}, {d.hubCity}</span>
       </div>
+      <p className="detail-subtitle">{gradeLabel(d.grade)} · {d.hubName}, {d.hubCity}</p>
 
-      {/* Main layout: content + sidebar */}
       <div className="detail-layout">
-        {/* Left column */}
+        {/* ── Left column ── */}
         <div className="detail-main">
           {/* Photo hero */}
           <div className="photo-hero surface">
@@ -100,7 +117,6 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
               </div>
             </div>
 
-            {/* Returns policy */}
             <div className="returns-section">
               <span className="wyg-label">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -114,66 +130,144 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
               <p className="meta">Within {d.returnWindowDays} days of delivery, with the device as it was shipped.</p>
             </div>
 
-            {/* Escrow */}
             <div className="escrow-note">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               <span><strong>Escrow.</strong> Your payment is held until the {d.returnWindowDays}-day window closes. CertiBuy is paid only once you&apos;ve had the device and kept it.</span>
             </div>
           </div>
 
-          {/* Inspection report */}
+          {/* ── Inspection Report ── */}
           {d.inspection && (
             <div className="inspection-card surface">
               <div className="inspection-header">
-                <div>
-                  <h2 className="section-heading" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    Inspection report
-                  </h2>
-                  <p className="meta">Report {reportId}</p>
-                </div>
-                <div className="inspection-meta">
-                  <span>{d.hubName}, {d.hubCity}</span>
-                </div>
-              </div>
-
-              <div className="checklist-header">
-                <span className="wyg-label">CHECKLIST</span>
-                <span className="meta">{passCount} of {checklist.length} pass</span>
-              </div>
-              <div className="checklist-grid">
-                {checklist.map(([k, v]) => (
-                  <div key={k} className="checklist-item">
-                    <span className="checklist-name">{k.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}</span>
-                    <span className={`checklist-result ${v === "pass" ? "result-pass" : "result-fail"}`}>
-                      {v === "pass" ? "✓" : "✗"} {v === "pass" ? "Pass" : "Fail"}
-                    </span>
+                <div className="inspection-header-left">
+                  <div className="inspection-icon-wrap">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                   </div>
-                ))}
+                  <div>
+                    <h2 className="inspection-title">Inspection Report</h2>
+                    <span className="meta">Report #{reportId} · {d.hubName}</span>
+                  </div>
+                </div>
+                <div className="inspection-grade-box">
+                  <span className="inspection-grade-label">GRADE</span>
+                  <span className="inspection-grade-letter">{d.inspection.computedGrade}</span>
+                </div>
               </div>
 
-              {/* Footer: IMEI, custody tag, colour */}
+              {/* Checklist */}
+              <div className="checklist-section">
+                <div className="checklist-header">
+                  <span className="checklist-title">Functional checks</span>
+                  <span className="checklist-count">{passCount}/{checklist.length} pass</span>
+                </div>
+                <div className="checklist-grid">
+                  {checklist.map(([k, v]) => (
+                    <div key={k} className={`checklist-item ${v === "pass" ? "item-pass" : "item-fail"}`}>
+                      <span className="checklist-icon">
+                        {v === "pass" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--destructive))" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        )}
+                      </span>
+                      <span className="checklist-name">{checkLabel(k)}</span>
+                      <span className={`checklist-result ${v === "pass" ? "result-pass" : "result-fail"}`}>
+                        {v === "pass" ? "Pass" : "Fail"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Battery detail */}
+              <div className="battery-section">
+                <div className="battery-detail-header">
+                  <span className="battery-detail-label">Battery health</span>
+                  <span className="battery-detail-value">{d.inspection.batteryHealth}%</span>
+                </div>
+                <div className="battery-bar-lg">
+                  <div className="battery-fill-lg" style={{
+                    width: `${d.inspection.batteryHealth}%`,
+                    background: d.inspection.batteryHealth >= 80 ? "hsl(var(--success))" : d.inspection.batteryHealth >= 60 ? "hsl(var(--warning))" : "hsl(var(--destructive))"
+                  }} />
+                </div>
+                <span className="meta">
+                  {d.inspection.batteryHealth >= 80 ? "Excellent — holds a full day of use." : d.inspection.batteryHealth >= 60 ? "Good — moderate daily use." : "Fair — may need replacement soon."}
+                </span>
+              </div>
+
+              {/* Footer: IMEI, custody, colour */}
               <div className="inspection-footer">
                 <div className="inspection-footer-item">
-                  <span className="meta">IMEI VERIFIED</span>
-                  <span>•••• {d.listingId.slice(-4)}</span>
+                  <span className="footer-label">IMEI VERIFIED</span>
+                  <span className="footer-value">•••• {d.listingId.slice(-4)}</span>
                 </div>
                 <div className="inspection-footer-item">
-                  <span className="meta">CUSTODY TAG</span>
-                  <span>CB-{d.listingId.slice(0, 5).toUpperCase()}</span>
+                  <span className="footer-label">CUSTODY TAG</span>
+                  <span className="footer-value">CB-{d.listingId.slice(0, 5).toUpperCase()}</span>
                 </div>
                 {d.device.colour && (
                   <div className="inspection-footer-item">
-                    <span className="meta">COLOUR</span>
-                    <span>{d.device.colour}</span>
+                    <span className="footer-label">COLOUR</span>
+                    <span className="footer-value">{d.device.colour}</span>
                   </div>
                 )}
+                <div className="inspection-footer-item">
+                  <span className="footer-label">COSMETIC GRADE</span>
+                  <span className="footer-value">{d.inspection.cosmeticGrade}</span>
+                </div>
               </div>
             </div>
           )}
+
+          {/* Device specs */}
+          <div className="specs-card surface">
+            <h2 className="section-heading">Device details</h2>
+            <div className="specs-grid">
+              <div className="spec-row">
+                <span className="spec-label">Brand</span>
+                <span className="spec-value">{d.brand}</span>
+              </div>
+              <div className="spec-row">
+                <span className="spec-label">Model</span>
+                <span className="spec-value">{d.model}</span>
+              </div>
+              <div className="spec-row">
+                <span className="spec-label">Storage</span>
+                <span className="spec-value">{d.storage}</span>
+              </div>
+              {d.device.colour && (
+                <div className="spec-row">
+                  <span className="spec-label">Colour</span>
+                  <span className="spec-value">{d.device.colour}</span>
+                </div>
+              )}
+              {d.device.ageMonths > 0 && (
+                <div className="spec-row">
+                  <span className="spec-label">Age</span>
+                  <span className="spec-value">{d.device.ageMonths} months</span>
+                </div>
+              )}
+              {d.specs.originalPrice > 0 && (
+                <div className="spec-row">
+                  <span className="spec-label">Original price</span>
+                  <span className="spec-value">{formatINR(d.specs.originalPrice)}</span>
+                </div>
+              )}
+              <div className="spec-row">
+                <span className="spec-label">Repair history</span>
+                <span className="spec-value">{d.device.repaired === "no" ? "None reported" : d.device.repaired === "screen" ? "Screen replaced" : d.device.repaired === "battery" ? "Battery replaced" : "Other repair"}</span>
+              </div>
+              <div className="spec-row">
+                <span className="spec-label">Water exposure</span>
+                <span className="spec-value">{d.device.waterExposure ? "Yes" : "None reported"}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right sidebar */}
+        {/* ── Right sidebar ── */}
         <aside className="detail-sidebar">
           <div className="sidebar-card surface">
             <div className="sidebar-top">
@@ -181,9 +275,15 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
               <span className="sidebar-grade-label">{gradeLabel(d.grade)}</span>
             </div>
             <div className="sidebar-price">{formatINR(d.currentPrice)}</div>
+            {d.specs.originalPrice > 0 && (
+              <p className="sidebar-original">
+                <span className="original-strike">{formatINR(d.specs.originalPrice)}</span>
+                <span className="save-pct">{Math.round((1 - d.currentPrice / d.specs.originalPrice) * 100)}% off</span>
+              </p>
+            )}
             {d.warrantyMonths > 0 && (
               <p className="meta" style={{ marginBottom: "0.75rem" }}>
-                {d.warrantyMonths}-month warranty · second year for {formatINR(Math.round(d.currentPrice * 0.05))} at checkout.
+                {d.warrantyMonths}-month warranty · extend to 2 years for {formatINR(Math.round(d.currentPrice * 0.05))}.
               </p>
             )}
 
@@ -197,25 +297,56 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
 
             <div className="sidebar-trust">
               <div className="trust-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span>Money is held in escrow until the return window closes.</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <div>
+                  <span className="trust-title">Escrow protected</span>
+                  <span className="trust-desc">Money held until return window closes.</span>
+                </div>
               </div>
               <div className="trust-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><path d="M16 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/></svg>
-                <span>Delivered by {new Date(Date.now() + 7 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })} — already in our hands.</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div>
+                  <span className="trust-title">Technician inspected</span>
+                  <span className="trust-desc">Every check verified at the hub.</span>
+                </div>
               </div>
               <div className="trust-item">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-                <span>Seven days to return it, with any deduction shown first.</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                <div>
+                  <span className="trust-title">{d.returnWindowDays}-day returns</span>
+                  <span className="trust-desc">Return with any deduction shown first.</span>
+                </div>
               </div>
               {d.warrantyMonths > 0 && (
                 <div className="trust-item">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  <span>Warranty is serviced by CertiBuy.</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <div>
+                    <span className="trust-title">{d.warrantyMonths}-month warranty</span>
+                    <span className="trust-desc">Serviced by CertiBuy.</span>
+                  </div>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Grade strip */}
+          {d.gradeStrip.length > 1 && (
+            <div className="grade-strip surface">
+              <h3 className="strip-title">Other grades available</h3>
+              {d.gradeStrip.filter((g) => g.listingId !== d.listingId).map((g) => (
+                <Link
+                  key={g.listingId}
+                  href={`/shop/listing/${g.listingId}`}
+                  className="strip-item"
+                  style={{ textDecoration: "none" }}
+                >
+                  <GradeChip grade={g.grade} size="sm" />
+                  <span className="strip-label">{gradeLabel(g.grade)}</span>
+                  <span className="strip-price">{formatINR(g.price)}</span>
+                </Link>
+              ))}
+            </div>
+          )}
         </aside>
       </div>
 
@@ -230,28 +361,29 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           align-items: center;
           gap: 0.625rem;
           flex-wrap: wrap;
-          margin: 0.5rem 0 1rem;
+          margin: 0.75rem 0 0.25rem;
         }
         .detail-title {
-          font-size: 1.375rem;
+          font-size: 1.5rem;
           font-weight: 700;
           margin: 0;
           color: hsl(var(--foreground));
         }
         .detail-title-storage {
-          font-size: 0.875rem;
+          font-size: 0.9375rem;
           color: hsl(var(--muted));
         }
-        .detail-title-hub {
+        .detail-subtitle {
           font-size: 0.8125rem;
           color: hsl(var(--muted));
+          margin: 0 0 1.25rem;
         }
 
         /* Layout */
         .detail-layout {
           display: grid;
-          grid-template-columns: 1fr 320px;
-          gap: 1.5rem;
+          grid-template-columns: 1fr 340px;
+          gap: 1.25rem;
           align-items: start;
         }
         .detail-main {
@@ -263,11 +395,11 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
         /* Photo hero */
         .photo-hero {
           position: relative;
-          padding: 2rem;
+          padding: 2.5rem 2rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          min-height: 320px;
+          min-height: 340px;
           background: hsl(var(--card));
         }
         .photo-badge {
@@ -277,7 +409,7 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           display: flex;
           align-items: center;
           gap: 0.375rem;
-          font-size: 0.75rem;
+          font-size: 0.6875rem;
           font-weight: 500;
           color: hsl(var(--muted));
           background: hsl(var(--card));
@@ -368,60 +500,202 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
         }
         .escrow-note svg { flex-shrink: 0; margin-top: 0.125rem; }
 
-        /* Inspection */
-        .inspection-card { padding: 1.5rem; }
+        /* ── Inspection report ── */
+        .inspection-card { padding: 0; overflow: hidden; }
         .inspection-header {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 1.25rem;
+          align-items: center;
+          padding: 1.25rem 1.5rem;
+          background: hsl(var(--primary) / 0.03);
+          border-bottom: 1px solid hsl(var(--border));
         }
-        .inspection-meta {
-          text-align: right;
-          font-size: 0.8125rem;
+        .inspection-header-left {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+        .inspection-icon-wrap {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: hsl(var(--primary) / 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .inspection-title {
+          font-size: 1rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+          margin: 0;
+        }
+        .inspection-grade-box {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.125rem;
+        }
+        .inspection-grade-label {
+          font-size: 0.625rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
           color: hsl(var(--muted));
+          text-transform: uppercase;
+        }
+        .inspection-grade-letter {
+          font-family: var(--font-display);
+          font-style: italic;
+          font-size: 2rem;
+          font-weight: 400;
+          color: hsl(var(--primary));
+          line-height: 1;
+        }
+
+        /* Checklist */
+        .checklist-section {
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid hsl(var(--border));
         }
         .checklist-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
+        }
+        .checklist-title {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+        .checklist-count {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: hsl(var(--success));
+          background: hsl(var(--success) / 0.08);
+          padding: 0.1875rem 0.5rem;
+          border-radius: 9999px;
         }
         .checklist-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0;
+          gap: 0.5rem;
         }
         .checklist-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.625rem;
+          border-radius: 0.5rem;
+          font-size: 0.8125rem;
+          background: hsl(var(--background));
+        }
+        .item-pass { }
+        .item-fail { background: hsl(var(--destructive) / 0.04); }
+        .checklist-icon {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+        }
+        .checklist-name {
+          flex: 1;
+          color: hsl(var(--foreground));
+        }
+        .checklist-result {
+          font-weight: 600;
+          font-size: 0.75rem;
+        }
+        .result-pass { color: hsl(var(--success)); }
+        .result-fail { color: hsl(var(--destructive)); }
+
+        /* Battery section in inspection */
+        .battery-section {
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid hsl(var(--border));
+        }
+        .battery-detail-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.5rem;
+        }
+        .battery-detail-label {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+        .battery-detail-value {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+        }
+        .battery-bar-lg {
+          height: 8px;
+          background: hsl(var(--border));
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 0.375rem;
+        }
+        .battery-fill-lg {
+          height: 100%;
+          border-radius: 4px;
+          transition: width 0.3s;
+        }
+
+        /* Inspection footer */
+        .inspection-footer {
+          display: flex;
+          gap: 0;
+          padding: 0;
+        }
+        .inspection-footer-item {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 1rem 0.75rem;
+          border-right: 1px solid hsl(var(--border));
+        }
+        .inspection-footer-item:last-child { border-right: none; }
+        .footer-label {
+          font-size: 0.5625rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          color: hsl(var(--muted));
+          text-transform: uppercase;
+        }
+        .footer-value {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+
+        /* Device specs */
+        .specs-card { padding: 1.5rem; }
+        .specs-grid { display: flex; flex-direction: column; gap: 0; }
+        .spec-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
           padding: 0.5rem 0;
-          font-size: 0.8125rem;
-        }
-        .checklist-item:nth-child(odd) { padding-right: 1rem; }
-        .checklist-item:nth-child(even) { padding-left: 1rem; }
-        .checklist-name { color: hsl(var(--foreground)); }
-        .result-pass { color: hsl(var(--success)); font-weight: 500; }
-        .result-fail { color: hsl(var(--destructive)); font-weight: 500; }
-        .inspection-footer {
-          display: flex;
-          gap: 2rem;
-          margin-top: 1.25rem;
-          padding-top: 1.25rem;
-          border-top: 1px solid hsl(var(--border));
-        }
-        .inspection-footer-item {
-          display: flex;
-          flex-direction: column;
-          gap: 0.125rem;
+          border-bottom: 1px solid hsl(var(--border));
           font-size: 0.875rem;
-          color: hsl(var(--foreground));
         }
+        .spec-row:last-child { border-bottom: none; }
+        .spec-label { color: hsl(var(--muted)); }
+        .spec-value { color: hsl(var(--foreground)); font-weight: 500; }
 
         /* Sidebar */
-        .detail-sidebar { position: sticky; top: 112px; }
-        .sidebar-card { padding: 1.25rem; }
+        .detail-sidebar {
+          position: sticky;
+          top: 112px;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .sidebar-card { padding: 1.5rem; }
         .sidebar-top {
           display: flex;
           align-items: center;
@@ -436,8 +710,26 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           font-size: 2rem;
           font-weight: 700;
           color: hsl(var(--foreground));
-          margin-bottom: 0.375rem;
           line-height: 1.2;
+        }
+        .sidebar-original {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin: 0.125rem 0 0.5rem;
+        }
+        .original-strike {
+          font-size: 0.875rem;
+          color: hsl(var(--muted));
+          text-decoration: line-through;
+        }
+        .save-pct {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: hsl(var(--success));
+          background: hsl(var(--success) / 0.08);
+          padding: 0.125rem 0.5rem;
+          border-radius: 9999px;
         }
         .unavailable-msg {
           text-align: center;
@@ -452,16 +744,49 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
+          padding-top: 1rem;
+          border-top: 1px solid hsl(var(--border));
         }
         .trust-item {
           display: flex;
           align-items: flex-start;
-          gap: 0.5rem;
+          gap: 0.625rem;
+        }
+        .trust-item svg { flex-shrink: 0; margin-top: 0.125rem; }
+        .trust-title {
+          display: block;
           font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+        }
+        .trust-desc {
+          display: block;
+          font-size: 0.75rem;
           color: hsl(var(--muted));
           line-height: 1.4;
         }
-        .trust-item svg { flex-shrink: 0; margin-top: 0.125rem; }
+
+        /* Grade strip */
+        .grade-strip {
+          padding: 1rem 1.25rem;
+        }
+        .strip-title {
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: hsl(var(--foreground));
+          margin: 0 0 0.75rem;
+        }
+        .strip-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0;
+          border-top: 1px solid hsl(var(--border));
+          color: hsl(var(--foreground));
+          font-size: 0.8125rem;
+        }
+        .strip-label { flex: 1; color: hsl(var(--muted)); }
+        .strip-price { font-weight: 600; }
 
         @media (max-width: 768px) {
           .detail-layout {
@@ -473,9 +798,9 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           }
           .wyg-grid { grid-template-columns: 1fr; }
           .checklist-grid { grid-template-columns: 1fr; }
-          .checklist-item:nth-child(odd) { padding-right: 0; }
-          .checklist-item:nth-child(even) { padding-left: 0; }
-          .inspection-footer { flex-wrap: wrap; gap: 1rem; }
+          .inspection-footer { flex-wrap: wrap; }
+          .inspection-footer-item { min-width: 45%; border-bottom: 1px solid hsl(var(--border)); }
+          .photo-hero { min-height: 240px; padding: 1.5rem 1rem; }
         }
       `}</style>
     </div>
