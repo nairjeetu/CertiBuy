@@ -369,8 +369,8 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
         .nav-pill {
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
-          padding: 0.4375rem 0.875rem;
+          gap: 0.625rem;
+          padding: 0.4375rem 1rem;
           border-radius: 9999px;
           font-family: var(--font-body);
           font-size: 0.8125rem;
@@ -386,24 +386,23 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           opacity: 0.7;
         }
         .nav-pill:hover {
-          color: hsl(var(--foreground));
-          background: hsl(var(--secondary));
+          color: hsl(var(--primary-foreground));
+          background: hsl(var(--primary));
         }
         .nav-pill:hover svg {
           opacity: 1;
         }
         .nav-pill-active {
-          background: hsl(var(--secondary));
-          color: hsl(var(--foreground));
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
           font-weight: 600;
-          border: 1px solid hsl(var(--border));
         }
         .nav-pill-active svg {
           opacity: 1;
         }
         .nav-pill-active:hover {
-          background: hsl(var(--secondary));
-          color: hsl(var(--foreground));
+          background: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
         }
 
         @media (max-width: 768px) {
