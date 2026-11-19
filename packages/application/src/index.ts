@@ -49,6 +49,7 @@ export {
   advanceShipment,
   raiseReturn,
   resolveReturn,
+  markNotificationsRead,
 } from "./commands/buying";
 
 export {
@@ -61,6 +62,7 @@ export {
   getOrderTracking,
   getOrderReceipt,
   getReturnOptions,
+  getMyNotifications,
 } from "./views/buyer";
 
 export {

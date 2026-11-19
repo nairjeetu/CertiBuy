@@ -452,3 +452,25 @@ export async function getReturnOptions(actor: Actor, orderId: string, now: Date)
     })),
   };
 }
+
+// ─── Notifications ────────────────────────────────────────────────────────
+
+export async function getMyNotifications(actor: Actor) {
+  const notifications = await prisma.notification.findMany({
+    where: { user_id: actor.id },
+    orderBy: { created_at: "desc" },
+    take: 50,
+  });
+  return {
+    notifications: notifications.map((n) => ({
+      id: n.id,
+      event: n.event,
+      title: n.title,
+      body: n.body,
+      link: n.link,
+      read: n.read,
+      createdAt: n.created_at.toISOString(),
+    })),
+    unreadCount: notifications.filter((n) => !n.read).length,
+  };
+}

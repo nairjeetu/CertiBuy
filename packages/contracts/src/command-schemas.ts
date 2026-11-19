@@ -86,4 +86,7 @@ export const commandSchemas: Record<string, z.ZodTypeAny> = {
   repriceListing: RepriceListingInput,
   setOverridePrice: SetOverridePriceInput,
   pauseIcForModel: PauseIcForModelInput,
+  markNotificationsRead: z.object({
+    ids: z.array(z.string().min(1)).optional(),
+  }),
 };

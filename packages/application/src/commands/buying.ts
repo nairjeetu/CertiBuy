@@ -678,3 +678,14 @@ export async function resolveReturn(
     };
   });
 }
+
+// ─── Mark notifications read ──────────────────────────────────────────────
+
+export async function markNotificationsRead(actor: Actor, body: { ids?: string[] }) {
+  const where = body.ids?.length
+    ? { id: { in: body.ids }, user_id: actor.id }
+    : { user_id: actor.id, read: false };
+
+  await prisma.notification.updateMany({ where, data: { read: true } });
+  return { ok: true };
+}
