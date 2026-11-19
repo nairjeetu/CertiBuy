@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" fill="none">
+  <rect x="20" y="10" width="160" height="380" rx="28" fill="#F3F5F8" stroke="#CBD5E1" stroke-width="2"/>
+  <rect x="30" y="50" width="140" height="280" rx="4" fill="#E2E8F0"/>
+  <circle cx="100" cy="30" r="4" fill="#CBD5E1"/>
+  <rect x="80" y="350" width="40" height="4" rx="2" fill="#CBD5E1"/>
+  <path d="M100 170c-10 0-18-14-18-24s8-18 18-18c5 0 9 2 12 5 3-3 7-5 12-5 10 0 18 8 18 18s-8 24-18 24c-5 0-14-10-18-16-1-1-2-2-3-2h-6z" fill="none" stroke="#94A3B8" stroke-width="1.5"/>
+  <text x="100" y="230" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="600" fill="#64748B">Apple</text>
+</svg>

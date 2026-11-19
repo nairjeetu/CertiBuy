@@ -175,12 +175,20 @@ export async function getListingDetail(actor: Actor, listingId: string) {
     listingId: sl.id,
   })).sort((a, b) => a.grade.localeCompare(b.grade));
 
+  const sub = await prisma.submission.findUnique({
+    where: { id: listing.device.submission_id },
+    select: { colour: true, age_months: true, repaired: true, water_exposure: true, bill_box: true, warranty_status: true, photos: true },
+  });
+
+  const dm = listing.device.device_model;
+
   return {
     listingId: listing.id,
-    brand: listing.device.device_model.brand,
-    model: listing.device.device_model.model,
-    storage: listing.device.device_model.storage,
-    category: listing.device.device_model.category,
+    brand: dm.brand,
+    model: dm.model,
+    storage: dm.storage,
+    category: dm.category,
+    imageUrl: dm.image_url,
     grade: listing.device.final_grade,
     currentPrice: listing.current_price,
     basePrice: listing.base_price,
@@ -189,11 +197,25 @@ export async function getListingDetail(actor: Actor, listingId: string) {
     hubCity: listing.device.hub.city,
     status: listing.status,
     gradeStrip,
+    device: {
+      colour: sub?.colour ?? listing.device.colour,
+      ageMonths: sub?.age_months ?? 0,
+      repaired: sub?.repaired ?? "no",
+      waterExposure: sub?.water_exposure ?? false,
+      billBox: sub?.bill_box ?? "neither",
+      warrantyStatus: sub?.warranty_status ?? "unknown",
+    },
+    specs: {
+      originalPrice: dm.original_price,
+      launchDate: dm.launch_date,
+    },
+    photos: Array.isArray(sub?.photos) ? (sub.photos as Array<{ key: string; ok: boolean }>).filter((p) => p.ok).map((p) => p.key) : [],
     inspection: report ? {
       checklist: report.checklist,
       batteryHealth: report.battery_health,
       cosmeticGrade: report.cosmetic_grade,
       computedGrade: report.computed_grade,
+      photos: Array.isArray(report.photos) ? (report.photos as Array<{ key: string }>).map((p) => p.key) : [],
     } : null,
     returnWindowDays: settings.return_window_days,
   };
