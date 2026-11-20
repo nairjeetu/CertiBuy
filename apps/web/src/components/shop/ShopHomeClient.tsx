@@ -171,13 +171,15 @@ export function ShopHomeClient() {
         </div>
         <div className="grade-cards-grid">
           {GRADES.map((g) => (
-            <Link key={g.grade} href={`/shop/browse?grade=${g.grade}`} className="grade-card surface">
-              <div className="grade-card-top">
-                <span className="grade-card-letter">{g.grade}</span>
-                <span className="meta">{gradeCounts[g.grade] ?? 0} in stock</span>
+            <Link key={g.grade} href={`/shop/browse?grade=${g.grade}`} className="grade-card-link surface">
+              <div className="grade-card">
+                <div className="grade-card-top">
+                  <span className="grade-card-letter">{g.grade}</span>
+                  <span className="meta">{gradeCounts[g.grade] ?? 0} in stock</span>
+                </div>
+                <p className="grade-card-label">{g.label}</p>
+                <p className="grade-card-desc">{g.desc}</p>
               </div>
-              <p className="grade-card-label">{g.label}</p>
-              <p className="grade-card-desc">{g.desc}</p>
             </Link>
           ))}
         </div>
@@ -387,15 +389,7 @@ export function ShopHomeClient() {
           gap: 1rem;
         }
         .grade-card {
-          display: block;
-          text-decoration: none;
-          color: inherit;
-          padding: 1.75rem 1.5rem 1.5rem;
-          transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .grade-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+          padding: 2rem 1.75rem 1.75rem;
         }
         .grade-card-top {
           display: flex;
@@ -419,7 +413,8 @@ export function ShopHomeClient() {
         .grade-card-desc {
           margin: 0;
           font-size: 0.8125rem;
-          line-height: 1.6;
+          line-height: 1.55;
+          max-width: 44ch;
           color: hsl(var(--muted));
         }
 

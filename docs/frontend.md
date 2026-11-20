@@ -154,6 +154,7 @@ Component rules:
 - **Numbers are never ambiguous**: money always ₹ with `en-IN` grouping, dates always `Wed, 4 Nov`, relative countdowns ("closes in 3 days") for windows.
 - **Empty states** name the next action ("Nothing listed yet — start a submission"); loading uses skeletons or a spinner with a label; errors state what happened and what to do.
 - **Explain the money.** Any screen showing an amount shows how it was derived (market → commission → fee → you get).
+- **Grade condition cards** (shop home "Shop by grade"): padding `1.5rem` (24 px), border-radius `1rem` (16 px), meta-to-text gap `1rem` (16 px), title-to-description gap `0.5rem` (8 px), description `line-height: 1.55; max-width: 44ch`. Padding must exceed the corner radius so content clears the curve.
 
 ## 6. Screen composition patterns
 

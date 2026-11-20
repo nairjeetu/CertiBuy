@@ -130,6 +130,18 @@ textarea {
   border-radius: var(--radius);
 }
 
+.grade-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 1rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.grade-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
 .field-label {
   display: block;
   font-size: 0.8125rem;
