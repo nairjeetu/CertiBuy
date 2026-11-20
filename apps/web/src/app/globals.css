@@ -286,3 +286,11 @@ a.nav-pill.nav-pill-active svg { opacity: 1; }
 a.nav-pill.nav-pill-active:hover {
   background: hsl(var(--primary));
 }
+
+/* Auth links */
+a.auth-link {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 600;
+}
+a.auth-link:hover { text-decoration: underline; }
