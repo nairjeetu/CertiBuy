@@ -38,6 +38,7 @@ import {
   setOverridePrice,
   pauseIcForModel,
   markNotificationsRead,
+  updateProfile,
 } from "@certibuy/application";
 
 function v(name: string, handler: (actor: any, body: any, now: Date) => Promise<unknown>) {
@@ -154,6 +155,9 @@ const handlers: Record<string, ReturnType<typeof validatedCommandRoute>> = {
   ),
   markNotificationsRead: v("markNotificationsRead", (actor, body) =>
     markNotificationsRead(actor, body),
+  ),
+  updateProfile: v("updateProfile", (actor, body) =>
+    updateProfile(actor, body),
   ),
 };
 

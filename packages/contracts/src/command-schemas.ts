@@ -89,4 +89,11 @@ export const commandSchemas: Record<string, z.ZodTypeAny> = {
   markNotificationsRead: z.object({
     ids: z.array(z.string().min(1)).optional(),
   }),
+  updateProfile: z.object({
+    fullName: z.string().min(1).max(200).optional(),
+    phone: z.string().max(20).optional(),
+    city: z.string().max(100).optional(),
+    deliveryAddress: z.string().max(500).optional(),
+    payoutAccount: z.string().max(200).optional(),
+  }),
 };

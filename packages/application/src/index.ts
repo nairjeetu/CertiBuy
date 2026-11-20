@@ -50,6 +50,7 @@ export {
   raiseReturn,
   resolveReturn,
   markNotificationsRead,
+  updateProfile,
 } from "./commands/buying";
 
 export {

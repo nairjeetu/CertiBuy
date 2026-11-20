@@ -689,3 +689,22 @@ export async function markNotificationsRead(actor: Actor, body: { ids?: string[]
   await prisma.notification.updateMany({ where, data: { read: true } });
   return { ok: true };
 }
+
+// ─── Update profile ──────────────────────────────────────────────────────
+
+export async function updateProfile(
+  actor: Actor,
+  body: { fullName?: string; phone?: string; city?: string; deliveryAddress?: string; payoutAccount?: string },
+) {
+  const data: Record<string, string> = {};
+  if (body.fullName !== undefined) data.full_name = body.fullName.trim();
+  if (body.phone !== undefined) data.phone = body.phone.trim();
+  if (body.city !== undefined) data.city = body.city.trim();
+  if (body.deliveryAddress !== undefined) data.delivery_address = body.deliveryAddress.trim();
+  if (body.payoutAccount !== undefined) data.payout_account = body.payoutAccount.trim();
+
+  if (Object.keys(data).length === 0) return { ok: true };
+
+  await prisma.profile.update({ where: { id: actor.id }, data });
+  return { ok: true };
+}

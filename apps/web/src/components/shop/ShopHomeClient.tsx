@@ -390,7 +390,7 @@ export function ShopHomeClient() {
           display: block;
           text-decoration: none;
           color: inherit;
-          padding: 1.5rem;
+          padding: 1.75rem 1.5rem 1.5rem;
           transition: transform 0.15s, box-shadow 0.15s;
         }
         .grade-card:hover {
@@ -401,17 +401,17 @@ export function ShopHomeClient() {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          margin-bottom: 0.75rem;
+          margin-bottom: 1rem;
         }
         .grade-card-letter {
           font-family: var(--font-display);
           font-style: italic;
-          font-size: 2rem;
+          font-size: 2.25rem;
           color: hsl(var(--foreground));
-          line-height: 1;
+          line-height: 1.1;
         }
         .grade-card-label {
-          margin: 0 0 0.375rem;
+          margin: 0 0 0.5rem;
           font-size: 0.9375rem;
           font-weight: 600;
           color: hsl(var(--foreground));
