@@ -543,3 +543,30 @@ export async function getMyNotifications(actor: Actor) {
     unreadCount: notifications.filter((n) => !n.read).length,
   };
 }
+
+// ─── My Profile (account page) ─────────────────────────────────────────────
+
+export async function getMyProfile(actor: Actor) {
+  const profile = await prisma.profile.findUnique({ where: { id: actor.id } });
+  if (!profile) throw new Error("Profile not found.");
+
+  const [orderCount, submissionCount] = await Promise.all([
+    prisma.order.count({ where: { buyer_id: actor.id } }),
+    prisma.submission.count({ where: { seller_id: actor.id } }),
+  ]);
+
+  return {
+    fullName: profile.full_name,
+    email: "",
+    phone: profile.phone,
+    city: profile.city,
+    deliveryAddress: profile.delivery_address,
+    payoutAccount: profile.payout_account,
+    appRole: profile.app_role,
+    activeMode: profile.active_mode,
+    trustScore: profile.trust_score,
+    memberSince: profile.created_at.toISOString(),
+    orderCount,
+    submissionCount,
+  };
+}

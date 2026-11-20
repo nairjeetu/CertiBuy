@@ -63,6 +63,7 @@ export {
   getOrderReceipt,
   getReturnOptions,
   getMyNotifications,
+  getMyProfile,
 } from "./views/buyer";
 
 export {

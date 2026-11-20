@@ -18,6 +18,24 @@ interface Deal {
   nextAction: string;
 }
 
+function StatusIcon({ status }: { status: string }) {
+  if (status === "sold" || status === "deal_complete") return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--success))" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  );
+  if (status === "rejected" || status === "mismatch" || status === "returned_to_seller" || status === "cancelled") return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--destructive))" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+  );
+  if (status === "offer_accepted" || status === "graded" || status === "hub_booked") return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--warning))" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  );
+  if (status === "handed_over" || status === "in_transit" || status === "dispatched") return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+  );
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted))" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  );
+}
+
 export function SellerHomeClient() {
   const { data, isLoading, error } = useSellerHome();
 
@@ -84,6 +102,7 @@ export function SellerHomeClient() {
               </div>
               <div className="deal-card-info">
                 <div className="deal-card-name-row">
+                  <StatusIcon status={deal.status} />
                   <span className="deal-card-name">{deal.model.brand} {deal.model.name}</span>
                   <StatusChip label={deal.statusLabel} tone={deal.statusTone} />
                 </div>
@@ -214,22 +233,22 @@ export function SellerHomeClient() {
         .deals-list {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 1rem;
         }
         .deal-card {
           display: flex;
           align-items: flex-start;
-          gap: 0.75rem;
-          padding: 1rem 1.25rem;
+          gap: 1rem;
+          padding: 1.25rem 1.5rem;
           text-decoration: none;
           color: inherit;
           transition: box-shadow 0.15s;
         }
         .deal-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
         .deal-card-img {
-          width: 44px; height: 44px;
+          width: 52px; height: 52px;
           background: hsl(var(--background));
-          border-radius: 10px;
+          border-radius: 12px;
           display: flex; align-items: center; justify-content: center;
           flex-shrink: 0;
         }
@@ -237,12 +256,13 @@ export function SellerHomeClient() {
         .deal-card-name-row {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.625rem;
           flex-wrap: wrap;
+          margin-bottom: 0.25rem;
         }
-        .deal-card-name { font-weight: 600; font-size: 0.9375rem; }
+        .deal-card-name { font-weight: 600; font-size: 1rem; }
         .deal-card-action {
-          margin: 0.25rem 0 0;
+          margin: 0.375rem 0 0;
           font-size: 0.8125rem;
           color: hsl(var(--muted));
         }

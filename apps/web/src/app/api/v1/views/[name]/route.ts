@@ -21,6 +21,7 @@ import {
   getOrderReceipt,
   getReturnOptions,
   getMyNotifications,
+  getMyProfile,
   getOpsOverview,
   getAlerts,
   getCatalogue,
@@ -67,6 +68,7 @@ const handlers: Record<string, ReturnType<typeof viewRoute>> = {
   orderReceipt: viewRoute((actor, params) => getOrderReceipt(actor, params.orderId ?? "")),
   returnOptions: viewRoute((actor, params, now) => getReturnOptions(actor, params.orderId ?? "", now)),
   myNotifications: viewRoute((actor) => getMyNotifications(actor)),
+  myProfile: viewRoute((actor) => getMyProfile(actor)),
   // Ops views (O-01 … O-15)
   opsOverview: viewRoute((actor, params, now) => getOpsOverview(actor, params, now)),
   opsAlerts: viewRoute((actor, params) => getAlerts(actor, params)),

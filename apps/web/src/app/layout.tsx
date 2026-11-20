@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Onest, Instrument_Serif } from "next/font/google";
 import { QueryProvider } from "@/lib/query-provider";
+import { RouteLoadingIndicator } from "@/components/RouteLoadingIndicator";
 import "./globals.css";
 
 const onest = Onest({
@@ -32,7 +33,10 @@ export default function RootLayout({
     <html lang="en" className={`${onest.variable} ${instrumentSerif.variable}`}>
       <body>
         <a href="#main-content" className="sr-only">Skip to main content</a>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <RouteLoadingIndicator />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

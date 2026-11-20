@@ -154,10 +154,10 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
 
           <Link href="/help" className="header-link">Help</Link>
 
-          <div className="header-user">
+          <Link href="/profile" className="header-user" style={{ textDecoration: "none" }}>
             <span className="header-avatar">{getInitials(actor.fullName)}</span>
             <span className="header-user-name">{actor.fullName}</span>
-          </div>
+          </Link>
 
           <button onClick={handleSignOut} className="header-signout" aria-label="Sign out">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

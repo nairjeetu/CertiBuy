@@ -329,6 +329,37 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
             </div>
           </div>
 
+          {/* Seller profile — CertiBuy is the custody seller */}
+          <div className="seller-profile surface">
+            <div className="seller-profile-header">
+              <div className="seller-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10" strokeWidth="2.5"/></svg>
+              </div>
+              <div className="seller-name-wrap">
+                <span className="seller-name">CertiBuy</span>
+                <span className="seller-verified">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="hsl(var(--primary))" stroke="hsl(var(--primary-foreground))" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Verified Seller
+                </span>
+              </div>
+            </div>
+            <div className="seller-stats">
+              <div className="seller-stat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Custody-first marketplace</span>
+              </div>
+              <div className="seller-stat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Technician-graded devices</span>
+              </div>
+              <div className="seller-stat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Escrow-protected payments</span>
+              </div>
+            </div>
+            <p className="seller-bio">Every device on CertiBuy is in our custody, graded by a technician, and backed by escrow. No peer-to-peer shipping, ever.</p>
+          </div>
+
           {/* Grade strip */}
           {d.gradeStrip.length > 1 && (
             <div className="grade-strip surface">
@@ -764,6 +795,65 @@ export function ListingDetailClient({ listingId }: { listingId: string }) {
           font-size: 0.75rem;
           color: hsl(var(--muted));
           line-height: 1.4;
+        }
+
+        /* Seller profile */
+        .seller-profile { padding: 1.25rem; }
+        .seller-profile-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+        }
+        .seller-logo {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: hsl(var(--primary) / 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .seller-name-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 0.125rem;
+        }
+        .seller-name {
+          font-size: 1rem;
+          font-weight: 700;
+          color: hsl(var(--foreground));
+        }
+        .seller-verified {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          color: hsl(var(--primary));
+        }
+        .seller-stats {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          margin-bottom: 0.875rem;
+        }
+        .seller-stat {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
+        .seller-stat svg { flex-shrink: 0; }
+        .seller-bio {
+          font-size: 0.75rem;
+          line-height: 1.5;
+          color: hsl(var(--muted));
+          margin: 0;
+          padding-top: 0.75rem;
+          border-top: 1px solid hsl(var(--border));
         }
 
         /* Grade strip */

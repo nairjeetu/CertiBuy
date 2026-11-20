@@ -354,7 +354,7 @@ export function ShopHomeClient() {
           margin-bottom: 2rem;
         }
         .feature-card {
-          padding: 1.25rem;
+          padding: 1.5rem;
         }
         .feature-icon {
           width: 40px;
@@ -390,7 +390,7 @@ export function ShopHomeClient() {
           display: block;
           text-decoration: none;
           color: inherit;
-          padding: 1.25rem;
+          padding: 1.5rem;
           transition: transform 0.15s, box-shadow 0.15s;
         }
         .grade-card:hover {
@@ -401,25 +401,25 @@ export function ShopHomeClient() {
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
         }
         .grade-card-letter {
           font-family: var(--font-display);
           font-style: italic;
-          font-size: 1.75rem;
+          font-size: 2rem;
           color: hsl(var(--foreground));
           line-height: 1;
         }
         .grade-card-label {
-          margin: 0 0 0.25rem;
-          font-size: 0.875rem;
+          margin: 0 0 0.375rem;
+          font-size: 0.9375rem;
           font-weight: 600;
           color: hsl(var(--foreground));
         }
         .grade-card-desc {
           margin: 0;
           font-size: 0.8125rem;
-          line-height: 1.5;
+          line-height: 1.6;
           color: hsl(var(--muted));
         }
 

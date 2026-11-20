@@ -128,7 +128,7 @@ export function GradesClient() {
           gap: 1rem;
           margin-bottom: 2rem;
         }
-        .pillar-card { padding: 1.25rem; }
+        .pillar-card { padding: 1.5rem; }
         .pillar-icon {
           width: 36px; height: 36px; border-radius: 8px;
           background: hsl(var(--primary) / 0.08); color: hsl(var(--primary));
@@ -152,8 +152,8 @@ export function GradesClient() {
         .grade-row {
           display: flex;
           align-items: flex-start;
-          gap: 1rem;
-          padding: 1.25rem;
+          gap: 1.25rem;
+          padding: 1.5rem 1.25rem;
           text-decoration: none;
           color: inherit;
           transition: background 0.15s;
@@ -167,16 +167,16 @@ export function GradesClient() {
         .grade-row-letter {
           font-family: var(--font-display);
           font-style: italic;
-          font-size: 1.5rem;
+          font-size: 2rem;
           line-height: 1;
           color: hsl(var(--foreground));
-          min-width: 2rem;
+          min-width: 2.5rem;
         }
         .grade-row-body {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.375rem;
         }
         .grade-row-label {
           font-size: 0.875rem;
