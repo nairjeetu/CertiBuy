@@ -2,7 +2,7 @@ CertiBuy — Overview
 
 ## 1. What the product is
 
-CertiBuy is a **certified pre-owned device marketplace for India** (phones, laptops, tablets, smartwatches in the **₹20,000 – ₹1,50,000** band) built on one idea: *certified custody*. CertiBuy takes physical possession of every device it sells, inspects and grades it with a technician, refurbishes it, lists it at a transparent grade price with a warranty, and pays the seller either outright or on a guaranteed price.
+CertiBuy is a **certified pre-owned device marketplace for India** (phones, laptops and tablets in the **₹20,000 – ₹1,50,000** band) built on one idea: *certified custody*. CertiBuy takes physical possession of every device it sells, inspects and grades it with a technician, refurbishes it, lists it at a transparent grade price with a warranty, and pays the seller either outright or on a guaranteed price. Smartwatches are out of scope for v1 and planned as a later category.
 
 Because the company holds the device between seller and buyer, four things that are hard in peer-to-peer marketplaces become simple:
 
@@ -103,6 +103,27 @@ Payout records are the ledger: `type` ∈ `instant_cash_full · advance · balan
 Reserved days (a device held for a paid buyer) do **not** count towards the ladder.
 
 **Escrow** — the buyer's money is held until the return window closes (`return_window_days`, 7, counted from delivery). Then an `EscrowTransaction` of type `release` closes the order and the device is marked settled. A pre-dispatch cancellation or a resolved return instead writes a `refund_full` / `refund_partial` row.
+
+**The inventory lifecycle — who holds the stock**
+
+CertiBuy holds the stock. Once a device is in custody it is CertiBuy's inventory: unsold
+devices stay listed, step down the price ladder on a fixed schedule, and are reviewed at
+day 45. Nothing is returned to the seller for lack of a buyer.
+
+| Business day | What happens |
+| --- | --- |
+| **Day 15** | The price steps down the first rung of the ladder (`step1_pct`, set in `Settings`). |
+| **Day 21** | The seller is paid the remaining 50 % of the guaranteed Sell For More price **regardless of whether the device has sold**. CertiBuy now owns the device outright. |
+| **Day 30** | The price steps down a second rung (`step2_pct`). |
+| **Day 45** | The device hits a review point. Ops decides: reprice it, liquidate it (sell at or below the floor price), or keep it listed. |
+
+The ladder repricing at day 15 and day 30 is automatic — `runDailyJobs` applies it and
+writes `ladder_step` and `current_price` against the listing. The day-45 review is raised
+automatically but never resolved automatically: liquidation is always a one-click ops
+decision.
+
+Ops tools for stale inventory: `repriceListing`, `setOverridePrice` (an override stops the
+ladder) and `liquidateDevice` (B2B sale at the floor price, device → `liquidated`).
 
 ## 7. Business date
 
