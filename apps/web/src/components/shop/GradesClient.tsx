@@ -153,7 +153,7 @@ export function GradesClient() {
           display: flex;
           align-items: flex-start;
           gap: 1.25rem;
-          padding: 1.5rem 1.25rem;
+          padding: 2rem 1.75rem;
           text-decoration: none;
           color: inherit;
           transition: background 0.15s;
@@ -182,11 +182,13 @@ export function GradesClient() {
           font-size: 0.875rem;
           font-weight: 600;
           color: hsl(var(--foreground));
+          margin-top: 0.5rem;
         }
         .grade-row-desc {
           font-size: 0.8125rem;
           color: hsl(var(--muted));
-          line-height: 1.5;
+          line-height: 1.55;
+          max-width: 44ch;
         }
         .grade-row-meta {
           display: flex;
