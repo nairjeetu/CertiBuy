@@ -69,6 +69,7 @@ enum SubmissionStatus {
   offer_accepted
   scheduled
   inspected
+  revised_offer
   accepted
   rejected
   abandoned

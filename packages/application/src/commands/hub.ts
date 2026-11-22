@@ -312,7 +312,17 @@ export async function reviseOffer(
 
     await tx.submission.update({
       where: { id: sub.id },
-      data: { current_offer_id: offerRow.id },
+      data: { current_offer_id: offerRow.id, status: "revised_offer" },
+    });
+
+    await tx.notification.create({
+      data: {
+        user_id: sub.seller_id,
+        event: "revised_offer",
+        title: "Revised offer for your device",
+        body: `Your device was graded ${finalGrade}. A revised offer of ${offer.guaranteed} has been made. Please accept or decline.`,
+        link: `/seller/deals/${sub.id}`,
+      },
     });
 
     return {

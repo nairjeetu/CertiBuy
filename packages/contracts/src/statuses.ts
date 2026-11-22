@@ -11,6 +11,7 @@ export const submissionStatuses: Record<string, StatusDisplay> = {
   offer_accepted: { label: "Offer accepted", tone: "success" },
   scheduled: { label: "Inspection booked", tone: "info" },
   inspected: { label: "Inspected", tone: "info" },
+  revised_offer: { label: "Revised offer", tone: "warning" },
   accepted: { label: "Accepted", tone: "success" },
   rejected: { label: "Rejected", tone: "destructive" },
   abandoned: { label: "Abandoned", tone: "neutral" },

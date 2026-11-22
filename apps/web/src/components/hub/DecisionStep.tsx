@@ -1,6 +1,6 @@
 "use client";
 
-import { useReviseOffer, useAcceptRevised, useDeclineRevised, useRejectForMismatch } from "@/hooks/use-hub";
+import { useReviseOffer, useRejectForMismatch } from "@/hooks/use-hub";
 import { formatINR } from "@/lib/format";
 import { useState, useEffect } from "react";
 
@@ -16,8 +16,6 @@ interface Props {
 
 export function DecisionStep({ submissionId, report }: Props) {
   const revise = useReviseOffer();
-  const accept = useAcceptRevised();
-  const decline = useDeclineRevised();
   const mismatch = useRejectForMismatch();
   const [feePaid, setFeePaid] = useState(false);
 
@@ -65,27 +63,14 @@ export function DecisionStep({ submissionId, report }: Props) {
           {reviseResult.icEligible && " (IC eligible)"}
         </p>
       )}
-      <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", marginBottom: "0.75rem" }}>
-        The seller must accept or decline this revised offer.
-      </p>
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button
-          onClick={() => accept.mutate({ submissionId })}
-          disabled={accept.isPending || !reviseResult}
-          style={{ padding: "0.5rem 1rem", backgroundColor: "#16a34a", color: "hsl(var(--primary-foreground))", border: "none", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
-        >
-          {accept.isPending ? "Accepting..." : "Seller accepts"}
-        </button>
-        <button
-          onClick={() => decline.mutate({ submissionId })}
-          disabled={decline.isPending || !reviseResult}
-          style={{ padding: "0.5rem 1rem", backgroundColor: "#fff", color: "hsl(var(--destructive))", border: "1px solid hsl(var(--destructive))", borderRadius: "0.375rem", cursor: "pointer", fontSize: "0.875rem" }}
-        >
-          {decline.isPending ? "Declining..." : "Seller declines"}
-        </button>
+      <div style={{ padding: "0.75rem 1rem", background: "hsl(var(--warning) / 0.1)", borderRadius: "0.5rem", border: "1px solid hsl(var(--warning) / 0.3)" }}>
+        <p style={{ fontSize: "0.8125rem", color: "hsl(var(--foreground))", margin: 0, fontWeight: 500 }}>
+          Revised offer sent to seller. Waiting for seller to accept or decline.
+        </p>
+        <p style={{ fontSize: "0.75rem", color: "hsl(var(--muted))", margin: "0.25rem 0 0" }}>
+          The seller will see this offer on their deal tracker and in their notifications.
+        </p>
       </div>
-      {accept.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(accept.error as Error).message}</p>}
-      {decline.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(decline.error as Error).message}</p>}
       {revise.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(revise.error as Error).message}</p>}
     </div>
   );

@@ -129,3 +129,25 @@ export function useManageBooking() {
     },
   });
 }
+
+export function useAcceptRevisedOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { submissionId: string }) => runCommand("acceptRevised", body),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["dealTracker", variables.submissionId] });
+      qc.invalidateQueries({ queryKey: ["sellerHome"] });
+    },
+  });
+}
+
+export function useDeclineRevisedOffer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { submissionId: string }) => runCommand("declineRevised", body),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["dealTracker", variables.submissionId] });
+      qc.invalidateQueries({ queryKey: ["sellerHome"] });
+    },
+  });
+}

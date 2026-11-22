@@ -245,6 +245,11 @@ export async function getDealTracker(actor: Actor, submissionId: string) {
   if (!sub) throw new Error("Submission not found.");
   requireOwner(actor, sub.seller_id);
 
+  const report = await prisma.inspectionReport.findUnique({
+    where: { submission_id: sub.id },
+    select: { computed_grade: true, quoted_amount: true, revised_amount: true, seller_decision: true },
+  });
+
   const payouts = await prisma.payout.findMany({
     where: { seller_id: actor.id, submission_id: sub.id },
     orderBy: { created_at: "desc" },
@@ -309,6 +314,12 @@ export async function getDealTracker(actor: Actor, submissionId: string) {
       date: a.business_date,
       createdAt: a.created_at.toISOString(),
     })),
+    revisedOffer: (sub.status === "revised_offer" && report?.revised_amount) ? {
+      quotedAmount: report.quoted_amount,
+      revisedAmount: report.revised_amount,
+      computedGrade: report.computed_grade,
+      sellerDecision: report.seller_decision,
+    } : null,
     nextAction: nextActionForSeller(sub.status, sub.chosen_option),
   };
 }
@@ -428,6 +439,8 @@ function nextActionForSeller(status: string, chosenOption: string | null): strin
       return "Visit the hub for inspection";
     case "inspected":
       return chosenOption === "sell_for_more" ? "Wait for your device to sell" : "Payout processing";
+    case "revised_offer":
+      return "Review revised offer";
     case "accepted":
       return "Deal complete";
     case "rejected":

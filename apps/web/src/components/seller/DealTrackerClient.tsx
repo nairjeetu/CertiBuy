@@ -1,6 +1,6 @@
 "use client";
 
-import { useDealTracker } from "@/hooks/use-seller";
+import { useDealTracker, useAcceptRevisedOffer, useDeclineRevisedOffer } from "@/hooks/use-seller";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { DeviceImage } from "@/components/shop/DeviceImage";
 import { formatINR, formatDate } from "@/lib/format";
@@ -30,11 +30,19 @@ interface DealData {
   } | null;
   payouts: Array<{ id: string; type: string; amount: number; status: string; statusLabel: string; createdAt: string }>;
   timeline: Array<{ text: string; date: string; createdAt: string }>;
+  revisedOffer: {
+    quotedAmount: number;
+    revisedAmount: number;
+    computedGrade: string;
+    sellerDecision: string | null;
+  } | null;
   nextAction: string;
 }
 
 export function DealTrackerClient({ submissionId }: { submissionId: string }) {
   const { data, isLoading, error } = useDealTracker(submissionId);
+  const acceptRevised = useAcceptRevisedOffer();
+  const declineRevised = useDeclineRevisedOffer();
 
   if (isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading deal...</p>;
   if (error) return <p style={{ color: "hsl(var(--destructive))", padding: "1rem" }}>{(error as Error).message}</p>;
@@ -70,6 +78,36 @@ export function DealTrackerClient({ submissionId }: { submissionId: string }) {
           {deal.chosenOption === "sell_for_more" && (
             <p className="meta" style={{ margin: "0.25rem 0 0" }}>50% advance on handover, balance when sold or on day 21.</p>
           )}
+        </div>
+      )}
+
+      {/* Revised offer card */}
+      {deal.revisedOffer && (
+        <div className="card surface revised-card">
+          <h3 className="card-heading">Revised offer</h3>
+          <p style={{ fontSize: "0.875rem", color: "hsl(var(--foreground))", margin: "0 0 0.5rem" }}>
+            Your device was graded <strong>{deal.revisedOffer.computedGrade}</strong> after inspection.
+            The revised offer is <strong>{formatINR(deal.revisedOffer.revisedAmount)}</strong>
+            {deal.revisedOffer.quotedAmount ? ` (original: ${formatINR(deal.revisedOffer.quotedAmount)})` : ""}.
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
+            <button
+              onClick={() => acceptRevised.mutate({ submissionId })}
+              disabled={acceptRevised.isPending || declineRevised.isPending}
+              className="revised-accept-btn"
+            >
+              {acceptRevised.isPending ? "Accepting..." : "Accept revised offer"}
+            </button>
+            <button
+              onClick={() => declineRevised.mutate({ submissionId })}
+              disabled={declineRevised.isPending || acceptRevised.isPending}
+              className="revised-decline-btn"
+            >
+              {declineRevised.isPending ? "Declining..." : "Decline"}
+            </button>
+          </div>
+          {acceptRevised.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(acceptRevised.error as Error).message}</p>}
+          {declineRevised.error && <p style={{ color: "hsl(var(--destructive))", fontSize: "0.8125rem", marginTop: "0.5rem" }}>{(declineRevised.error as Error).message}</p>}
         </div>
       )}
 
@@ -174,6 +212,33 @@ export function DealTrackerClient({ submissionId }: { submissionId: string }) {
         .timeline { display: flex; flex-direction: column; gap: 0.375rem; }
         .timeline-row { font-size: 0.8125rem; display: flex; gap: 0.5rem; color: hsl(var(--foreground)); }
         .timeline-date { color: hsl(var(--muted)); min-width: 70px; }
+
+        .revised-card {
+          border-color: hsl(var(--warning) / 0.4);
+          background: hsl(var(--warning) / 0.05);
+        }
+        .revised-accept-btn {
+          padding: 0.5rem 1.25rem;
+          background: hsl(var(--success));
+          color: #fff;
+          border: none;
+          border-radius: 0.375rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+        .revised-accept-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .revised-decline-btn {
+          padding: 0.5rem 1.25rem;
+          background: #fff;
+          color: hsl(var(--destructive));
+          border: 1px solid hsl(var(--destructive));
+          border-radius: 0.375rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 500;
+        }
+        .revised-decline-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .back-link-row { margin-top: 0.5rem; }
         .back-link { font-size: 0.875rem; color: hsl(var(--primary)); text-decoration: none; }
