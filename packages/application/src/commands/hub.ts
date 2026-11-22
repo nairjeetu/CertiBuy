@@ -489,7 +489,7 @@ export async function rejectForMismatch(
         data: {
           seller_id: sub.seller_id,
           submission_id: sub.id,
-          device_id: "",
+          device_id: null,
           type: "mismatch_fee",
           amount: settings.mismatch_fee,
           trigger: "inspection_mismatch",

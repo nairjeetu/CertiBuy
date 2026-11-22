@@ -180,6 +180,14 @@ export async function getHubSlots(actor: Actor, now: Date) {
     dates.push(addDays(bDate, i));
   }
 
+  // Time of day in Asia/Kolkata, as "HH:MM", so today's past slots can be dropped.
+  const nowHHMM = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
+
   const result = await Promise.all(
     hubs.map(async (hub) => {
       const bookingCounts = await prisma.booking.groupBy({
@@ -203,11 +211,18 @@ export async function getHubSlots(actor: Actor, now: Date) {
         distanceKm: hub.distance_km,
         slotTimes: hub.slot_times,
         dailyCapacity: hub.daily_capacity,
-        dates: dates.map((d) => ({
-          date: d,
-          booked: countMap.get(d) ?? 0,
-          available: hub.daily_capacity - (countMap.get(d) ?? 0),
-        })),
+        dates: dates.map((d) => {
+          const slots = d === bDate
+            ? hub.slot_times.filter((t) => t > nowHHMM)
+            : hub.slot_times;
+          const booked = countMap.get(d) ?? 0;
+          return {
+            date: d,
+            booked,
+            slots,
+            available: Math.min(hub.daily_capacity - booked, slots.length),
+          };
+        }),
       };
     }),
   );

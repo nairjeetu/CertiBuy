@@ -14,7 +14,7 @@ interface HubData {
   distanceKm: number;
   slotTimes: string[];
   dailyCapacity: number;
-  dates: Array<{ date: string; available: number }>;
+  dates: Array<{ date: string; available: number; slots: string[] }>;
 }
 
 export function HubBookingClient({ submissionId }: { submissionId: string }) {
@@ -90,22 +90,29 @@ export function HubBookingClient({ submissionId }: { submissionId: string }) {
       )}
 
       {/* Time picker */}
-      {activeHub && selectedDate && (
-        <div className="section">
-          <h3 className="section-heading">Choose a time</h3>
-          <div className="time-row">
-            {activeHub.slotTimes.map((slot) => (
-              <button
-                key={slot}
-                onClick={() => setSelectedSlot(slot)}
-                className={`time-chip ${selectedSlot === slot ? "time-active" : ""}`}
-              >
-                {slot}
-              </button>
-            ))}
+      {activeHub && selectedDate && (() => {
+        const slots = activeHub.dates.find((d) => d.date === selectedDate)?.slots ?? [];
+        return (
+          <div className="section">
+            <h3 className="section-heading">Choose a time</h3>
+            {slots.length === 0 ? (
+              <p className="meta">No slots left today. Pick another date.</p>
+            ) : (
+              <div className="time-row">
+                {slots.map((slot) => (
+                  <button
+                    key={slot}
+                    onClick={() => setSelectedSlot(slot)}
+                    className={`time-chip ${selectedSlot === slot ? "time-active" : ""}`}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {submitError && <p className="error-msg">{submitError}</p>}
 

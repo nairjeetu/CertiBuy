@@ -761,7 +761,7 @@ model Payout {
   id             String       @id @default(cuid())
   seller_id      String
   submission_id  String
-  device_id      String
+  device_id      String?
   type           PayoutType
   amount         Int
   trigger        PayoutTrigger
@@ -773,7 +773,7 @@ model Payout {
   updated_at     DateTime     @updatedAt @db.Timestamptz(3)
 
   seller         Profile      @relation(fields: [seller_id], references: [id])
-  device         Device       @relation(fields: [device_id], references: [id])
+  device         Device?      @relation(fields: [device_id], references: [id])
 
   payout_attempts PayoutAttempt[]
 
