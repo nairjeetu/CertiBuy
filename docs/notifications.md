@@ -49,6 +49,7 @@ processOutbox()                      // after the commit, and from Ops → Jobs
 | `balance_paid` | seller | balance paid on sale or day 21 | ✉ |
 | `payout_failed` | seller | payout attempt failed at the limit | ✉ |
 | `payout_hold` | ops | same failure, ops side | — |
+| `revised_offer` | seller | inspection one grade below the band; seller must accept or decline | — |
 | `price_agreed` | seller | revised offer accepted | — |
 | `inspection_rejected` | seller | mismatch / identity reject | ✉ |
 | `mismatch_fee` | seller | mismatch fee due or waived | — |

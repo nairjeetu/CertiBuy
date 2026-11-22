@@ -124,7 +124,7 @@ imei (unique), reason. Ops-maintained cache of a registry check.
 | photos | object[] | `{key, label, url, brightness, at}` |
 | retake_count | number | lowers confidence above threshold |
 | diagnostics | object | 9 checks + battery health + grades written back |
-| status | enum `draft`\|`graded`\|`offer_accepted`\|`scheduled`\|`inspected`\|`accepted`\|`rejected`\|`abandoned` | |
+| status | enum `draft`\|`graded`\|`offer_accepted`\|`scheduled`\|`inspected`\|`revised_offer`\|`accepted`\|`rejected`\|`abandoned` | `revised_offer`: inspection landed one grade below the quoted band, seller must accept or decline |
 | reject_reason | string | human-readable |
 | chosen_option | enum `instant_cash`\|`sell_for_more` | |
 | consent_at | ISO timestamp | terms accepted |
@@ -208,7 +208,7 @@ order_id, buyer_id, device_id, hub_id, reason + buyer_reason (`not_as_graded`\|`
 
 ### `Payout`
 
-seller_id, submission_id, device_id, type (`instant_cash_full`\|`advance`\|`balance`\|`mismatch_fee`), amount, trigger (`custody_handover`\|`buyer_paid_escrow`\|`day_21_unsold`\|`inspection_mismatch`), status (`pending`\|`approved`\|`paid`\|`failed`\|`due`), attempts, failure_reason, paid_at.
+seller_id, submission_id, device_id (nullable — a `mismatch_fee` is raised when the device goes back to the seller, so no device exists), type (`instant_cash_full`\|`advance`\|`balance`\|`mismatch_fee`), amount, trigger (`custody_handover`\|`buyer_paid_escrow`\|`day_21_unsold`\|`inspection_mismatch`), status (`pending`\|`approved`\|`paid`\|`failed`\|`due`), attempts, failure_reason, paid_at.
 
 Uniqueness rules: one `balance` per device; `advance + balance = guaranteed_price`; for a Sell For More deal, `completeHandover` creates the `due` balance row alongside the advance, so the seller sees the promise; it becomes `pending` when the buyer pays or on `custody_at + balance_day`, whichever comes first. A buyer cancellation never reverses or deletes a seller payout.
 

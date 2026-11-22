@@ -35,11 +35,14 @@ mode from the profile menu.
 The shortest path that exercises the whole product. Full scripts for every role are in
 [`docs/DEMO-WALKTHROUGH.md`](docs/DEMO-WALKTHROUGH.md).
 
-1. **Sign in as `seller@certibuy.demo`** → *Sell a device*. Pick a model, enter any
-   15-digit IMEI, complete diagnostics and photos.
+1. **Sign in as `seller@certibuy.demo`** → *Sell a device*. Pick a model, enter the
+   IMEI `490154203237518`, complete diagnostics and photos. The IMEI is checked against
+   its Luhn digit as you type, so an invented number will not pass.
 2. **See the offer.** Instant Cash and Sell For More side by side, each stating the
    amount, the timing and the guarantee. Every figure is computed, never hardcoded.
-3. **Accept and book a hub slot.**
+3. **Accept and book a hub slot.** Choose **CertiBuy Indiranagar** — it is the hub
+   `tech@certibuy.demo` is assigned to, and a technician only sees their own hub's
+   queue. Slots already past are not offered for today.
 4. **Sign in as `tech@certibuy.demo`** → open the booking, verify the IMEI, work the
    checklist. The grade is computed from the checks — there is no field in which a
    grade can be typed. Complete handover; the seller is paid and the device is listed.

@@ -22,7 +22,9 @@ All accounts use the same password: `Demo1234!`
 1. Land on **Seller Dashboard** (`/seller`)
 2. Click **Sell a device** → `/seller/submit`
 3. Select a device model (e.g. iPhone 14, 128 GB)
-4. Fill in IMEI (any 15-digit number, e.g. `353456789012399`), cosmetic grade, repair status
+4. Fill in IMEI — it must be 15 digits **and pass the Luhn check**, e.g. `490154203237518`
+   or `359222383208706`. An invalid number keeps the *Next: Photos* button disabled, so a
+   typo is caught here rather than after the photos are uploaded.
 5. Save → proceed to **Diagnostics** step
 6. Run through each diagnostic check (battery, screen, speakers, etc.)
 7. Save → proceed to **Photos** step
@@ -30,7 +32,10 @@ All accounts use the same password: `Demo1234!`
 9. Submit → system auto-grades and computes an **Offer**
 10. View the offer: **Instant Cash** (if eligible) or **Sell For More**
 11. Accept the offer → choose a payout option
-12. Book a hub inspection slot (pick Indiranagar or Koramangala, pick a date + time)
+12. Book a hub inspection slot — **pick Indiranagar**, pick a date + time.
+    `tech@certibuy.demo` (Ravi Kumar) is assigned to Indiranagar and a technician only sees
+    their own hub's queue, so a booking at Koramangala will not appear in step 2.
+    Times already past are not offered for today.
 13. Submission moves to `scheduled` status
 
 **What to show:** The offer computation, IC eligibility check, the two pricing options.
