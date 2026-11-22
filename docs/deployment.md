@@ -48,7 +48,7 @@ pnpm build               # must exit 0
 
 ### Vercel deployment
 
-The repo root contains `vercel.json` that tells Vercel to use `pnpm install` / `pnpm build` and pick up the Next.js output from `apps/web/.next`. Set the **Root Directory** in Vercel project settings to `.` (the workspace root, not `apps/web`).
+There is no `vercel.json`; the project is configured through the Vercel dashboard. Set **Framework Preset** to Next.js and **Root Directory** to `.` (the workspace root, not `apps/web`), and Vercel's own pnpm-workspace detection handles install and build. Step-by-step setup, including how to update an environment variable, is in `docs/HOW-IT-WAS-BUILT.md` §5.
 
 Before the first deploy, run migrations against the hosted database:
 

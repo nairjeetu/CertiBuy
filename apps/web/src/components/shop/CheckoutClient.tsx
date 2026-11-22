@@ -45,7 +45,8 @@ export function CheckoutClient({ listingId }: { listingId: string }) {
 
   const total = d.currentPrice + (addon ? d.warrantyAddonPrice : 0);
   const phoneValid = /^\+?\d{10,13}$/.test(phone.replace(/\s/g, ""));
-  const canSubmit = name.length >= 2 && phoneValid && address.length >= 10 && !simDecline;
+  const detailsValid = name.length >= 2 && phoneValid && address.length >= 10;
+  const canSubmit = detailsValid && !simDecline;
 
   const handlePlace = () => {
     placeOrder.mutate(
@@ -139,7 +140,7 @@ export function CheckoutClient({ listingId }: { listingId: string }) {
               ))}
             </div>
             <label className="sim-decline-label">
-              <input type="radio" checked={simDecline} onChange={() => setSimDecline(!simDecline)} />
+              <input type="checkbox" checked={simDecline} onChange={(e) => setSimDecline(e.target.checked)} />
               <div>
                 <span>Simulate a declined payment</span>
                 <span className="meta" style={{ display: "block" }}>Nothing is written: no order, no escrow, and the device stays on sale.</span>
@@ -192,7 +193,14 @@ export function CheckoutClient({ listingId }: { listingId: string }) {
               </p>
             )}
 
-            <p className="meta" style={{ marginTop: "0.75rem" }}>Add a name, a 10-digit mobile and the full address to pay.</p>
+            {simDecline ? (
+              <p className="decline-note">
+                Payment declined. No order was created, no money moved, and the device is still on sale.
+                Untick the box or pick a payment method to try again.
+              </p>
+            ) : !detailsValid ? (
+              <p className="meta" style={{ marginTop: "0.75rem" }}>Add a name, a 10-digit mobile and the full address to pay.</p>
+            ) : null}
           </div>
         </aside>
       </div>
@@ -398,6 +406,15 @@ export function CheckoutClient({ listingId }: { listingId: string }) {
           transition: opacity 0.15s;
         }
         .pay-btn:hover:not(:disabled) { opacity: 0.9; }
+        .decline-note {
+          margin-top: 0.75rem;
+          padding: 0.625rem 0.75rem;
+          border: 1px solid hsl(var(--destructive));
+          border-radius: 0.5rem;
+          color: hsl(var(--destructive));
+          font-size: 0.8125rem;
+          line-height: 1.45;
+        }
         .pay-btn:disabled {
           opacity: 0.5;
           cursor: default;

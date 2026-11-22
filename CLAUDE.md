@@ -60,6 +60,7 @@ Rules of the layout: `domain/` and `application/` never import Next.js or `@supa
 | Document | Read it when you need… |
 | --- | --- |
 | `docs/DEMO-WALKTHROUGH.md` | demo accounts and the step-by-step script for the seller, hub, buyer, ops and lifecycle flows |
+| `docs/HOW-IT-WAS-BUILT.md` | **how the app was produced**: the spec-first AI-assisted method, build sequence, and step-by-step Supabase and Vercel configuration including environment variables |
 | `docs/architecture.md` | **the rebuild**: stack (Next.js · Vercel Hobby · Supabase Free), folder structure, decisions taken after the audit, roadmap, production migration path |
 | `docs/overview.md` | the product, business model, money model, end-to-end flows |
 | `docs/features.md` | the full feature catalogue with module codes (S-, B-, T-, O-) |
