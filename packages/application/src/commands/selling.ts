@@ -480,7 +480,7 @@ export async function acceptOffer(
 
     if (parsed.option === "instant_cash") {
       // Amendment 1: advisory lock around IC exposure check
-      await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(1001)`);
+      await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(1001)`);
 
       const totalExposure = await computeTotalExposure(tx);
       const modelExposure = await computeModelExposure(tx, sub.device_model_id);
@@ -671,7 +671,7 @@ export async function bookInspection(
 
     // Amendment 2: advisory lock on (hub, date) before capacity check
     const lockKey = hashLockKey(parsed.hubId, parsed.date);
-    await tx.$queryRaw(Prisma.sql`SELECT pg_advisory_xact_lock(${lockKey}::bigint)::text`);
+    await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(${lockKey}::bigint)`);
 
     const bookingCount = await tx.booking.count({
       where: {
