@@ -94,8 +94,21 @@ export async function getShopCatalogue(
 
   const where: Record<string, unknown> = { status: "active" };
   const deviceWhere: Record<string, unknown> = {};
+  const modelWhere: Record<string, unknown> = {};
 
-  if (params.brand) deviceWhere.device_model = { ...((deviceWhere.device_model as object) ?? {}), brand: params.brand };
+  if (params.category) {
+    const singular = params.category.replace(/s$/, "");
+    modelWhere.category = singular;
+  }
+  if (params.brand) modelWhere.brand = params.brand;
+  if (params.storage) modelWhere.storage = params.storage;
+  if (params.search) {
+    modelWhere.OR = [
+      { brand: { contains: params.search, mode: "insensitive" } },
+      { model: { contains: params.search, mode: "insensitive" } },
+    ];
+  }
+  if (Object.keys(modelWhere).length > 0) deviceWhere.device_model = modelWhere;
   if (params.grade) deviceWhere.final_grade = params.grade;
   if (Object.keys(deviceWhere).length > 0) where.device = deviceWhere;
   if (params.priceMin) where.current_price = { ...((where.current_price as object) ?? {}), gte: Number(params.priceMin) };
@@ -106,6 +119,7 @@ export async function getShopCatalogue(
       where,
       orderBy: params.sort === "price_asc" ? { current_price: "asc" }
         : params.sort === "price_desc" ? { current_price: "desc" }
+        : params.sort === "newest" ? { listed_at: "desc" }
         : { created_at: "desc" },
       skip,
       take: limit,
