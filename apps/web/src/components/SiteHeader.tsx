@@ -125,15 +125,17 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
             <span className="header-date-chip">{formattedDate}</span>
           )}
 
-          <Link href="/notifications" className="header-bell" aria-label="Notifications">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
+          <div className="header-bell-wrap">
+            <Link href="/notifications" className="header-bell" aria-label="Notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </Link>
             {(unreadCount ?? 0) > 0 && (
               <span className="header-badge">{unreadCount}</span>
             )}
-          </Link>
+          </div>
 
           {actor.role === "customer" && (
             <div className="header-mode-switch" role="group" aria-label="Mode">
@@ -262,15 +264,13 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
         }
 
         /* Bell */
-        .header-bell {
+        .header-bell-wrap {
           position: relative;
           display: flex;
           align-items: center;
           flex-shrink: 0;
           color: hsl(var(--muted));
-          transition: color 0.15s;
         }
-        .header-bell:hover { color: hsl(var(--foreground)); }
         .header-badge {
           position: absolute;
           top: -4px;

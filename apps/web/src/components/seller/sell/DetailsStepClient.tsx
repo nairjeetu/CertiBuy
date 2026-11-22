@@ -4,6 +4,7 @@ import { useSubmissionWizard, useSaveDetails } from "@/hooks/use-seller";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { StepRail } from "./StepRail";
+import { isValidImei } from "@certibuy/domain";
 
 const COSMETIC_OPTIONS = [
   { value: "A", label: "Like new", hint: "No visible marks" },
@@ -35,12 +36,15 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
   const [waterExposure, setWaterExposure] = useState(false);
   const [error, setError] = useState("");
 
+  const imeiValid = isValidImei(imei);
+  const imeiRejected = imei.length === 15 && !imeiValid;
+
   if (!isNew && isLoading) return <p style={{ color: "hsl(var(--muted))", padding: "2rem", textAlign: "center" }}>Loading...</p>;
 
   async function handleSubmit() {
     setError("");
-    if (!/^\d{15}$/.test(imei)) {
-      setError("IMEI must be exactly 15 digits.");
+    if (!isValidImei(imei)) {
+      setError("Enter a valid 15-digit IMEI. Dial *#06# on the device to check it.");
       return;
     }
     try {
@@ -76,9 +80,20 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
             value={imei}
             onChange={(e) => setImei(e.target.value.replace(/\D/g, ""))}
             placeholder="Enter your 15-digit IMEI"
-            className="form-input"
+            className={`form-input ${imeiRejected ? "input-invalid" : ""}`}
+            aria-invalid={imeiRejected}
           />
-          <p className="meta" style={{ marginTop: "0.25rem" }}>Dial *#06# to find your IMEI.</p>
+          {imeiRejected ? (
+            <p className="field-invalid">
+              That IMEI isn&apos;t valid — one of the digits is wrong. Dial *#06# on the device and check it before continuing.
+            </p>
+          ) : imeiValid ? (
+            <p className="field-valid">IMEI checks out.</p>
+          ) : (
+            <p className="meta" style={{ marginTop: "0.25rem" }}>
+              Dial *#06# to find your IMEI.{imei.length > 0 ? ` ${imei.length}/15 digits.` : ""}
+            </p>
+          )}
         </div>
 
         {/* Cosmetic condition */}
@@ -141,7 +156,7 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
 
       <div className="actions">
         <button onClick={() => router.back()} className="btn-secondary">← Back</button>
-        <button onClick={handleSubmit} disabled={save.isPending} className="btn-primary">
+        <button onClick={handleSubmit} disabled={save.isPending || !imeiValid} className="btn-primary">
           {save.isPending ? "Saving..." : "Next: Photos →"}
         </button>
       </div>
@@ -260,6 +275,20 @@ export function DetailsStepClient({ submissionId }: { submissionId: string }) {
           accent-color: hsl(var(--primary));
         }
 
+        .input-invalid {
+          border-color: hsl(var(--destructive));
+        }
+        .field-invalid {
+          margin-top: 0.25rem;
+          font-size: 0.8125rem;
+          line-height: 1.4;
+          color: hsl(var(--destructive));
+        }
+        .field-valid {
+          margin-top: 0.25rem;
+          font-size: 0.8125rem;
+          color: hsl(var(--muted));
+        }
         .error-msg {
           color: hsl(var(--destructive));
           font-size: 0.875rem;

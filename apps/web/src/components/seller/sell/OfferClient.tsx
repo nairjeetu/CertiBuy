@@ -80,7 +80,7 @@ export function OfferClient({ submissionId }: { submissionId: string }) {
           <Link href={`/seller/sell/${submissionId}/hub`} className="btn-primary">Book inspection →</Link>
         </div>
       ) : (
-        <Link href={`/seller/sell/${submissionId}/confirm`} className="btn-primary" style={{ display: "inline-block", marginTop: "1.5rem" }}>Accept offer →</Link>
+        <Link href={`/seller/sell/${submissionId}/confirm`} className="btn-primary" style={{ display: "inline-block", marginTop: "1.5rem" }}>Choose how you get paid →</Link>
       )}
 
       <style jsx>{`

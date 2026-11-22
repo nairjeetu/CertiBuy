@@ -266,6 +266,14 @@ a.hero-btn {
 a.hero-btn:hover { background: hsla(0, 0%, 100%, 0.1); }
 
 /* Nav pills (styled-jsx can't scope into <Link> children) */
+a.header-bell {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  transition: color 0.15s;
+}
+a.header-bell:hover { color: hsl(var(--foreground)); }
+
 a.nav-pill {
   display: inline-flex;
   align-items: center;

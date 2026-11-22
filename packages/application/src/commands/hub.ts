@@ -17,6 +17,7 @@ import {
   riskPct,
   icEligibility as icEligibilityDomain,
   businessDate,
+  formatINR,
   payoutPlan,
 } from "@certibuy/domain";
 import type { Actor } from "../actor";
@@ -320,7 +321,7 @@ export async function reviseOffer(
         user_id: sub.seller_id,
         event: "revised_offer",
         title: "Revised offer for your device",
-        body: `Your device was graded ${finalGrade}. A revised offer of ${offer.guaranteed} has been made. Please accept or decline.`,
+        body: `Your device was graded ${finalGrade}. A revised offer of ${formatINR(offer.guaranteed)} has been made. Please accept or decline.`,
         link: `/seller/deals/${sub.id}`,
       },
     });

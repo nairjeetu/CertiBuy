@@ -41,6 +41,11 @@ function luhnCheck(imei: string): boolean {
   return sum % 10 === 0;
 }
 
+/** A well-formed IMEI: 15 digits whose Luhn check digit is correct. */
+export function isValidImei(imei: string): boolean {
+  return /^\d{15}$/.test(imei) && luhnCheck(imei);
+}
+
 export function checkRejects(
   submission: Submission,
   blacklisted: boolean,
@@ -58,7 +63,7 @@ export function checkRejects(
   if (submission.repaired === "other_shop") {
     return { rejected: true, code: "other_shop_repair", reason: REJECT_COPY.other_shop_repair };
   }
-  if (submission.imei.length !== 15 || !/^\d{15}$/.test(submission.imei) || !luhnCheck(submission.imei)) {
+  if (!isValidImei(submission.imei)) {
     return { rejected: true, code: "invalid_imei", reason: REJECT_COPY.invalid_imei };
   }
   return null;
