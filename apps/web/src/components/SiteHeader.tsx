@@ -154,9 +154,14 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
             </div>
           )}
 
-          <Link href="/help" className="header-link">Help</Link>
+          <Link href="/help" className="header-help-link" aria-label="Help">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span className="header-help-text">Help</span>
+          </Link>
 
-          <Link href="/profile" className="header-user" style={{ textDecoration: "none" }}>
+          <Link href="/profile" className="header-user-link" aria-label="Profile">
             <span className="header-avatar">{getInitials(actor.fullName)}</span>
             <span className="header-user-name">{actor.fullName}</span>
           </Link>
@@ -312,27 +317,10 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           color: hsl(var(--primary-foreground));
         }
 
-        /* Help link */
-        .header-link {
-          font-size: 0.8125rem;
-          font-weight: 500;
-          color: hsl(var(--muted));
-          text-decoration: none;
-          transition: color 0.15s;
-          flex-shrink: 0;
-        }
-        .header-link:hover { color: hsl(var(--foreground)); }
-
         /* User */
-        .header-user {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-shrink: 0;
-        }
         .header-avatar {
-          width: 28px;
-          height: 28px;
+          width: 30px;
+          height: 30px;
           border-radius: 50%;
           background: hsl(var(--primary));
           color: hsl(var(--primary-foreground));
@@ -344,9 +332,10 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           flex-shrink: 0;
         }
         .header-user-name {
-          font-size: 0.8125rem;
+          font-size: 0.75rem;
           font-weight: 500;
           color: hsl(var(--foreground));
+          white-space: nowrap;
         }
 
         /* Sign out */
@@ -386,9 +375,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
 
         @media (max-width: 1024px) {
           .header-tagline { display: none; }
-          .header-user-name { display: none; }
           .header-date-chip { display: none; }
-          .header-link { display: none; }
         }
         @media (max-width: 560px) {
           .header-mode-switch { display: none; }
