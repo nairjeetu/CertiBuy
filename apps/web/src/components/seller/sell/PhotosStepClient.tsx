@@ -70,7 +70,10 @@ export function PhotosStepClient({ submissionId }: { submissionId: string }) {
     setActiveSlot(null);
   }
 
+  const [saving, setSaving] = useState(false);
+
   async function handleNext() {
+    setSaving(true);
     const photoData = slots.map((s) => ({
       key: s.key,
       brightness: s.brightness,
@@ -127,8 +130,8 @@ export function PhotosStepClient({ submissionId }: { submissionId: string }) {
 
       <div className="actions">
         <button onClick={() => router.back()} className="btn-secondary">← Back</button>
-        <button onClick={handleNext} disabled={!allOk} className="btn-primary">
-          Next: Diagnostics →
+        <button onClick={handleNext} disabled={!allOk || saving} className="btn-primary">
+          {saving ? "Saving..." : "Next: Diagnostics →"}
         </button>
       </div>
 

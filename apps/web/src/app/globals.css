@@ -330,6 +330,20 @@ a.nav-pill.nav-pill-active:hover {
   100% { width: 0; margin-left: 100%; }
 }
 
+/* Button loading state (applied by RouteLoadingIndicator on navigating links) */
+.btn-loading {
+  pointer-events: none;
+  opacity: 0.7;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Also handle <button> pending states uniformly */
+button.btn-primary:disabled,
+button.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 /* Auth links */
 a.auth-link {
   color: hsl(var(--primary));
