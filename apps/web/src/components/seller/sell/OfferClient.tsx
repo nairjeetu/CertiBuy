@@ -55,7 +55,7 @@ export function OfferClient({ submissionId }: { submissionId: string }) {
           </div>
           <div>
             <span className="ic-label">Instant Cash available: {formatINR(offer.instantCashAmount)}</span>
-            <span className="meta" style={{ display: "block" }}>Get paid immediately at the hub. 50% upfront, rest when it sells or on day 21.</span>
+            <span className="meta" style={{ display: "block" }}>Get paid the full amount immediately at the hub.</span>
           </div>
         </div>
       ) : (
