@@ -216,12 +216,13 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           display: flex;
           align-items: center;
           gap: 0.625rem;
-          flex-shrink: 0;
+          min-width: 0;
         }
         .header-brand-text {
           display: flex;
           flex-direction: column;
           line-height: 1.2;
+          min-width: 0;
         }
         .header-brand-name {
           font-family: var(--font-heading);
@@ -229,16 +230,23 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           font-size: 1.0625rem;
           color: hsl(var(--foreground));
           letter-spacing: -0.02em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .header-tagline {
           font-size: 0.625rem;
           color: hsl(var(--muted));
           letter-spacing: 0.01em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .header-controls {
           display: flex;
           align-items: center;
           gap: 0.75rem;
+          flex-shrink: 0;
         }
 
         /* Date chip */
@@ -249,6 +257,8 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           background: hsl(var(--secondary));
           padding: 0.25rem 0.625rem;
           border-radius: 9999px;
+          flex-shrink: 0;
+          white-space: nowrap;
         }
 
         /* Bell */
@@ -256,6 +266,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           position: relative;
           display: flex;
           align-items: center;
+          flex-shrink: 0;
           color: hsl(var(--muted));
           transition: color 0.15s;
         }
@@ -283,6 +294,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           background: hsl(var(--secondary));
           border-radius: 9999px;
           padding: 2px;
+          flex-shrink: 0;
         }
         .mode-btn {
           border: none;
@@ -307,6 +319,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           color: hsl(var(--muted));
           text-decoration: none;
           transition: color 0.15s;
+          flex-shrink: 0;
         }
         .header-link:hover { color: hsl(var(--foreground)); }
 
@@ -315,6 +328,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          flex-shrink: 0;
         }
         .header-avatar {
           width: 28px;
@@ -340,6 +354,7 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
           border: 1px solid hsl(var(--border));
           background: transparent;
           border-radius: 6px;
@@ -369,13 +384,13 @@ export function SiteHeader({ actor, businessDate, unreadCount }: {
         }
         /* nav-pill styles are in globals.css (Link scoping) */
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .header-tagline { display: none; }
           .header-user-name { display: none; }
           .header-date-chip { display: none; }
           .header-link { display: none; }
         }
-        @media (max-width: 480px) {
+        @media (max-width: 560px) {
           .header-mode-switch { display: none; }
         }
       `}</style>
