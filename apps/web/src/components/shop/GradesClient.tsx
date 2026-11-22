@@ -58,15 +58,17 @@ export function GradesClient() {
       {/* Grade list */}
       <div className="grade-list surface">
         {grades.map((g) => (
-          <Link key={g.grade} href={`/shop/browse?grade=${g.grade}`} className="grade-row">
-            <span className="grade-row-letter">{g.grade}</span>
-            <div className="grade-row-body">
-              <span className="grade-row-label">{g.label}</span>
-              <span className="grade-row-desc">{g.description}</span>
-            </div>
-            <div className="grade-row-meta">
-              <span>{g.stock} in stock</span>
-              <span className="meta">{g.warranty}</span>
+          <Link key={g.grade} href={`/shop/browse?grade=${g.grade}`} className="grade-row-link">
+            <div className="grade-row">
+              <span className="grade-row-letter">{g.grade}</span>
+              <div className="grade-row-body">
+                <span className="grade-row-label">{g.label}</span>
+                <span className="grade-row-desc">{g.description}</span>
+              </div>
+              <div className="grade-row-meta">
+                <span>{g.stock} in stock</span>
+                <span className="meta">{g.warranty}</span>
+              </div>
             </div>
           </Link>
         ))}
@@ -154,15 +156,6 @@ export function GradesClient() {
           align-items: flex-start;
           gap: 1.25rem;
           padding: 2rem 1.75rem;
-          text-decoration: none;
-          color: inherit;
-          transition: background 0.15s;
-        }
-        .grade-row:not(:last-child) {
-          border-bottom: 1px solid hsl(var(--border));
-        }
-        .grade-row:hover {
-          background: hsl(var(--secondary));
         }
         .grade-row-letter {
           font-family: var(--font-display);
